@@ -13,6 +13,9 @@ The app has the following key features:
 
 ## Supporting Documents
 
+All documentations is hosted on [Github Pages](https://waimea-krclark.github.io/300-dtd-project-game-social/)
+
+
 Task Instructions:
 - [Instruction documents](docs/instructions/)
 
