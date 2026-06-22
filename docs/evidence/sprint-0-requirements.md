@@ -68,67 +68,64 @@ Due to the two different kinds of end users, there will be more complicated syst
 
 ## FUNCTIONALITY
 
-Replace this text with a clear explanation of what the implication means.
+Functionality is about how well the system works. The functionality of the system is in regards to all aspects of the system, from the user inputs to the systems internal functions. All buttons, forms, queries and link should work, and not cause errors or complications in the system.
 
 ### Relevance to the System
 
-Replace this text with an explanation of why the implication is relevant to this particular project.
+Functionality is important to this project, as there are many different actions that users would be making. If those actions did not work, then users would not be able to use the system properly. Both kinds of end users need to be able to navigate and commit actions within the system, and errors that stopped things from working would block the system from performing what it was supposed to. As well as this, users would likely be using the system on a range of devices, so its functionality on things like phones and computers are important.
 
 ### Impact / Considerations
 
-Replace this text with an explanation of what you will need to consider moving forward and how the project will be impacted by this implication.
-
+ I will be testing the functions of the system throughout the development of the project, ensuring that all actions work, and do so without errors or mistakes that could impact on the functionality of the site. I will also make sure to optimise the site to work on different devices, so that any user can utilise the system without issues from a range of devices. Testing the site with end users will also ensure that the site functions correctly for the ways that end users would use the system.
 
 
 ## PRIVACY
 
-Replace this text with a clear explanation of what the implication means.
+Privacy is the safety of stored data around users. Peoples information should be protected and stored only if neccessary. Protecting peoples privacy is a legal and ethical requirement of a system that collects user data. 
 
 ### Relevance to the System
 
-Replace this text with an explanation of why the implication is relevant to this particular project.
+The privacy implication is revelant to my project, as for the system, user accounts will need to store data. For standard users, most personal information won't be needed, except for things like passwords. For Developer accounts there would likely be more sensitive data that needs to be stored safely. Due to the nature of this system, where users can interact with other users, protecting privacy is important.
 
 ### Impact / Considerations
 
-Replace this text with an explanation of what you will need to consider moving forward and how the project will be impacted by this implication.
-
+To ensure that users privacy in the system, sensitive information will be stored encrypted or hashed, depending how the data is used. I will also make sure that only required sensitive information is stored from users, because things like phone numbers, names, IDs ect aren't needed in the system so therefore shouldn't be be collected and stored. I will also make sure the system doesn't display private information to other users.
 
 
 # User Experience (UX) Principles
 
-## NAME OF UX PRINCIPLE 1
+## KNOW YOUR USER
 
-Replace this text with a clear explanation of what the principle means.
+Know your user is an important UX principle, as it means making sure the system is designed for the users, no the programmer. Different users will have different levels of knowledge, skill and different needs out of the system.
 
 ### Relevance to the System
 
-Replace this text with an explanation of why the principle is relevant to this particular project.
+As my system will have two different kinds of users, this principle is important to make sure any user can properly navigate and use the system. The standard users, players, will have goals like connecting to others, gathering or sharing information and giving feedback. Developer users will have goals more oriented to announcing and sharing, as well as collecting player feedback. These different needs to be easy to do for the users that would need and want to do them.
 
 ### Impact / Considerations
 
-Replace this text with an explanation of what you will need to consider moving forward and how the project will be impacted by this principle.
+When creating my project, I will be careful to make sure that implemented systems will allow users to use the app for their needs. Creating clear was for users to navigate and make use of the functions of the system will allow users with varying levels of skill and knowledge use system properly. As users will likely be using the system on mobile phones or computers, designing them to work well on both is important.
 
 
-## NAME OF UX PRINCIPLE 2
+## CLEAR, HELPFUL LANGUAGE
 
-Replace this text with a clear explanation of what the principle means.
+Clear, Helpful language is the UX principle around making user action and displayed information clear and easy to understand, so users know what they are doing and what will happen next.
 
 ### Relevance to the System
 
-Replace this text with an explanation of why the principle is relevant to this particular project.
+This principle is relevant to my system because of the different actions users can make. There are many things from creating posts, messaging and replying that users can do, and it is important that users understand what they are doing while commiting these actions. Other pop-ups, errors and displays should use language that will be clear to users, and not over complicate things or add confusion that will stop users from getting what they need out of the system.
 
 ### Impact / Considerations
 
-Replace this text with an explanation of what you will need to consider moving forward and how the project will be impacted by this principle.
+User actions will be clearly signposted, with buttons and prompts stating what actions will be done through user input. I will make sure that popups and errors are clearly written so that it is clear to users what is happening. System display will also use clear language and not over complicate things.
 
+## CONSISTENT AND CLEAR
 
-## NAME OF UX PRINCIPLE 3
-
-Replace this text with a clear explanation of what the principle means.
+The UX principle Consistant and clear is important as it is about the design of of the system, and keeping the UI consitant and clear helps users navigate. Similar pages should have similar layouts, navigation should be consistent across the whole system.
 
 ### Relevance to the System
 
-Replace this text with an explanation of why the principle is relevant to this particular project.
+My system has a lot of locations and actions that the user can do, so maintaining consistency across a clearly displayed UI will allow users to navigate easily and effectively use the system. Keeping a consistent colour scheme will also help users and constanly changing colours can be confusing and disorienting. With clearly designed, consitent UI, users shouldn't be stuck or lost as the same options are always avaliable to them, regardless of where they are.
 
 ### Impact / Considerations
 
