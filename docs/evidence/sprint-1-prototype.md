@@ -25,31 +25,32 @@ Develop a design for the database and a UI prototype that simulates the key func
 
 ## Initial Database Design
 
-Replace this text with notes regarding the DB design.
+This initial design allows user accounts, along with games, posts relating to a game or another post (replies), it also allows users to like posts and upload media to posts.
 
-![DB Design](screenshots/placeholder.png)
+![Initial DB](screenshots/initialdb.png)
 
 
 ### Required Data Input
 
-Replace this text with a description of what data will be input, and where / how it will be obtained.
+Users will have to log into accounts, so will need to input details like name, password and a username. User posts would require inputs with the text and title.Developers need more control over posts with other inputs like images. Developers will also have the ability to create a 'game' which is a dedicated page for a game the developers have released.
 
 ### Required Data Output
 
-Replace this text with a description of the outputs for the system - what types of data will be displayed?
+The system will display the contents of posts, text, images, date, ect. Game pages will show the details for the game, and usernames will be displayed on user created content (like posts)
 
 ### Required Data Processing
 
-Replace this text with a description of how the data will be processed to achieve the desired output(s) - any processes / formulae?
+Posts will be formatted differently based on the data it contains, developer posts will have different content to user discussion posts, and replies will have different content still. By sorting the posts based on what they are, they can be displayed differently.
 
 
 ## UI 'Flow'
 
 The first stage of prototyping was to explore how the UI might 'flow' between states, based on the required functionality.
 
-This Figma demo shows the initial design for the UI 'flow':
+This Penpot demo shows the initial design for the UI 'flow':
 
-**FIGMA FLOW - PLACE THE FIGMA EMBED CODE HERE - MAKE SURE IT IS SET SO THAT EVERYONE CAN ACCESS IT**
+https://design.penpot.app/#/view?file-id=f0485fb1-4e63-8165-8008-3908a3fa80ef&page-id=f0485fb1-4e63-8165-8008-3908a3fa80f0&section=interactions&frame-id=bc4cea32-4b29-80f1-8008-3908aab33563&index=0&share-id=a234c67f-eb39-8116-8008-3f6d2606efee
+
 
 ### Testing
 

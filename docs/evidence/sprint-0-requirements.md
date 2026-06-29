@@ -121,7 +121,7 @@ User actions will be clearly signposted, with buttons and prompts stating what a
 
 ## CONSISTENT AND CLEAR
 
-The UX principle Consistant and clear is important as it is about the design of of the system, and keeping the UI consitant and clear helps users navigate. Similar pages should have similar layouts, navigation should be consistent across the whole system.
+The UX principle Consistent and clear is important as it is about the design of of the system, and keeping the UI consitant and clear helps users navigate. Similar pages should have similar layouts, navigation should be consistent across the whole system.
 
 ### Relevance to the System
 
@@ -129,5 +129,5 @@ My system has a lot of locations and actions that the user can do, so maintainin
 
 ### Impact / Considerations
 
-Replace this text with an explanation of what you will need to consider moving forward and how the project will be impacted by this principle.
+While creating my project, I will make sure I am using consitent design choices throughout the site, things like navigations, page layout and design with colours ect will stay consistent to reduce confusion from users. I will also make sure pages are formatted well with clear layouts, good colours that make the site readable and not confusing or hard to look at.
 
