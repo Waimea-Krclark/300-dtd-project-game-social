@@ -49,18 +49,21 @@ The first stage of prototyping was to explore how the UI might 'flow' between st
 
 This Penpot demo shows the initial design for the UI 'flow':
 
-https://design.penpot.app/#/view?file-id=f0485fb1-4e63-8165-8008-3908a3fa80ef&page-id=f0485fb1-4e63-8165-8008-3908a3fa80f0&section=interactions&frame-id=bc4cea32-4b29-80f1-8008-3908aab33563&index=0&share-id=a234c67f-eb39-8116-8008-3f6d2606efee
+[Initial UI Flow - Penpot](https://design.penpot.app/#/view?file-id=f0485fb1-4e63-8165-8008-3908a3fa80ef&page-id=f0485fb1-4e63-8165-8008-3908a3fa80f0&section=interactions&frame-id=bc4cea32-4b29-80f1-8008-3908aab33563&index=0&share-id=a234c67f-eb39-8116-8008-3f6d2606efee)
 
 
 ### Testing
 
-Replace this text with notes about what you did to test the UI flow and the outcome of the testing.
+I tested the flow prototype with my end users, and got some feedback.
+
+Two primary parts of the feedback I got was around the developer side of the site. A centralised way for developers to see/edit/create games and posts would allow for easier control and creation for the developers. The end user suggested I implement something like a developer dash board where they can access all the tools they may need. The other piece of feedback was about not being able to edit the details of a game page past creating it. Adding a way for developers to edit the game would be good just in case details do change over time.
+
 
 ### Changes / Improvements
 
-Replace this text with notes any improvements you made as a result of the testing.
+The main things that were added were options to edit created content (games, posts). As well as this I added a developer dashboard where they can easily manage games and posts to help them get the most usability out of the app. These changes allow all users to have more control over their experience with the site and adds more options to fix any mistakes that were made. 
 
-*IMPROVED FIGMA FLOW - PLACE THE FIGMA EMBED CODE HERE - MAKE SURE IT IS SET SO THAT EVERYONE CAN ACCESS IT*
+[Improved UI Flow - Penpot](https://design.penpot.app/#/view?file-id=a234c67f-eb39-8116-8008-3f6c0149b506&page-id=f0485fb1-4e63-8165-8008-3908a3fa80f0&section=interactions&frame-id=bc4cea32-4b29-80f1-8008-3908aab33563&index=0&share-id=20bdb21e-17d3-8193-8008-44702f118f80)
 
 
 ## Initial UI Prototype
