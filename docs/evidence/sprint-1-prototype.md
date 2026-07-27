@@ -65,6 +65,7 @@ The main things that were added were options to edit created content (games, pos
 
 [Improved UI Flow - Penpot](https://design.penpot.app/#/view?file-id=a234c67f-eb39-8116-8008-3f6c0149b506&page-id=f0485fb1-4e63-8165-8008-3908a3fa80f0&section=interactions&frame-id=bc4cea32-4b29-80f1-8008-3908aab33563&index=0&share-id=20bdb21e-17d3-8193-8008-44702f118f80)
 
+With this new design, the end users I tested with agreed that this was a better to use version of the UI. The changes made to navigating and using the functions of the site made it more robust for users, and especially developers with easy to access tools.
 
 ## Initial UI Prototype
 
@@ -72,15 +73,16 @@ The next stage of prototyping was to develop the layout for each screen of the U
 
 This Figma demo shows the initial layout design for the UI:
 
-*FIGMA PROTOTYPE - PLACE THE FIGMA EMBED CODE HERE - MAKE SURE IT IS SET SO THAT EVERYONE CAN ACCESS IT*
+[Initial UI Layout - Penpot](https://design.penpot.app/#/view?file-id=4ff7ff5f-2875-80f9-8008-5a7719c9c302&page-id=4ff7ff5f-2875-80f9-8008-5a7719c9c303&section=interactions&frame-id=de396a2f-6742-8072-8008-5a7730fc36d8&index=0&share-id=bd31e32d-d69f-81e2-8008-6379fba3fa40)
 
 ### Testing
 
-Replace this text with notes about what you did to test the UI flow and the outcome of the testing.
+I showed the prototype UI to my end users to get feedback and ways to improve the design further. The End User feedback only had some small changes to make the site better, as users were mostly happy with the site. One suggestion was to make users be able to create a more personalised profile to differentiate and let users express themselves more. They also suggested a way to create posts directly from the Developer Dashboard for ease of access.
 
 ### Changes / Improvements
 
-Replace this text with notes any improvements you made as a result of the testing.
+I added more option for user customisation, as well as a profile page where users can change their details and update their profiles. I also added the ability for users to bookmark games, which appear on their profile so they can access them easily.
+With the developer side, I added post creation into the Dashboard to allow easier creation from one place.
 
 *FIGMA IMPROVED PROTOTYPE - PLACE THE FIGMA EMBED CODE HERE - MAKE SURE IT IS SET SO THAT EVERYONE CAN ACCESS IT*
 
