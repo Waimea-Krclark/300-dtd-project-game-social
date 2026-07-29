@@ -77,14 +77,14 @@ This Figma demo shows the initial layout design for the UI:
 
 ### Testing
 
-I showed the prototype UI to my end users to get feedback and ways to improve the design further. The End User feedback only had some small changes to make the site better, as users were mostly happy with the site. One suggestion was to make users be able to create a more personalised profile to differentiate and let users express themselves more. They also suggested a way to create posts directly from the Developer Dashboard for ease of access.
+I showed the prototype UI to my end users to get feedback and ways to improve the design further. The End User feedback only had some small changes to make the site better, as users were mostly happy with the site. One suggestion was to make users be able to create a more personalised profile to differentiate and let users express themselves more. They also suggested a way to create posts directly from the Game Page for ease of access.
 
 ### Changes / Improvements
 
 I added more option for user customisation, as well as a profile page where users can change their details and update their profiles. I also added the ability for users to bookmark games, which appear on their profile so they can access them easily.
-With the developer side, I added post creation into the Dashboard to allow easier creation from one place.
+With the developer side, I added post creation into the Game page to allow easier creation from more than one place place.
 
-*FIGMA IMPROVED PROTOTYPE - PLACE THE FIGMA EMBED CODE HERE - MAKE SURE IT IS SET SO THAT EVERYONE CAN ACCESS IT*
+[Refined UI Layout](https://design.penpot.app/#/view?file-id=2be68822-842f-8175-8008-661e72e06d83&page-id=4ff7ff5f-2875-80f9-8008-5a7719c9c303&section=interactions&frame-id=de396a2f-6742-8072-8008-5a7730fc36d8&index=0&share-id=8694f143-a620-8054-8008-66391a71446e)
 
 
 ## Refined UI Prototype
