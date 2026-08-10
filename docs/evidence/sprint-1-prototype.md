@@ -93,18 +93,37 @@ Having established the layout of the UI screens, the prototype was refined visua
 
 This Figma demo shows the UI with refinements applied:
 
-*FIGMA REFINED PROTOTYPE - PLACE THE FIGMA EMBED CODE HERE - MAKE SURE IT IS SET SO THAT EVERYONE CAN ACCESS IT*
+![Colour Scheme 1](screenshots/colour1.png)
+![Colour Scheme 2](screenshots/colour2.png)
+![Colour Scheme 3](screenshots/colour3.png)
+![Colour Scheme 4](screenshots/colour4.png)
+![Colour Scheme 5](screenshots/colour5.png)
+
+These are the 5 colour schemes I chose for the site, as each would fit with the kind of site it is. Each of them fit with the game development/gaming community aspect. All 5 of the colour schemes I chose also make sure to have passing accessibility contrast ratings, so that the colours and text will be easy to read and won't make the site confusing or hard to use.
+
+End User feedback on this thought that the 2nd, 4th and 5th were the best options. The 5th option was chosen as the best, if I made the colours slightly more vibrant.
+
+![Chosen Colour Scheme](screenshots/ColourFinal.png)
+
+I updated the colour scheme and end users agreed this worked best. I then moved on to designing the UI of the app.
+
+[Initial UI Design](https://design.penpot.app/#/view?file-id=6f06cb60-262a-804c-8008-6c7fdb99375e&page-id=4ff7ff5f-2875-80f9-8008-5a7719c9c303&section=interactions&frame-id=de396a2f-6742-8072-8008-5a7730fc36d8&index=0&share-id=81f57451-85cc-819d-8008-757c7a6ac98e)
 
 ### Testing
 
-Replace this text with notes about what you did to test the UI flow and the outcome of the testing.
+Showing this design to End Users, they thought that overall it looked great, but there were a couple of spots they thought there was room for improvements. The 3 Nav Buttons have a bright blue background colour on a slightly off-white icon colour. This doesn't contrast very well which might make the buttons harder to understand for some users. They suggested either darkening the background, or changing the colour of the icons. Another point was in areas where user's names would be displayed, also showing their profile as a further identifier, which would allow users to more easily recognise other users, rather than just the username.
 
 ### Changes / Improvements
 
-Replace this text with notes any improvements you made as a result of the testing.
+![Nav Options](screenshots/NavOptions.png)
 
-*FIGMA IMPROVED REFINED PROTOTYPE - PLACE THE FIGMA EMBED CODE HERE - MAKE SURE IT IS SET SO THAT EVERYONE CAN ACCESS IT*
+I created these two alternate Nav menu options that I showed to my end users, who agreed that the first option, with the dark icons worked better.
 
+I also added user profile displays to comments, discussion posts ect. where other users would interact with eachother.
+
+[Final UI Design](https://design.penpot.app/#/view?file-id=81f57451-85cc-819d-8008-757d7d11345a&page-id=4ff7ff5f-2875-80f9-8008-5a7719c9c303&section=interactions&frame-id=de396a2f-6742-8072-8008-5a7730fc36d8&index=0&share-id=81f57451-85cc-819d-8008-758317e8a8f1)
+
+The end users liked these changes, thinking the site was more accessible and user friendly with the darker icons, and also the profile pictures as further identifiers for users.
 
 ## Sprint Review
 
