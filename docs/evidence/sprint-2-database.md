@@ -7,18 +7,21 @@ Implement the database, populated with test data. Create queries that retrieve t
 
 ### Specific Goals
 
-**Edit these goals as needed**
 
 - Implement the database
 - Add test data to the database
 - Create the following web pages:
-    - Home pages showing...
-    - Details page for ...
-    - Etc.
+    - Home pages showing games and posts, with searching and sort functions.
+    - Game pages with more details for the game as well as a display for all developer posts and a user discussion.
+    - Post pages displaying all content and allowing users to comment and react.
+    - Forms for creating/editing posts and games, along with login/signup pages.
+    - Developer dashboard for easy creation and management.
+    - User profiles
 - Develop SQL database queries to:
-    - Retrieve all ...
-    - Retrieve specific ...
-    - Etc.
+    - Retrieve all games, posts and users needed
+    - Retrieve specific posts for games, comments for posts users that have liked or commented ect.
+    - Creating/updating/deleting entries into different tables (User, Posts, Games ect.)
+    - Users liking posts, or following games.
 
 
 ## Testing FEATURE NAME HERE

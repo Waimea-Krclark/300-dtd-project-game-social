@@ -1,0 +1,50 @@
+{#=====================================================
+  Home page
+=====================================================#}
+
+{% extends 'pages/_base.jinja' %}
+
+
+{% block content %}
+
+   
+    <section id="posts">
+        {% for post in posts %}
+            {% if games | selectattr("developer_id", "equalto", post.user_id) | list %}
+                <div class="post">
+                    <header>
+                        <h3>{{ post.title }}</h3>
+                    </header>
+                    <p>{{ post.username }}</p>
+                    <p>{{ post.timestamp }}</p>
+                    <p>{{ post.content | paragraphs }}</p>
+                </div>
+            {% endif %}
+        {% else %}
+            <p>No Notes!</p>
+        {% endfor %}
+    </section>
+
+    <section id="games">
+        {% for game in games %}
+            <div class="game">
+                <header>
+                    <h3>{{ game.name }}</h3>
+                </header>
+                <p>{{ game.username | paragraphs }}</p>
+                <p>{{ followed_games | selectattr("game_id", "equalto", game.id) | list | length }} following</p>
+            </div>
+        {% else %}
+            <p>No Notes!</p>
+        {% endfor %}
+    </section>
+    
+
+    <label class="switch" data-show_games_html = "{{ show_games | tojson }}">
+        <input type="checkbox" id="toggle" onchange="toggleSwitch(this)">
+        <span class="slider"></span>
+    </label>
+    <p id="switchText">Posts</p>
+
+{% endblock %}
+

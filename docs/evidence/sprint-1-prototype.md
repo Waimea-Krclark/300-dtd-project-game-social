@@ -84,7 +84,7 @@ I showed the prototype UI to my end users to get feedback and ways to improve th
 I added more option for user customisation, as well as a profile page where users can change their details and update their profiles. I also added the ability for users to bookmark games, which appear on their profile so they can access them easily.
 With the developer side, I added post creation into the Game page to allow easier creation from more than one place place.
 
-[Refined UI Layout](https://design.penpot.app/#/view?file-id=2be68822-842f-8175-8008-661e72e06d83&page-id=4ff7ff5f-2875-80f9-8008-5a7719c9c303&section=interactions&frame-id=de396a2f-6742-8072-8008-5a7730fc36d8&index=0&share-id=8694f143-a620-8054-8008-66391a71446e)
+[Refined UI Layout - Penpot](https://design.penpot.app/#/view?file-id=2be68822-842f-8175-8008-661e72e06d83&page-id=4ff7ff5f-2875-80f9-8008-5a7719c9c303&section=interactions&frame-id=de396a2f-6742-8072-8008-5a7730fc36d8&index=0&share-id=8694f143-a620-8054-8008-66391a71446e)
 
 
 ## Refined UI Prototype
@@ -107,7 +107,7 @@ End User feedback on this thought that the 2nd, 4th and 5th were the best option
 
 I updated the colour scheme and end users agreed this worked best. I then moved on to designing the UI of the app.
 
-[Initial UI Design](https://design.penpot.app/#/view?file-id=6f06cb60-262a-804c-8008-6c7fdb99375e&page-id=4ff7ff5f-2875-80f9-8008-5a7719c9c303&section=interactions&frame-id=de396a2f-6742-8072-8008-5a7730fc36d8&index=0&share-id=81f57451-85cc-819d-8008-757c7a6ac98e)
+[Initial UI Design - Penpot](https://design.penpot.app/#/view?file-id=6f06cb60-262a-804c-8008-6c7fdb99375e&page-id=4ff7ff5f-2875-80f9-8008-5a7719c9c303&section=interactions&frame-id=de396a2f-6742-8072-8008-5a7730fc36d8&index=0&share-id=81f57451-85cc-819d-8008-757c7a6ac98e)
 
 ### Testing
 
@@ -121,11 +121,11 @@ I created these two alternate Nav menu options that I showed to my end users, wh
 
 I also added user profile displays to comments, discussion posts ect. where other users would interact with eachother.
 
-[Final UI Design](https://design.penpot.app/#/view?file-id=81f57451-85cc-819d-8008-757d7d11345a&page-id=4ff7ff5f-2875-80f9-8008-5a7719c9c303&section=interactions&frame-id=de396a2f-6742-8072-8008-5a7730fc36d8&index=0&share-id=81f57451-85cc-819d-8008-758317e8a8f1)
+[Final UI Design - Penpot](https://design.penpot.app/#/view?file-id=81f57451-85cc-819d-8008-757d7d11345a&page-id=4ff7ff5f-2875-80f9-8008-5a7719c9c303&section=interactions&frame-id=de396a2f-6742-8072-8008-5a7730fc36d8&index=0&share-id=81f57451-85cc-819d-8008-758317e8a8f1)
 
 The end users liked these changes, thinking the site was more accessible and user friendly with the darker icons, and also the profile pictures as further identifiers for users.
 
 ## Sprint Review
 
-Replace this text with a statement about how the sprint has moved the project forward - key success point, any things that didn't go so well, etc.
+The design of my site is user friendly, allows easy navigation and use, along with contrasting colours and a clear, elegant UI Layout that will help a large variety of users to be able to effectively use the site for their needs. I, along with my end users, are happy with the outcome of the UI.
 
