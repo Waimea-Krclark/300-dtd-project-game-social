@@ -17,6 +17,7 @@
 
     <script src="/static/js/utils.js"></script>
     <script src="/static/js/switch.js"></script>
+    <script src="/static/js/navOption.js"></script>
 
     <link rel="stylesheet" href="/static/css/reset.css">
     <link rel="stylesheet" href="/static/css/messages.css">
@@ -33,7 +34,19 @@
         <nav>
             <a href="/">Home</a>
             <a href="/">Back</a>
-            <a href="/">Profile</a>
+            <a href="javascript:void(0);" onclick="toggleOptionMenu()">Profile</a>
+            {% if session.logged_in %} 
+                <section class="menu" id="menuDrop">
+                    <p>Welcome: {{session.user.username}}</p>
+                    <a href="/logout">Logout</a>
+                </section>
+            {% else %}
+                <section class="menu" id="menuDrop">
+                    <a href="/user/login">Sign In</a>
+                    <a href="/user/signup">Sign Up</a>
+                </section>
+            {% endif %}
+            
         </nav>
     </header>
 

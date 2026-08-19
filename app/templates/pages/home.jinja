@@ -16,8 +16,11 @@
                         <h3>{{ post.title }}</h3>
                     </header>
                     <p>{{ post.username }}</p>
+                    <p>{{ post.type.upper() }}</p>
                     <p>{{ post.timestamp }}</p>
-                    <p>{{ post.content | paragraphs }}</p>
+                    <p>{{ posts | selectattr("parent_id", "equalto", post.id) | list | length }} Comments</p>
+                    <p class="truncate-paragraph">{{ post.content }}</p>
+                    <p>{{post.id}}</p>
                 </div>
             {% endif %}
         {% else %}
@@ -40,11 +43,12 @@
     </section>
     
 
-    <label class="switch" data-show_games_html = "{{ show_games | tojson }}">
-        <input type="checkbox" id="toggle" onchange="toggleSwitch(this)">
+    <label class="switch">
+        <input type="checkbox" id="toggle" onchange="toggleSwitch(this)" >
         <span class="slider"></span>
+        <p id="switchText">Posts</p>
     </label>
-    <p id="switchText">Posts</p>
+    
 
 {% endblock %}
 

@@ -26,7 +26,7 @@ class UserTable:
             pass_hash               TEXT NOT NULL,
             profile_image_name      TEXT,
             bio                     TEXT,
-            is_developer            INTEGER NOT NULL
+            is_developer            INTEGER DEFAULT 0
         )
     """
 
@@ -76,6 +76,7 @@ class PostsTable:
             game_id                 INTEGER,
             parent_id               INTEGER,
             user_id                 INTEGER NOT NULL,
+            type                    TEXT NOT NULL,
 
             FOREIGN KEY(game_id) REFERENCES games(id),
             FOREIGN KEY(parent_id) REFERENCES posts(id),
@@ -84,12 +85,12 @@ class PostsTable:
     """
 
     SEED_DATA = """
-        INSERT INTO posts (title, content, timestamp, game_id, parent_id, user_id)
+        INSERT INTO posts (title, content, timestamp, game_id, parent_id, user_id, type)
         VALUES
-            ("NUTDEALER 3D ANNOUNCEMENT", "Nutdealer 3D, the standalone sequel to the critically acclaimed game that jesus himself ressurected for to play. Developed in Grok Engine and making use of the latest vibe coding and asset generation technology. We... Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin vitae turpis iaculis ligula ullamcorper volutpat vitae sit amet lectus. Integer a nibh quis sapien tristique lobortis quis viverra est. Curabitur sed tortor viverra, feugiat orci id, scelerisque mauris. Suspendisse consectetur quam id massa accumsan, et viverra ante tempus. Praesent eleifend est mauris, in eleifend nunc accumsan et. Morbi eu lacus rutrum mi pulvinar consequat posuere vitae enim. Donec non diam in metus gravida malesuada", "12/08/2026", 0,NULL ,3),
-            ("How do I play?", "I failed kindergarten and can't figure out how to press the play button can someone please explain?", "12/08/2026", 0,NULL ,1),
-            (NULL, "Wow this is so cool.", "12/08/2026",NULL ,1,1),
-            (NULL, "Nutdealer made me leave my wife.", "12/08/2026",NULL ,1,2)
+            ("NUTDEALER 3D ANNOUNCEMENT", "Nutdealer 3D, the standalone sequel to the critically acclaimed game that jesus himself ressurected for to play. Developed in Grok Engine and making use of the latest vibe coding and asset generation technology. We... Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin vitae turpis iaculis ligula ullamcorper volutpat vitae sit amet lectus. Integer a nibh quis sapien tristique lobortis quis viverra est. Curabitur sed tortor viverra, feugiat orci id, scelerisque mauris. Suspendisse consectetur quam id massa accumsan, et viverra ante tempus. Praesent eleifend est mauris, in eleifend nunc accumsan et. Morbi eu lacus rutrum mi pulvinar consequat posuere vitae enim. Donec non diam in metus gravida malesuada", "12/08/2026", 0, NULL ,3, "news"),
+            ("How do I play?", "I failed kindergarten and can't figure out how to press the play button can someone please explain?", "12/08/2026", 0,NULL ,1, "discussion"),
+            (NULL, "Wow this is so cool.", "12/08/2026",NULL ,1,1, "comment"),
+            (NULL, "Nutdealer made me leave my wife.", "12/08/2026",NULL ,1,2, "announcement")
     """
 
 class MediaTable:

@@ -37,6 +37,7 @@ main {
 }
 
 
+
 /* Header & Nav -----------------------------------------------*/
 
 body > header {
@@ -56,7 +57,25 @@ body > header {
     }
 }
 
+.menu{
+    display: none;
+    position: fixed;
+    top: 20px; 
+    right:0px;
+    flex-direction: column;
+    padding: 1rem;
+    margin: 2rem;
+    box-shadow: 0 0.5rem 1rem #0004;
+    border: 1px solid var(--border-col);
+    background-color: var(--back-col-panel);
+}
 
+.truncate-paragraph {
+    display: -webkit-box;
+    -webkit-line-clamp: 3; /* Change this number to your desired line count */
+    -webkit-box-orient: vertical;  
+    overflow: hidden;
+  }
 /* Page Headings -----------------------------------------------*/
 
 main > h2 {
@@ -69,7 +88,7 @@ main > h2 {
 /* Notes --------------------------------------------------*/
 
 #games {
-    display: table-row;
+    display: none; /* hidden by default */
     gap: 2rem;
     margin: 2rem;
     grid-template-columns: repeat(auto-fit, minmax(min(15rem, 100%), 1fr));
@@ -100,7 +119,7 @@ main > h2 {
 }
 
 #posts {
-    display: table-row;
+    display: none; /* hidden by default */
     gap: 2rem;
     margin: 2rem;
     grid-template-columns: repeat(auto-fit, minmax(min(15rem, 100%), 1fr));
@@ -112,6 +131,7 @@ main > h2 {
         box-shadow: 0 0.5rem 1rem #0004;
         border: 1px solid var(--border-col);
         background-color: var(--back-col-panel);
+        
 
         header {
             display: flex;

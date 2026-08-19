@@ -1,0 +1,26 @@
+{#=====================================================
+  Home page
+=====================================================#}
+
+{% extends 'pages/_base.jinja' %}
+
+
+{% block content %}
+    <section id="sign-in">
+        <h2>Sign In</h2>
+        <form method="post" action="/login">
+          <label>
+              Username
+              <input name="username" type="text" required>
+          </label>
+        
+          <label>
+              Password
+              <input name="password" type="password" required>
+          </label>
+        
+          <button>Login</button>
+        </form>
+    </section>
+{% endblock %}
+
