@@ -15,10 +15,22 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 });
 
+
 function toggleSwitch(element) {
     const posts = document.getElementById("posts");
     const games = document.getElementById("games");
     const text = document.getElementById("switchText");
+
+    fetch('/save-checkbox', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ checked: element.checked })
+    })
+    .then(response => response.json())
+    .then(data => console.log('Session updated:', data))
+    .catch(error => console.error('Error:', error));
     
     if (element.checked){
         games.style.display = "table-row";
@@ -29,5 +41,5 @@ function toggleSwitch(element) {
         posts.style.display = "table-row";
         text.textContent = "Posts";
     }
-}
+};
 

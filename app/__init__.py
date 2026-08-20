@@ -3,7 +3,7 @@
 # By YOUR NAME HERE
 #===========================================================
 
-from flask import Flask, request, session, render_template, flash, redirect, send_file, make_response
+from flask import Flask, request, session, render_template, flash, redirect, send_file, make_response, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
 from os import getenv
@@ -20,7 +20,7 @@ app = Flask(__name__)
 #===========================================================
 
 #-----------------------------------------------------------
-# Home page - Show all notes
+# Home page - Show all games/posts
 #-----------------------------------------------------------
 @app.get("/")
 def show_home():
@@ -35,14 +35,7 @@ def show_home():
         games = db.execute(sql, params).fetchall()
 
         sql = """
-            SELECT *
-            FROM following  
-        """
-        params = ()
-        followed_games = db.execute(sql, params).fetchall()
-
-        sql = """
-            SELECT posts.id, posts.title, posts.content, posts.timestamp, posts.type, posts.user_id, users.username
+            SELECT posts.id, posts.title, posts.content, posts.timestamp, posts.type, posts.user_id, posts.parent_id, users.username
             FROM posts
             INNER JOIN users ON posts.user_id = users.id
             ORDER BY title DESC
@@ -50,7 +43,84 @@ def show_home():
         params = ()
         posts = db.execute(sql, params).fetchall()
 
-        return render_template("pages/home.jinja", games=games, posts = posts, followed_games = followed_games)
+        sql = """
+            SELECT *
+            FROM following  
+        """
+        params = ()
+        followed_games = db.execute(sql, params).fetchall()
+
+        sql = """
+            SELECT *
+            FROM likes  
+        """
+        params = ()
+        likes = db.execute(sql, params).fetchall()
+        
+        return render_template("pages/home.jinja", games=games, posts = posts, followed_games = followed_games, likes = likes)
+
+#-----------------------------------------------------------
+# Home search request - Search resuslts
+#-----------------------------------------------------------
+@app.get("/search")
+def process_search():
+    search_term = request.args.get('q', '')
+    search_match = f"%{search_term}%"
+    sort_term = request.args.get('sortby', '')
+    match sort_term:
+        case "0":
+            sort = "name"
+            dir = "DESC"
+        case "1":
+            sort = "id"
+            dir = "DESC"
+        case "2":
+            sort = "id"
+            dir = "ASC"
+    
+    with connect_db() as db:
+        sql = """
+            SELECT games.id, games.name, games.description, games.store_links, games.developer_id, users.username
+            FROM games 
+            INNER JOIN users ON games.developer_id = users.id
+            WHERE name LIKE ?
+            ORDER BY {sort} {dir};
+        """.format(sort=sort, dir=dir)
+        params = (search_match,)
+        games = db.execute(sql, params).fetchall()
+
+        sql = """
+            SELECT posts.id, posts.title, posts.content, posts.timestamp, posts.type, posts.user_id, posts.parent_id, users.username
+            FROM posts
+            INNER JOIN users ON posts.user_id = users.id
+            ORDER BY title DESC
+        """
+        params = ()
+        posts = db.execute(sql, params).fetchall()
+
+        sql = """
+            SELECT *
+            FROM games
+        """
+        params = ()
+        allgames = db.execute(sql, params).fetchall()
+        
+        sql = """
+            SELECT *
+            FROM following  
+        """
+        params = ()
+        followed_games = db.execute(sql, params).fetchall()
+
+        sql = """
+            SELECT *
+            FROM likes  
+        """
+        params = ()
+        likes = db.execute(sql, params).fetchall()
+    return render_template("pages/home.jinja", games=games, posts = posts, followed_games = followed_games, likes = likes, allgames=allgames)
+    
+
 
 #-----------------------------------------------------------
 # Sign In page
@@ -129,6 +199,16 @@ def login_user():
 
         flash(f"Login successful as {username}", "success")
         return redirect("/")
+
+@app.route('/save-checkbox', methods=['POST'])
+def save_checkbox():
+    data = request.get_json()
+    
+    # Store the boolean (True/False) directly into the session
+    session['show_games'] = data.get('checked', False)
+    
+    # Return a quick JSON response to let the front-end know it worked
+    return jsonify({"status": "success", "session_state": session['my_checkbox']})
 
 #-----------------------------------------------------------
 # Handle User Log Out

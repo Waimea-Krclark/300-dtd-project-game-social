@@ -6,11 +6,35 @@
 
 
 {% block content %}
-
+    
+    <label class="switch">
+        <input type="checkbox" id="toggle" onchange="toggleSwitch(this)" {% if session.get("show_games") %}checked{% endif %}>
+        <span class="slider"></span>
+        <p id="switchText">Games</p>
+    </label>
    
+     <section id="search">
+        <form action="/search" method="get">
+            <label>
+                Search for...
+                <input type="search" name="q" value="{{search_term}}">
+            </label>
+            <label>
+            Sort By:
+                <select name="sortby">
+                    <option value="0">Alphabetical</option>
+                    <option value="1">Newest</option>
+                    <option value="2">Oldest</option>
+                </select>
+            </label>
+            <button>Search</button>
+        </form>
+        
+    </section>
+
     <section id="posts">
         {% for post in posts %}
-            {% if games | selectattr("developer_id", "equalto", post.user_id) | list %}
+            {% if allgames | selectattr("developer_id", "equalto", post.user_id) | list %}
                 <div class="post">
                     <header>
                         <h3>{{ post.title }}</h3>
@@ -19,8 +43,9 @@
                     <p>{{ post.type.upper() }}</p>
                     <p>{{ post.timestamp }}</p>
                     <p>{{ posts | selectattr("parent_id", "equalto", post.id) | list | length }} Comments</p>
+                    <p>{{ likes | selectattr("post_id", "equalto", post.id) | list | length }} Likes</p>
                     <p class="truncate-paragraph">{{ post.content }}</p>
-                    <p>{{post.id}}</p>
+                    
                 </div>
             {% endif %}
         {% else %}
@@ -41,14 +66,5 @@
             <p>No Notes!</p>
         {% endfor %}
     </section>
-    
-
-    <label class="switch">
-        <input type="checkbox" id="toggle" onchange="toggleSwitch(this)" >
-        <span class="slider"></span>
-        <p id="switchText">Posts</p>
-    </label>
-    
-
 {% endblock %}
 

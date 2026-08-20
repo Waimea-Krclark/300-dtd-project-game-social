@@ -72,7 +72,7 @@ body > header {
 
 .truncate-paragraph {
     display: -webkit-box;
-    -webkit-line-clamp: 3; /* Change this number to your desired line count */
+    -webkit-line-clamp: 2; /* Change this number to your desired line count */
     -webkit-box-orient: vertical;  
     overflow: hidden;
   }
@@ -85,7 +85,7 @@ main > h2 {
 }
 
 
-/* Notes --------------------------------------------------*/
+/* Home --------------------------------------------------*/
 
 #games {
     display: none; /* hidden by default */
@@ -150,3 +150,6 @@ main > h2 {
     }
 }
 
+.switch{
+    display: flex;
+}
