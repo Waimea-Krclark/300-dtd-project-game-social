@@ -42,14 +42,20 @@ main {
 
 body > header {
     display: flex;
+    position: fixed;
+    width:100vw;
     gap: 1rem;
     align-items: center;
     justify-content: space-between;
     padding: 1rem;
+    padding-left: 2rem;
+    padding-right: 2rem;
+    background-color: #929292;
 
     nav {
         display: flex;
         gap: 1rem;
+        
 
         a {
             color: var(--accent-col);
@@ -57,10 +63,14 @@ body > header {
     }
 }
 
+#page_content{
+    margin-top: 3rem;
+}
+
 .menu{
     display: none;
     position: fixed;
-    top: 20px; 
+    top: 30px; 
     right:0px;
     flex-direction: column;
     padding: 1rem;

@@ -8,7 +8,7 @@
 {% block content %}
     
     <label class="switch">
-        <input type="checkbox" id="toggle" onchange="toggleSwitch(this)" {% if session.get("show_games") %}checked{% endif %}>
+        <input type="checkbox" id="toggle" onchange="toggleSwitch(this)" {% if session.show_games %}checked{% endif %}>
         <span class="slider"></span>
         <p id="switchText">Games</p>
     </label>
@@ -22,16 +22,15 @@
             <label>
             Sort By:
                 <select name="sortby">
-                    <option value="0">Alphabetical</option>
-                    <option value="1">Newest</option>
-                    <option value="2">Oldest</option>
+                    <option value="1" {{ 'selected' if sort_term == '1' }}>Newest</option>
+                    <option value="0" {{ 'selected' if sort_term == '0' }}>Alphabetical</option>
+                    <option value="2" {{ 'selected' if sort_term == '2' }}>Oldest</option>
                 </select>
             </label>
             <button>Search</button>
         </form>
-        
     </section>
-
+    
     <section id="posts">
         {% for post in posts %}
             {% if allgames | selectattr("developer_id", "equalto", post.user_id) | list %}
@@ -41,18 +40,17 @@
                     </header>
                     <p>{{ post.username }}</p>
                     <p>{{ post.type.upper() }}</p>
+                    <p>{{ post.name }}</p>
                     <p>{{ post.timestamp }}</p>
-                    <p>{{ posts | selectattr("parent_id", "equalto", post.id) | list | length }} Comments</p>
+                    <p>{{ allposts | selectattr("parent_id", "equalto", post.id) | list | length }} Comments</p>
                     <p>{{ likes | selectattr("post_id", "equalto", post.id) | list | length }} Likes</p>
                     <p class="truncate-paragraph">{{ post.content }}</p>
-                    
                 </div>
             {% endif %}
         {% else %}
-            <p>No Notes!</p>
+            <p>No posts!</p>
         {% endfor %}
     </section>
-
     <section id="games">
         {% for game in games %}
             <div class="game">
@@ -61,10 +59,12 @@
                 </header>
                 <p>{{ game.username | paragraphs }}</p>
                 <p>{{ followed_games | selectattr("game_id", "equalto", game.id) | list | length }} following</p>
+                <img src="/static/uploads/{{game.image_name}}" alt="Hero Image of {{game.name}}">
             </div>
         {% else %}
-            <p>No Notes!</p>
+            <p>No games!</p>
         {% endfor %}
     </section>
+
 {% endblock %}
 

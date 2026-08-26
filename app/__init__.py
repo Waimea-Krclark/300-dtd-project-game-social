@@ -10,6 +10,11 @@ from os import getenv
 from io import BytesIO
 import html
 from app.helpers import *
+import uuid
+import os
+from werkzeug.utils import secure_filename
+
+UPLOAD_FOLDER = os.path.join('app', 'static', 'uploads')
 
 # Create the app
 app = Flask(__name__)
@@ -26,22 +31,30 @@ app = Flask(__name__)
 def show_home():
     with connect_db() as db:
         sql = """
-            SELECT games.id, games.name, games.description, games.store_links, games.developer_id, users.username
+            SELECT games.id, games.name, games.description, games.store_links, games.developer_id, games.image_name, users.username
             FROM games
             INNER JOIN users ON games.developer_id = users.id
-            ORDER BY name DESC;
+            ORDER BY games.id DESC;
         """
         params = ()
         games = db.execute(sql, params).fetchall()
 
         sql = """
-            SELECT posts.id, posts.title, posts.content, posts.timestamp, posts.type, posts.user_id, posts.parent_id, users.username
+            SELECT posts.id, posts.title, posts.content, posts.timestamp, posts.game_id, posts.type, posts.user_id, posts.parent_id, users.username, games.name
             FROM posts
             INNER JOIN users ON posts.user_id = users.id
-            ORDER BY title DESC
+            INNER JOIN games ON posts.game_id = games.id
+            ORDER BY posts.id DESC
         """
         params = ()
         posts = db.execute(sql, params).fetchall()
+
+        sql = """
+            SELECT *
+            FROM games
+        """
+        params = ()
+        allgames = db.execute(sql, params).fetchall()
 
         sql = """
             SELECT *
@@ -57,7 +70,7 @@ def show_home():
         params = ()
         likes = db.execute(sql, params).fetchall()
         
-        return render_template("pages/home.jinja", games=games, posts = posts, followed_games = followed_games, likes = likes)
+        return render_template("pages/home.jinja", games=games, posts = posts, followed_games = followed_games, likes = likes, allgames=allgames)
 
 #-----------------------------------------------------------
 # Home search request - Search resuslts
@@ -69,33 +82,38 @@ def process_search():
     sort_term = request.args.get('sortby', '')
     match sort_term:
         case "0":
-            sort = "name"
-            dir = "DESC"
+            Gsort = "name"
+            Psort = "title"
+            dir = "ASC"
         case "1":
-            sort = "id"
+            Gsort = "games.id"
+            Psort = "posts.id"
             dir = "DESC"
         case "2":
-            sort = "id"
+            Gsort = "games.id"
+            Psort = "posts.id"
             dir = "ASC"
     
     with connect_db() as db:
         sql = """
-            SELECT games.id, games.name, games.description, games.store_links, games.developer_id, users.username
+            SELECT games.id, games.name, games.description, games.store_links, games.developer_id, games.image_name, users.username
             FROM games 
             INNER JOIN users ON games.developer_id = users.id
             WHERE name LIKE ?
             ORDER BY {sort} {dir};
-        """.format(sort=sort, dir=dir)
+        """.format(sort=Gsort, dir=dir)
         params = (search_match,)
         games = db.execute(sql, params).fetchall()
 
         sql = """
-            SELECT posts.id, posts.title, posts.content, posts.timestamp, posts.type, posts.user_id, posts.parent_id, users.username
+            SELECT posts.id, posts.title, posts.content, posts.timestamp, posts.game_id, posts.type, posts.user_id, posts.parent_id, users.username, games.name
             FROM posts
             INNER JOIN users ON posts.user_id = users.id
-            ORDER BY title DESC
-        """
-        params = ()
+            INNER JOIN games ON posts.game_id = games.id
+            WHERE title LIKE ?
+            ORDER BY {sort} {dir}
+        """.format(sort=Psort, dir=dir)
+        params = (search_match,)
         posts = db.execute(sql, params).fetchall()
 
         sql = """
@@ -104,6 +122,13 @@ def process_search():
         """
         params = ()
         allgames = db.execute(sql, params).fetchall()
+
+        sql = """
+            SELECT *
+            FROM posts
+        """
+        params = ()
+        allposts = db.execute(sql, params).fetchall()
         
         sql = """
             SELECT *
@@ -118,9 +143,44 @@ def process_search():
         """
         params = ()
         likes = db.execute(sql, params).fetchall()
-    return render_template("pages/home.jinja", games=games, posts = posts, followed_games = followed_games, likes = likes, allgames=allgames)
-    
 
+        return render_template("pages/home.jinja", games=games, posts = posts, followed_games = followed_games, likes = likes, allgames=allgames, allposts=allposts, search_term=search_term, sort_term=sort_term)
+    
+#-----------------------------------------------------------
+# Profile page
+#-----------------------------------------------------------
+@app.get("/profile/<int:id>")
+def sshow_profile(id):
+    with connect_db() as db:
+        sql = """
+            SELECT *
+            FROM users
+            WHERE id = ?
+        """
+        params = (id,)
+        user = db.execute(sql, params).fetchone()
+
+        sql = """
+            SELECT *
+            FROM following  
+            WHERE user_id = ?
+        """
+        params = (id,)
+        followed_games = db.execute(sql, params).fetchall()
+
+        followed_pairs = [
+            (game["user_id"], game["game_id"])
+            for game in followed_games
+        ]
+
+        sql = """
+            SELECT *
+            FROM games
+        """
+        params = ()
+        games = db.execute(sql, params).fetchall()
+
+        return render_template("pages/profile.jinja", user = user, followed_pairs=followed_pairs, games = games)
 
 #-----------------------------------------------------------
 # Sign In page

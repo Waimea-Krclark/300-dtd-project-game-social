@@ -38,6 +38,7 @@
             {% if session.logged_in %} 
                 <section class="menu" id="menuDrop">
                     <p>Welcome: {{session.user.username}}</p>
+                    <a href="/profile/{{session.user.user_id}}">Profile</a>
                     <a href="/logout">Logout</a>
                 </section>
             {% else %}
@@ -54,10 +55,10 @@
     {% include "partials/messages.jinja" %}
 
     <main>
-
-        {% block content %}
-        {% endblock %}
-
+        <section id="page_content">
+            {% block content %}
+            {% endblock %}
+        </section>
     </main>
 
 </body>
