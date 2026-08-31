@@ -29,8 +29,6 @@ function toggleSwitch(element) {
         body: JSON.stringify({ checked: element.checked })
     })
     .then(response => response.json())
-    .then(data => console.log('Session updated:', data))
-    .catch(error => console.error('Error:', error));
     
     if (element.checked){
         games.style.display = "table-row";

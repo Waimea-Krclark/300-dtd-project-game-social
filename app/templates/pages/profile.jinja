@@ -13,24 +13,47 @@
             <h2>Your Profile</h2>
         {% endif %}
     {%endif%}
-
+    
     <img src="/static/uploads/{{user.profile_image}}" alt="{{user.username}}'s profile image">
     <h1>{{user.username}}</h1>
     <p>{{user.bio}}</p>
 
-    {% for game in games %}
-        {% if (user.id, game.id) in liked_pairs %}
-            <div class="game">
-                <header>
-                    <h3>{{ game.name }}</h3>
-                </header>
-                <p>{{ game.username | paragraphs }}</p>
-                <p>{{ followed_games | selectattr("game_id", "equalto", game.id) | list | length }} following</p>
-                <img src="/static/uploads/{{game.image_name}}" alt="Hero Image of {{game.name}}">
-            </div>
-        {%endif%}
+    {% if user.is_developer == 1 %}
+        <h2>Created Games:</h2>
+        <section id="games">
+            {% for game in games %}
+                {% if game.developer_id ==  user.id %}
+                    <div class="game">
+                        <header>
+                            <h3>{{ game.name }}</h3>
+                        </header>
+                        <p>{{ game.username | paragraphs }}</p>
+                        <p>{{ followed_games | selectattr("game_id", "equalto", game.id) | list | length }} following</p>
+                        <img src="/static/uploads/{{game.image_name}}" alt="Hero Image of {{game.name}}">
+                    </div>
+                {%endif%}
+            {% else %}
+                    <p>No games!</p>
+            {% endfor %}
+        </section>
     {% else %}
-            <p>No games!</p>
-    {% endfor %}
+        <h2>Followed Games:</h2>
+        <section id="games">
+            {% for game in games %}
+                {% if (user.id, game.id) in followed_pairs %}
+                    <div class="game">
+                        <header>
+                            <h3>{{ game.name }}</h3>
+                        </header>
+                        <p>{{ game.username | paragraphs }}</p>
+                        <p>{{ followed_games | selectattr("game_id", "equalto", game.id) | list | length }} following</p>
+                        <img src="/static/uploads/{{game.image_name}}" alt="Hero Image of {{game.name}}">
+                    </div>
+                {%endif%}
+            {% else %}
+                    <p>No games!</p>
+            {% endfor %}
+        </section>
+    {%endif%}
 {% endblock %}
 

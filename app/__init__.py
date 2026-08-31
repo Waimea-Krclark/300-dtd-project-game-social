@@ -172,6 +172,7 @@ def sshow_profile(id):
             (game["user_id"], game["game_id"])
             for game in followed_games
         ]
+        print(followed_pairs)
 
         sql = """
             SELECT *
@@ -268,7 +269,7 @@ def save_checkbox():
     session['show_games'] = data.get('checked', False)
     
     # Return a quick JSON response to let the front-end know it worked
-    return jsonify({"status": "success", "session_state": session['my_checkbox']})
+    return jsonify({"status": "success", "session_state": session['show_games']})
 
 #-----------------------------------------------------------
 # Handle User Log Out
