@@ -94,7 +94,7 @@ class PostsTable:
             ("Flopparena 2 Spectulation", "Its not happening bruh", "12/08/2026", 2, NULL ,4, "news"),
             ("How do I play?", "I failed kindergarten and can't figure out how to press the play button can someone please explain?", "12/08/2026", 1,NULL ,1, "discussion"),
             (NULL, "Wow this is so cool.", "12/08/2026",NULL ,1,1, "comment"),
-            (NULL, "Nutdealer made me leave my wife.", "12/08/2026",NULL ,1,2, "announcement")
+            (NULL, "Nutdealer made me leave my wife.", "12/08/2026",NULL ,1,2, "comment")
     """
 
 class MediaTable:
@@ -161,6 +161,7 @@ class FollowTable:
         INSERT INTO following (user_id, game_id)
         VALUES
             (1,1),
+            (1,2),
             (2,1)
             
     """

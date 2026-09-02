@@ -16,6 +16,9 @@
     
     <img src="/static/uploads/{{user.profile_image}}" alt="{{user.username}}'s profile image">
     <h1>{{user.username}}</h1>
+    {% if session.logged_in and user.id == session.user.user_id%}
+        <a href="/user/profile/{{session.user.user_id}}/edit">Edit Details</a>
+    {% endif %}
     <p>{{user.bio}}</p>
 
     {% if user.is_developer == 1 %}

@@ -8,7 +8,7 @@
 {% block content %}
     <section id="sign-in">
         <h2>Sign Up</h2>
-        <form method="post" action="/signup">
+        <form method="post" action="/signup" enctype="multipart/form-data">
           <label>
               Username
               <input name="username" type="text" required>
@@ -18,8 +18,23 @@
               Password
               <input name="password" type="password" required>
           </label>
-        
-          <button>Login</button>
+
+          <h3>Optional:</h3>
+          <label>
+              Profile Image:
+              <input
+                  name="image"
+                  type="file"
+                  accept="image/png, image/jpeg, image/gif"
+              >
+          </label>
+          <br>
+          <label>
+              Bio:
+              <input name="bio" type="text">
+          </label>
+          <br>
+          <button>Create Account</button>
         </form>
     </section>
 {% endblock %}

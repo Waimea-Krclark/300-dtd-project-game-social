@@ -149,7 +149,7 @@ def process_search():
 #-----------------------------------------------------------
 # Profile page
 #-----------------------------------------------------------
-@app.get("/profile/<int:id>")
+@app.get("/user/profile/<int:id>")
 def sshow_profile(id):
     with connect_db() as db:
         sql = """
@@ -172,7 +172,6 @@ def sshow_profile(id):
             (game["user_id"], game["game_id"])
             for game in followed_games
         ]
-        print(followed_pairs)
 
         sql = """
             SELECT *
@@ -204,6 +203,10 @@ def show_signup_form():
 def process_new_user():
     username = request.form.get('username', '').strip()
     password = request.form.get('password', '').strip()
+    image_file = request.files.get('image', None)
+    bio = request.form.get('bio', '').strip()
+
+    print(image_file)
 
     with connect_db() as db:
         sql = "SELECT id FROM users WHERE LOWER(username)=?"
@@ -214,13 +217,28 @@ def process_new_user():
             flash(f"Username '{username}' already exists", "error")
             return redirect("/user/new")
 
+        if not image_file or image_file.filename == '':
+            flash("There was a problem uploading the image", "error")
+            return redirect("/")
+    
+        # Sanitise filename and make it unique
+        filename = secure_filename(image_file.filename)
+        random_prefix = uuid.uuid4().hex[:12]
+        unique_filename = f"{random_prefix}_{filename}"
+
+        # Get the path of the upload folder
+        filepath = os.path.join(UPLOAD_FOLDER, unique_filename)
+
+        # Save file to disk
+        image_file.save(filepath)
+
         pass_hash = generate_password_hash(password)
 
         sql = """
-            INSERT INTO users (username, pass_hash)
-            VALUES (?, ?)
+            INSERT INTO users (username, pass_hash, profile_image, bio)
+            VALUES (?, ?, ?, ?)
         """
-        params = (username, pass_hash)
+        params = (username, pass_hash, unique_filename, bio)
         db.execute(sql, params)
 
         flash("Account created. Please login", "success")

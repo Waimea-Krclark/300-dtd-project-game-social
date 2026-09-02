@@ -38,7 +38,7 @@
             {% if session.logged_in %} 
                 <section class="menu" id="menuDrop">
                     <p>Welcome: {{session.user.username}}</p>
-                    <a href="/profile/{{session.user.user_id}}">Profile</a>
+                    <a href="/user/profile/{{session.user.user_id}}">Profile</a>
                     <a href="/logout">Logout</a>
                 </section>
             {% else %}
