@@ -7,8 +7,6 @@ Develop a design for the database and a UI prototype that simulates the key func
 
 ### Specific Goals
 
-**Edit these goals as needed**
-
 - Design the database:
     - Tables
     - Fields / types

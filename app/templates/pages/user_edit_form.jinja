@@ -1,0 +1,50 @@
+{#=====================================================
+  Home page
+=====================================================#}
+
+{% extends 'pages/_base.jinja' %}
+
+
+{% block content %}
+    <section id="sign-in">
+        <h2>Edit {{user.username}}'s profile</h2>
+        <form method="post" action="/profile/edit/{{user.id}}" enctype="multipart/form-data">
+          <label>
+              Username
+              <input name="username" type="text" value="{{user.username}}" required>
+          </label>
+        
+          <label>
+              Old Password
+              <input name="password" type="password" required>
+          </label>
+
+          <label>
+              New Password
+              <input name="new_password" type="password">
+          </label>
+          
+          <h3>Optional:</h3>
+          <label>
+              Current Image:
+              <img src="/static/uploads/{{user.profile_image}}">
+              New Image:
+              <input
+                  name="image"
+                  type="file"
+                  accept="image/png, image/jpeg, image/gif"
+              >
+          </label>
+          <br>
+          <label>
+              Bio:
+              <input name="bio" type="text" value="{{user.bio}}">
+          </label>
+          <br>
+          <button type="submit">Save</button>
+          <a href="/user/profile/{{user.id}}"><button type="button" >Cancel</button></a>
+          <a href="/user/{{user.id}}/delete"><button type="button" >Delete Account</button></a>
+        </form>
+    </section>
+{% endblock %}
+

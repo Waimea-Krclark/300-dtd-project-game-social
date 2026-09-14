@@ -63,6 +63,11 @@ def show_home():
         params = ()
         followed_games = db.execute(sql, params).fetchall()
 
+        followed_pairs = [
+            (game["user_id"], game["game_id"])
+            for game in followed_games
+        ]
+
         sql = """
             SELECT *
             FROM likes  
@@ -70,7 +75,7 @@ def show_home():
         params = ()
         likes = db.execute(sql, params).fetchall()
         
-        return render_template("pages/home.jinja", games=games, posts = posts, followed_games = followed_games, likes = likes, allgames=allgames)
+        return render_template("pages/home.jinja", games=games, posts = posts, followed_games=followed_games, followed_pairs=followed_pairs, likes = likes, allgames=allgames)
 
 #-----------------------------------------------------------
 # Home search request - Search resuslts
@@ -137,6 +142,11 @@ def process_search():
         params = ()
         followed_games = db.execute(sql, params).fetchall()
 
+        followed_pairs = [
+            (game["user_id"], game["game_id"])
+            for game in followed_games
+        ]
+
         sql = """
             SELECT *
             FROM likes  
@@ -144,13 +154,13 @@ def process_search():
         params = ()
         likes = db.execute(sql, params).fetchall()
 
-        return render_template("pages/home.jinja", games=games, posts = posts, followed_games = followed_games, likes = likes, allgames=allgames, allposts=allposts, search_term=search_term, sort_term=sort_term)
+        return render_template("pages/home.jinja", games=games, posts = posts, followed_games=followed_games, followed_pairs=followed_pairs, likes = likes, allgames=allgames, allposts=allposts, search_term=search_term, sort_term=sort_term)
     
 #-----------------------------------------------------------
 # Profile page
 #-----------------------------------------------------------
 @app.get("/user/profile/<int:id>")
-def sshow_profile(id):
+def show_profile(id):
     with connect_db() as db:
         sql = """
             SELECT *
@@ -174,13 +184,95 @@ def sshow_profile(id):
         ]
 
         sql = """
-            SELECT *
+            SELECT games.id, games.name, games.description, games.store_links, games.developer_id, games.image_name, users.username
             FROM games
+            INNER JOIN users ON games.developer_id = users.id
         """
         params = ()
         games = db.execute(sql, params).fetchall()
 
         return render_template("pages/profile.jinja", user = user, followed_pairs=followed_pairs, games = games)
+
+#-----------------------------------------------------------
+# Profile page
+#-----------------------------------------------------------
+@app.get("/user/profile/<int:id>/edit")
+def edit_profile(id):
+    with connect_db() as db:
+        sql = """
+            SELECT *
+            FROM users
+            WHERE id = ?
+        """
+        params = (id,)
+        user = db.execute(sql, params).fetchone()
+
+        return render_template("pages/user_edit_form.jinja", user = user)
+
+#-----------------------------------------------------------
+# Handle Profile Edit
+#-----------------------------------------------------------
+@login_required
+@app.post("/profile/edit/<int:id>")
+def edit_user_details(id):
+    username = request.form.get('username', '').strip()
+    old_password = request.form.get('password', '').strip()
+    new_password = request.form.get('new_password', None).strip()
+    image_file = request.files.get('image', None)
+    bio = request.form.get('bio', '').strip()
+
+    with connect_db() as db:
+            sql = "SELECT id FROM users WHERE LOWER(username)=?"
+            params = (username.lower(),)
+            user = db.execute(sql, params).fetchone()
+
+            print(username.lower())
+            print(session["user"].get("username").lower())
+
+            if user and username.lower() != (session["user"].get("username")).lower():
+                flash(f"Username '{username}' already exists", "error")
+                return redirect(f"/user/profile/{id}")
+ 
+            if image_file:
+                # Sanitise filename and make it unique
+                filename = secure_filename(image_file.filename)
+                random_prefix = uuid.uuid4().hex[:12]
+                unique_filename = f"{random_prefix}_{filename}"
+        
+                # Get the path of the upload folder
+                filepath = os.path.join(UPLOAD_FOLDER, unique_filename)
+        
+                # Save file to disk
+                image_file.save(filepath)
+            else:
+                sql = "SELECT profile_image FROM users WHERE id=?"
+                params = (id,)
+                image_name = db.execute(sql, params).fetchone()
+                unique_filename = image_name["profile_image"]
+ 
+            sql = "SELECT pass_hash FROM users WHERE id=?"
+            params = (id,)
+            current_hash = db.execute(sql, params).fetchone()
+            hash_string = current_hash["pass_hash"]
+
+            if check_password_hash(current_hash["pass_hash"], old_password):
+                if new_password:
+                    pass_hash = generate_password_hash(new_password)
+                    flash(f"Password changed")
+                else:
+                    pass_hash = hash_string
+            else:
+                flash(f"Incorrect password", "error")
+                return redirect("/user/login")
+
+            sql = """
+                UPDATE users SET username = ?, pass_hash = ?, profile_image = ?, bio =? WHERE id =?
+            """
+            params = (username, pass_hash, unique_filename, bio, id)
+            db.execute(sql, params)
+            session["user"]['username'] = username
+            flash("Updated Profile", "success")
+            return redirect(f"/user/profile/{id}")
 
 #-----------------------------------------------------------
 # Sign In page
@@ -206,8 +298,6 @@ def process_new_user():
     image_file = request.files.get('image', None)
     bio = request.form.get('bio', '').strip()
 
-    print(image_file)
-
     with connect_db() as db:
         sql = "SELECT id FROM users WHERE LOWER(username)=?"
         params = (username.lower(),)
@@ -217,20 +307,20 @@ def process_new_user():
             flash(f"Username '{username}' already exists", "error")
             return redirect("/user/new")
 
-        if not image_file or image_file.filename == '':
-            flash("There was a problem uploading the image", "error")
-            return redirect("/")
+        if image_file or image_file.filename != '':
+            # Sanitise filename and make it unique
+            filename = secure_filename(image_file.filename)
+            random_prefix = uuid.uuid4().hex[:12]
+            unique_filename = f"{random_prefix}_{filename}"
     
-        # Sanitise filename and make it unique
-        filename = secure_filename(image_file.filename)
-        random_prefix = uuid.uuid4().hex[:12]
-        unique_filename = f"{random_prefix}_{filename}"
-
-        # Get the path of the upload folder
-        filepath = os.path.join(UPLOAD_FOLDER, unique_filename)
-
-        # Save file to disk
-        image_file.save(filepath)
+            # Get the path of the upload folder
+            filepath = os.path.join(UPLOAD_FOLDER, unique_filename)
+    
+            # Save file to disk
+            image_file.save(filepath)
+        else:
+            unique_filename = None
+        
 
         pass_hash = generate_password_hash(password)
 
@@ -243,7 +333,7 @@ def process_new_user():
 
         flash("Account created. Please login", "success")
         return redirect("/user/login")
-    
+
 #-----------------------------------------------------------
 # Handle User Sign in
 #-----------------------------------------------------------
@@ -292,6 +382,7 @@ def save_checkbox():
 #-----------------------------------------------------------
 # Handle User Log Out
 #-----------------------------------------------------------
+@login_required
 @app.get("/logout")
 def logout_user():
     session.clear()

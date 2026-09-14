@@ -38,7 +38,7 @@
                     <header>
                         <h3>{{ post.title }}</h3>
                     </header>
-                    <p>{{ post.username }}</p>
+                    <a href="/user/profile/{{post.user_id}}">{{ post.username }}</a>
                     <p>{{ post.type.upper() }}</p>
                     <p>{{ post.name }}</p>
                     <p>{{ post.timestamp }}</p>
@@ -57,8 +57,13 @@
                 <header>
                     <h3>{{ game.name }}</h3>
                 </header>
-                <p>{{ game.username | paragraphs }}</p>
+                <a href="/user/profile/{{game.developer_id}}">{{ game.username | paragraphs }}</a>
                 <p>{{ followed_games | selectattr("game_id", "equalto", game.id) | list | length }} following</p>
+                {% if (session.user.user_id, game.id) in followed_pairs %}
+                    <a href="/game/{{game.id}}/follow"><button>- Unfollow</button></a>
+                {% else %}
+                    <a href="/game/{{game.id}}/unfollow"><button>+ Follow</button></a>
+                {% endif %} 
                 <img src="/static/uploads/{{game.image_name}}" alt="Hero Image of {{game.name}}">
             </div>
         {% else %}

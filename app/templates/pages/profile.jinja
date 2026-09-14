@@ -20,7 +20,7 @@
         <a href="/user/profile/{{session.user.user_id}}/edit">Edit Details</a>
     {% endif %}
     <p>{{user.bio}}</p>
-
+ 
     {% if user.is_developer == 1 %}
         <h2>Created Games:</h2>
         <section id="games">
@@ -30,7 +30,6 @@
                         <header>
                             <h3>{{ game.name }}</h3>
                         </header>
-                        <p>{{ game.username | paragraphs }}</p>
                         <p>{{ followed_games | selectattr("game_id", "equalto", game.id) | list | length }} following</p>
                         <img src="/static/uploads/{{game.image_name}}" alt="Hero Image of {{game.name}}">
                     </div>
@@ -48,7 +47,7 @@
                         <header>
                             <h3>{{ game.name }}</h3>
                         </header>
-                        <p>{{ game.username | paragraphs }}</p>
+                        <a href="/user/profile/{{game.developer_id}}">{{ game.username | paragraphs }}</a>
                         <p>{{ followed_games | selectattr("game_id", "equalto", game.id) | list | length }} following</p>
                         <img src="/static/uploads/{{game.image_name}}" alt="Hero Image of {{game.name}}">
                     </div>
