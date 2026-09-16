@@ -3,7 +3,7 @@
 # By YOUR NAME HERE
 #===========================================================
 
-from flask import Flask, request, session, render_template, flash, redirect, send_file, make_response, jsonify
+from flask import Flask, request, session, render_template, flash, redirect, send_file, make_response, jsonify, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
 from os import getenv
@@ -155,7 +155,121 @@ def process_search():
         likes = db.execute(sql, params).fetchall()
 
         return render_template("pages/home.jinja", games=games, posts = posts, followed_games=followed_games, followed_pairs=followed_pairs, likes = likes, allgames=allgames, allposts=allposts, search_term=search_term, sort_term=sort_term)
+
+#-----------------------------------------------------------
+# Game page
+#-----------------------------------------------------------
+@app.get("/game/<int:id>")
+def show_game(id):
+    with connect_db() as db:
+        sql = """
+            SELECT games.id, games.name, games.description, games.store_links, games.developer_id, games.image_name, users.username
+            FROM games 
+            INNER JOIN users ON games.developer_id = users.id
+            WHERE games.id = ?
+        """
+        params = (id,)
+        game = db.execute(sql, params).fetchone()
+
+        sql = """
+            SELECT posts.id, posts.title, posts.content, posts.timestamp, posts.game_id, posts.type, posts.user_id, posts.parent_id, users.username, games.name
+            FROM posts
+            INNER JOIN users ON posts.user_id = users.id
+            INNER JOIN games ON posts.game_id = games.id
+            WHERE game_id = ?
+        """
+        params = (id,)
+        posts = db.execute(sql, params).fetchall()
+
+        sql = """
+            SELECT *
+            FROM games
+        """
+        params = ()
+        allgames = db.execute(sql, params).fetchall()
+
+        sql = """
+            SELECT *
+            FROM posts
+        """
+        params = ()
+        allposts = db.execute(sql, params).fetchall()
+        
+        sql = """
+            SELECT *
+            FROM following  
+        """
+        params = ()
+        followed_games = db.execute(sql, params).fetchall()
+
+        followed_pairs = [
+            (game["user_id"], game["game_id"])
+            for game in followed_games
+        ]
+
+        sql = """
+            SELECT *
+            FROM likes  
+        """
+        params = ()
+        likes = db.execute(sql, params).fetchall()
+
+        return render_template("pages/game.jinja", game=game, posts = posts, followed_games=followed_games, followed_pairs=followed_pairs, likes = likes, allgames=allgames, allposts=allposts)
+
+
+#-----------------------------------------------------------
+# Follow Game page
+#-----------------------------------------------------------
+@login_required
+@app.get("/game/<int:id>/follow")
+def follow_game(id):
+    with connect_db() as db:
+        sql = """
+            SELECT *
+            FROM following  
+            WHERE user_id = ? AND game_id = ?
+        """
+        params = (session.get("user")["user_id"], id)
+        followed_games = db.execute(sql, params).fetchall()
+
+        if not followed_games:
+            sql = """
+                INSERT INTO following (user_id, game_id)
+                VALUES (?, ?)
+            """
+            params = (session.get("user")["user_id"], id)
+            db.execute(sql, params)
+        else:
+            flash(f"Already Following", "error")
+
+        return redirect(request.referrer or "/")
     
+#-----------------------------------------------------------
+# Unfollow Game page
+#-----------------------------------------------------------
+@login_required
+@app.get("/game/<int:id>/unfollow")
+def unfollow_game(id):
+    with connect_db() as db:
+        sql = """
+            SELECT *
+            FROM following  
+            WHERE user_id = ? AND game_id = ?
+        """
+        params = (session.get("user")["user_id"], id)
+        followed_games = db.execute(sql, params).fetchall()
+
+        if followed_games:
+            sql = """
+                DELETE FROM following WHERE user_id = ? AND game_id = ?
+            """
+            params = (session.get("user")["user_id"], id)
+            db.execute(sql, params)
+        else:
+            flash(f"Already Unfollowed", "error")
+
+        return redirect(request.referrer or "/")
+
 #-----------------------------------------------------------
 # Profile page
 #-----------------------------------------------------------
@@ -191,14 +305,18 @@ def show_profile(id):
         params = ()
         games = db.execute(sql, params).fetchall()
 
-        return render_template("pages/profile.jinja", user = user, followed_pairs=followed_pairs, games = games)
+        return render_template("pages/profile.jinja", user = user,followed_games=followed_games, followed_pairs=followed_pairs, games = games)
 
 #-----------------------------------------------------------
 # Profile page
 #-----------------------------------------------------------
+@login_required
 @app.get("/user/profile/<int:id>/edit")
 def edit_profile(id):
     with connect_db() as db:
+        if session.get("user")["user_id"] != id:
+            flash("Invalid action", "error")
+            return redirect("/")
         sql = """
             SELECT *
             FROM users
@@ -273,6 +391,27 @@ def edit_user_details(id):
             session["user"]['username'] = username
             flash("Updated Profile", "success")
             return redirect(f"/user/profile/{id}")
+
+#-----------------------------------------------------------
+# Delete User page
+#-----------------------------------------------------------
+@app.get("/user/<int:id>/delete")
+@login_required
+def delete_user(id):
+    with connect_db() as db:
+        if session.get("user")["user_id"] == id:
+            sql = """
+                DELETE FROM users WHERE id = ?
+            """
+            params = (id,)
+            db.execute(sql, params)
+
+            session.clear()
+            flash(f"You have been logged out", "success")
+            flash("Deleted User", "success")
+        else:
+            flash("Invalid action", "error")
+    return redirect("/")
 
 #-----------------------------------------------------------
 # Sign In page

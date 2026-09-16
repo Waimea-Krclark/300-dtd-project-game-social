@@ -34,7 +34,7 @@
     <section id="posts">
         {% for post in posts %}
             {% if allgames | selectattr("developer_id", "equalto", post.user_id) | list %}
-                <div class="post">
+                <div class="post" onclick="window.location.href= '/post/{{post.id}}'">
                     <header>
                         <h3>{{ post.title }}</h3>
                     </header>
@@ -53,18 +53,21 @@
     </section>
     <section id="games">
         {% for game in games %}
-            <div class="game">
+            {# <div class="game" onclick="window.location.href= '/game/{{game.id}}'" style="background-image:linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/static/uploads/{{ game.image_name }}');"> #}
+                <div class="game" onclick="window.location.href= '/game/{{game.id}}'">
                 <header>
                     <h3>{{ game.name }}</h3>
                 </header>
                 <a href="/user/profile/{{game.developer_id}}">{{ game.username | paragraphs }}</a>
                 <p>{{ followed_games | selectattr("game_id", "equalto", game.id) | list | length }} following</p>
-                {% if (session.user.user_id, game.id) in followed_pairs %}
-                    <a href="/game/{{game.id}}/follow"><button>- Unfollow</button></a>
-                {% else %}
-                    <a href="/game/{{game.id}}/unfollow"><button>+ Follow</button></a>
-                {% endif %} 
-                <img src="/static/uploads/{{game.image_name}}" alt="Hero Image of {{game.name}}">
+                {% if session.logged_in %}    
+                    {% if (session.user.user_id, game.id) in followed_pairs %}
+                        <a href="/game/{{game.id}}/unfollow"><button>- Unfollow</button></a>
+                    {% else %}
+                        <a href="/game/{{game.id}}/follow"><button>+ Follow</button></a>
+                    {% endif %} 
+                {% endif %}
+                <img src="/static/uploads/{{ game.image_name }}">
             </div>
         {% else %}
             <p>No games!</p>

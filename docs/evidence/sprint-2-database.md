@@ -85,10 +85,18 @@ I then wanted to test creating entries in the Database, so created a sign up pag
 
 Instead of comparing passwords, it makes are an entry with the same username doesn't exist before inserting that data as a new entry. This works without errors, and creating a new account and signing up with it worked. 
 
-## Testing Editing and Deleting Entries
+## Testing Editing Entries
 
 
 ### Changes / Improvements
+Fixed username checking bug, made so password confirmation required, and fixed image bug
+
+## Testing Deleting Entries
+
+
+### Changes / Improvements
+Safety checks to stop anyone from deleting others accounts
+
 
 ## Sprint Review
 

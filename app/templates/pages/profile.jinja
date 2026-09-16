@@ -43,12 +43,17 @@
         <section id="games">
             {% for game in games %}
                 {% if (user.id, game.id) in followed_pairs %}
-                    <div class="game">
+                    <div class="game" onclick="window.location.href= '/game/{{game.id}}'">
                         <header>
                             <h3>{{ game.name }}</h3>
                         </header>
                         <a href="/user/profile/{{game.developer_id}}">{{ game.username | paragraphs }}</a>
                         <p>{{ followed_games | selectattr("game_id", "equalto", game.id) | list | length }} following</p>
+                        {% if session.logged_in %}    
+                            {% if (session.user.user_id, game.id) in followed_pairs %}
+                                <a href="/game/{{game.id}}/unfollow"><button>- Unfollow</button></a>
+                            {% endif %} 
+                        {% endif %}
                         <img src="/static/uploads/{{game.image_name}}" alt="Hero Image of {{game.name}}">
                     </div>
                 {%endif%}

@@ -1,0 +1,66 @@
+{#=====================================================
+  Home page
+=====================================================#}
+
+{% extends 'pages/_base.jinja' %}
+
+
+{% block content %}
+    <header>
+        <h1>{{ game.name }}</h3>
+    </header>
+    <a href="/user/profile/{{game.developer_id}}">{{ game.username | paragraphs }}</a>
+    <p>{{ followed_games | selectattr("game_id", "equalto", game.id) | list | length }} following</p>
+    <a href="{{game.store_links}}">Store Page</a>
+    {% if session.logged_in %}    
+        {% if (session.user.user_id, game.id) in followed_pairs %}
+            <a href="/game/{{game.id}}/unfollow"><button>- Unfollow</button></a>
+        {% else %}
+            <a href="/game/{{game.id}}/follow"><button>+ Follow</button></a>
+        {% endif %} 
+    {% endif %}
+    <img src="/static/uploads/{{game.image_name}}" alt="Hero Image of {{game.name}}">
+
+    <p>{{game.description}}</p>
+    <br>
+    <section id="posts">
+        {% for post in posts %}
+            {% if allgames | selectattr("developer_id", "equalto", post.user_id) | list %}
+                <div class="post" onclick="window.location.href= '/post/{{post.id}}'">
+                    <header>
+                        <h3>{{ post.title }}</h3>
+                    </header>
+                    <a href="/user/profile/{{post.user_id}}">{{ post.username }}</a>
+                    <p>{{ post.type.upper() }}</p>
+                    <p>{{ post.name }}</p>
+                    <p>{{ post.timestamp }}</p>
+                    <p>{{ allposts | selectattr("parent_id", "equalto", post.id) | list | length }} Comments</p>
+                    <p>{{ likes | selectattr("post_id", "equalto", post.id) | list | length }} Likes</p>
+                    <p class="truncate-paragraph">{{ post.content }}</p>
+                </div>
+            {% endif %}
+        {% else %}
+            <p>No posts!</p>
+        {% endfor %}
+    </section>
+
+    <h3>Discussions</h3>
+    <section id="search">
+        <form action="/game/{{game.id}}/search" method="get">
+            <label>
+                Search for...
+                <input type="search" name="q" value="{{search_term}}">
+            </label>
+            <label>
+            Sort By:
+                <select name="sortby">
+                    <option value="1" {{ 'selected' if sort_term == '1' }}>Newest</option>
+                    <option value="0" {{ 'selected' if sort_term == '0' }}>Alphabetical</option>
+                    <option value="2" {{ 'selected' if sort_term == '2' }}>Oldest</option>
+                </select>
+            </label>
+            <button>Search</button>
+        </form>
+    </section>
+{% endblock %}
+

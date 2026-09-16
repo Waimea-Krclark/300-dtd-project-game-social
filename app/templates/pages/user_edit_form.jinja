@@ -38,12 +38,12 @@
           <br>
           <label>
               Bio:
-              <input name="bio" type="text" value="{{user.bio}}">
+              <input name="bio" type="text" value="{{ user.bio }}">
           </label>
           <br>
           <button type="submit">Save</button>
           <a href="/user/profile/{{user.id}}"><button type="button" >Cancel</button></a>
-          <a href="/user/{{user.id}}/delete"><button type="button" >Delete Account</button></a>
+          <a href="/user/{{user.id}}/delete" onclick="return confirm('Are you sure you want to delete the account?');"><button type="button">Delete Account</button></a>
         </form>
     </section>
 {% endblock %}
