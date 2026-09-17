@@ -81,7 +81,7 @@ def show_home():
 # Home search request - Search resuslts
 #-----------------------------------------------------------
 @app.get("/search")
-def process_search():
+def home_process_search():
     search_term = request.args.get('q', '')
     search_match = f"%{search_term}%"
     sort_term = request.args.get('sortby', '')
@@ -172,7 +172,7 @@ def show_game(id):
         game = db.execute(sql, params).fetchone()
 
         sql = """
-            SELECT posts.id, posts.title, posts.content, posts.timestamp, posts.game_id, posts.type, posts.user_id, posts.parent_id, users.username, games.name
+            SELECT posts.id, posts.title, posts.content, posts.timestamp, posts.game_id, posts.type, posts.user_id, posts.parent_id, users.username, users.profile_image, games.name
             FROM posts
             INNER JOIN users ON posts.user_id = users.id
             INNER JOIN games ON posts.game_id = games.id
@@ -215,6 +215,90 @@ def show_game(id):
         likes = db.execute(sql, params).fetchall()
 
         return render_template("pages/game.jinja", game=game, posts = posts, followed_games=followed_games, followed_pairs=followed_pairs, likes = likes, allgames=allgames, allposts=allposts)
+    
+#-----------------------------------------------------------
+# Game page
+#-----------------------------------------------------------
+@app.get("/game/<int:id>/search")
+def game_process_search(id):
+    search_term = request.args.get('q', '')
+    search_match = f"%{search_term}%"
+    sort_term = request.args.get('sortby', '')
+    match sort_term:
+        case "0":
+            sort = "title"
+            dir = "ASC"
+        case "1":
+            sort = "posts.id"
+            dir = "DESC"
+        case "2":
+            sort = "posts.id"
+            dir = "ASC"
+    with connect_db() as db:
+        sql = """
+            SELECT games.id, games.name, games.description, games.store_links, games.developer_id, games.image_name, users.username
+            FROM games 
+            INNER JOIN users ON games.developer_id = users.id
+            WHERE games.id = ?
+        """
+        params = (id,)
+        game = db.execute(sql, params).fetchone()
+        
+        sql = """
+            SELECT posts.id, posts.title, posts.content, posts.timestamp, posts.game_id, posts.type, posts.user_id, posts.parent_id, users.username, users.profile_image, games.name
+            FROM posts
+            INNER JOIN users ON posts.user_id = users.id
+            INNER JOIN games ON posts.game_id = games.id
+            WHERE game_id = ?
+        """
+        params = (id,)
+        posts = db.execute(sql, params).fetchall()
+        
+        sql = """
+            SELECT posts.id, posts.title, posts.content, posts.timestamp, posts.game_id, posts.type, posts.user_id, posts.parent_id, users.username, users.profile_image, games.name
+            FROM posts
+            INNER JOIN users ON posts.user_id = users.id
+            INNER JOIN games ON posts.game_id = games.id
+            WHERE title LIKE ?
+            ORDER BY {sort} {dir}
+        """.format(sort=sort, dir=dir)
+        params = (search_match,)
+        search_posts = db.execute(sql, params).fetchall()
+
+        sql = """
+            SELECT *
+            FROM games
+        """
+        params = ()
+        allgames = db.execute(sql, params).fetchall()
+
+        sql = """
+            SELECT *
+            FROM posts
+        """
+        params = ()
+        allposts = db.execute(sql, params).fetchall()
+        
+        sql = """
+            SELECT *
+            FROM following  
+        """
+        params = ()
+        followed_games = db.execute(sql, params).fetchall()
+
+        followed_pairs = [
+            (game["user_id"], game["game_id"])
+            for game in followed_games
+        ]
+
+        sql = """
+            SELECT *
+            FROM likes  
+        """
+        params = ()
+        likes = db.execute(sql, params).fetchall()
+
+        return render_template("pages/game.jinja", game=game, posts = posts, followed_games=followed_games, followed_pairs=followed_pairs, likes = likes, allgames=allgames, allposts=allposts, search_posts=search_posts, search_term=search_term, sort_term=sort_term)
 
 
 #-----------------------------------------------------------
@@ -269,6 +353,66 @@ def unfollow_game(id):
             flash(f"Already Unfollowed", "error")
 
         return redirect(request.referrer or "/")
+    
+#-----------------------------------------------------------
+# Game page
+#-----------------------------------------------------------
+@app.get("/post/<int:id>")
+def show_post(id):
+    with connect_db() as db:
+        sql = """
+            SELECT posts.id, posts.title, posts.content, posts.timestamp, posts.game_id, posts.type, posts.user_id, posts.parent_id, users.username, users.profile_image, games.name
+            FROM posts
+            INNER JOIN users ON posts.user_id = users.id
+            INNER JOIN games ON posts.game_id = games.id
+            WHERE posts.id = ?
+        """
+        params = (id,)
+        post = db.execute(sql, params).fetchone()
+
+        sql = """
+            SELECT *
+            FROM posts
+        """
+        params = ()
+        allposts = db.execute(sql, params).fetchall()
+        
+        sql = """
+            SELECT *
+            FROM following  
+        """
+        params = ()
+        followed_games = db.execute(sql, params).fetchall()
+
+        followed_pairs = [
+            (game["user_id"], game["game_id"])
+            for game in followed_games
+        ]
+
+        sql = """
+            SELECT *
+            FROM likes  
+        """
+        params = ()
+        likes = db.execute(sql, params).fetchall()
+
+        sql = """
+            SELECT *
+            FROM media WHERE post_id = ?
+        """
+        params = (id,)
+        media = db.execute(sql, params).fetchall()
+
+        sql = """
+            SELECT posts.id, posts.content, posts.type, posts.user_id, posts.parent_id, users.username, users.profile_image
+            FROM posts
+            INNER JOIN users ON posts.user_id = users.id
+            WHERE type = ?
+        """
+        params = ('comment',)
+        comments = db.execute(sql, params).fetchall()
+
+        return render_template("pages/post.jinja", post = post, followed_games=followed_games, followed_pairs=followed_pairs, likes = likes, allposts=allposts, media = media, comments=comments)
 
 #-----------------------------------------------------------
 # Profile page

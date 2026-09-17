@@ -105,7 +105,7 @@ class MediaTable:
         CREATE TABLE media (
             id                      INTEGER PRIMARY KEY AUTOINCREMENT,
             image_file              TEXT NOT NULL,
-            post_id                 INTEGER,
+            post_id                 INTEGER NOT NULL,
 
             FOREIGN KEY(post_id) REFERENCES posts(id)
         )
@@ -114,7 +114,7 @@ class MediaTable:
     SEED_DATA = """
         INSERT INTO media (image_file, post_id)
         VALUES
-            ("NutHero.png", NULL)
+            ("NutPost1.png", 1)
     
     """
 

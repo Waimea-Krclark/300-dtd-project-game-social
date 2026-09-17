@@ -25,7 +25,7 @@
     <br>
     <section id="posts">
         {% for post in posts %}
-            {% if allgames | selectattr("developer_id", "equalto", post.user_id) | list %}
+            {% if game.developer_id == post.user_id %}
                 <div class="post" onclick="window.location.href= '/post/{{post.id}}'">
                     <header>
                         <h3>{{ post.title }}</h3>
@@ -61,6 +61,46 @@
             </label>
             <button>Search</button>
         </form>
+    </section>
+
+    <section id="posts">
+        {% if search_term %}
+            {% for post in search_posts %}
+                {% if game.developer_id != post.user_id and post.game_id == game.id%}
+                    <div class="post" onclick="window.location.href= '/post/{{post.id}}'">
+                        <header>
+                            <h3>{{ post.title }}</h3>
+                        </header>
+                        <img src="/static/uploads/{{post.profile_image}}" alt="{{post.username}}'s profile image">
+                        <a href="/user/profile/{{post.user_id}}">{{ post.username }}</a>
+                        <p>{{ post.timestamp }}</p>
+                        <p>{{ allposts | selectattr("parent_id", "equalto", post.id) | list | length }} Comments</p>
+                        <p>{{ likes | selectattr("post_id", "equalto", post.id) | list | length }} Likes</p>
+                        <p class="truncate-paragraph">{{ post.content }}</p>
+                    </div>
+                {% endif %}
+            {% else %}
+                <p>No posts!</p>
+            {% endfor %}
+        {% else %}
+            {% for post in posts %}
+                {% if game.developer_id != post.user_id and post.game_id == game.id%}
+                    <div class="post" onclick="window.location.href= '/post/{{post.id}}'">
+                        <header>
+                            <h3>{{ post.title }}</h3>
+                        </header>
+                        <img src="/static/uploads/{{post.profile_image}}" alt="{{post.username}}'s profile image">
+                        <a href="/user/profile/{{post.user_id}}">{{ post.username }}</a>
+                        <p>{{ post.timestamp }}</p>
+                        <p>{{ allposts | selectattr("parent_id", "equalto", post.id) | list | length }} Comments</p>
+                        <p>{{ likes | selectattr("post_id", "equalto", post.id) | list | length }} Likes</p>
+                        <p class="truncate-paragraph">{{ post.content }}</p>
+                    </div>
+                {% endif %}
+            {% else %}
+                <p>No posts!</p>
+            {% endfor %}
+        {% endif %}
     </section>
 {% endblock %}
 
