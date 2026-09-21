@@ -83,22 +83,39 @@ I then wanted to test creating entries in the Database, so created a sign up pag
 
 ![Creating Account Query](screenshots/CreateAccount.png)
 
-Instead of comparing passwords, it makes are an entry with the same username doesn't exist before inserting that data as a new entry. This works without errors, and creating a new account and signing up with it worked. 
+The sign up system will check through the database to see if there are already users with the same username, if none are found it will then create an entry into the users table with the new data. An end user suggested I route the sign up to the sign in page instead of home, to allow users to more easily create and log into their account.
 
 ## Testing Editing Entries
+Users need to be able to change data that has been entered into the database, such as posts they have made or their account details. For this test I will be setting up a system for users to edit their profile details.
 
+![Profile Edit Page](screenshots/EditProfileDetailPage.png)
 
+![Edit Query](screenshots/ProfileEditQuery.png)
+
+This system allows users to go to an edit page, where their current information is filled and they can update or change the details, the post route shows it retrieving the new values and inserting them into the database.
 ### Changes / Improvements
-Fixed username checking bug, made so password confirmation required, and fixed image bug
+Through testing both by myself and with my end-users, some issues were found in the way the system handles the new information. If the username wasn't changed, the system could incorrectly search in the database and find a match thinking it is another user's username. To fix this I added a second rule after the database search to check the session off against the new username before it updates the database and session. 
+
+![Checking the database result with the current session](screenshots/usernameSessionCheck.png)
+
+Based on End-user feedback, I changed the way passwords were updated. Initially, you had to enter the old password only if you were setting a new one to compare it to, and end users suggested I made it required for the user password to be entered to confirm the user before allowing details to be changed. The new system checks the hash of the entered password with the database entry, if it matches it then checks if a new password has been set and then updates the database based off that.
+
+![Password setting](screenshots/PasswordChanging.gif)
 
 ## Testing Deleting Entries
+The last way users will interact with the database is deleting entries, so to finish off the accounts system, I added a way to delete accounts.
 
+![Route for deleting user](screenshots/deleteDBRoute.png)
+
+It will find the user entry with the provided ID and them remove it if it exists and clear the session, returning users to the home page.
 
 ### Changes / Improvements
-Safety checks to stop anyone from deleting others accounts
+I made it so the route could only be accessed if the session was logged in, making sure there was a user to delete before it tried to remove the entry to avoid errors. For further security, end users said that there should be a check to make sure that the deleted user is the current session user, to stop people from being able to access and delete other users without being signed into them.
+
+![Session Check on user](screenshots/DeleteUserSessionCheck.png)
 
 
 ## Sprint Review
 
-The database for my webapp is working, along with seeded data to test with. My app is able to connect to the database and make queries, retrieving data, as well as adding, editing and deleting entries. This gives me the basis of my site to build off.
+The database for my webapp is working, along with seeded data to test with. My app is able to connect to the database and make queries, retrieving data, as well as adding, editing and deleting entries. This gives me the basis of my site to build off and develop further functionality into the users and other systems related to the database.
 

@@ -355,7 +355,7 @@ def unfollow_game(id):
         return redirect(request.referrer or "/")
     
 #-----------------------------------------------------------
-# Game page
+# Post page
 #-----------------------------------------------------------
 @app.get("/post/<int:id>")
 def show_post(id):
@@ -407,9 +407,9 @@ def show_post(id):
             SELECT posts.id, posts.content, posts.type, posts.user_id, posts.parent_id, users.username, users.profile_image
             FROM posts
             INNER JOIN users ON posts.user_id = users.id
-            WHERE type = ?
+            WHERE parent_id IS NOT NULL
         """
-        params = ('comment',)
+        params = ()
         comments = db.execute(sql, params).fetchall()
 
         return render_template("pages/post.jinja", post = post, followed_games=followed_games, followed_pairs=followed_pairs, likes = likes, allposts=allposts, media = media, comments=comments)

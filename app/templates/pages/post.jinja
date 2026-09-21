@@ -1,5 +1,5 @@
 {#=====================================================
-  Home page
+  Post page
 =====================================================#}
 
 {% extends 'pages/_base.jinja' %}
@@ -9,7 +9,7 @@
     <header>
         <p>{{ post.type.upper() }}</p>
         <p>{{ post.timestamp }}</p>
-        <p>{{ post.name }}</p>
+        <a href="/game/{{post.game_id}}">{{ post.name }}</a>
         <a href="/user/profile/{{post.user_id}}">{{post.username}}</a>
         <h1>{{ post.title }}</h3>
         <p>{{ allposts | selectattr("parent_id", "equalto", post.id) | list | length }} Comments</p>
@@ -23,12 +23,13 @@
     <h3>Comments:</h3>
     <section id="posts">
         {% for comment in comments %}
-            <div class="post">
-                <img src="/static/uploads/{{comment.profile_image}}" alt="{{comment.username}}'s profile image">
-                <a href="/user/profile/{{comment.user_id}}">{{ comment.username }}</a>
-                <p>{{comment.content}}</p>
-            </div>
-            
+            {% if comment.parent_id == post.id%}
+                <div class="post">
+                    <img src="/static/uploads/{{comment.profile_image}}" alt="{{comment.username}}'s profile image">
+                    <a href="/user/profile/{{comment.user_id}}">{{ comment.username }}</a>
+                    <p>{{comment.content}}</p>
+                </div>  
+            {% endif %}
         {% endfor %}
     </section>
     
