@@ -89,12 +89,12 @@ class PostsTable:
     SEED_DATA = """
         INSERT INTO posts (title, content, timestamp, game_id, parent_id, user_id, type)
         VALUES
-            ("NUTDEALER 3D ANNOUNCEMENT", "Nutdealer 3D, the standalone sequel to the critically acclaimed game that jesus himself ressurected for to play. Developed in Grok Engine and making use of the latest vibe coding and asset generation technology. We... Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin vitae turpis iaculis ligula ullamcorper volutpat vitae sit amet lectus. Integer a nibh quis sapien tristique lobortis quis viverra est. Curabitur sed tortor viverra, feugiat orci id, scelerisque mauris. Suspendisse consectetur quam id massa accumsan, et viverra ante tempus. Praesent eleifend est mauris, in eleifend nunc accumsan et. Morbi eu lacus rutrum mi pulvinar consequat posuere vitae enim. Donec non diam in metus gravida malesuada", "12/08/2026", 1, NULL ,3, "news"),
-            ("Flopparena Patch v1.5", "Fixed the crashes finally", "12/08/2026", 2, NULL ,4, "update"),
-            ("Flopparena 2 Spectulation", "Its not happening bruh", "12/08/2026", 2, NULL ,4, "news"),
-            ("How do I play?", "I failed kindergarten and can't figure out how to press the play button can someone please explain?", "12/08/2026", 1,NULL ,1, "discussion"),
-            (NULL, "Wow this is so cool.", "12/08/2026",NULL ,1,1, "comment"),
-            (NULL, "Nutdealer made me leave my wife.", "12/08/2026",NULL ,1,2, "comment")
+            ("NUTDEALER 3D ANNOUNCEMENT", "Nutdealer 3D, the standalone sequel to the critically acclaimed game that jesus himself ressurected for to play. Developed in Grok Engine and making use of the latest vibe coding and asset generation technology. We... Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin vitae turpis iaculis ligula ullamcorper volutpat vitae sit amet lectus. Integer a nibh quis sapien tristique lobortis quis viverra est. Curabitur sed tortor viverra, feugiat orci id, scelerisque mauris. Suspendisse consectetur quam id massa accumsan, et viverra ante tempus. Praesent eleifend est mauris, in eleifend nunc accumsan et. Morbi eu lacus rutrum mi pulvinar consequat posuere vitae enim. Donec non diam in metus gravida malesuada", "2026-05-26", 1, NULL ,3, "news"),
+            ("Flopparena Patch v1.5", "Fixed the crashes finally", "2025-05-15", 2, NULL ,4, "update"),
+            ("Flopparena 2 Spectulation", "Its not happening bruh", "2026-08-1", 2, NULL ,4, "news"),
+            ("How do I play?", "I failed kindergarten and can't figure out how to press the play button can someone please explain?", "2026-08-11", 1,NULL ,1, "discussion"),
+            (NULL, "Wow this is so cool.", "2026-07-12",NULL ,1,1, "comment"),
+            (NULL, "Nutdealer made me leave my wife.", "2026-08-1",NULL ,1,2, "comment")
     """
 
 class MediaTable:

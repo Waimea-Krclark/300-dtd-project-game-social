@@ -33,7 +33,7 @@
                     <a href="/user/profile/{{post.user_id}}">{{ post.username }}</a>
                     <p>{{ post.type.upper() }}</p>
                     <p>{{ post.name }}</p>
-                    <p>{{ post.timestamp }}</p>
+                    <p>{{ post.timestamp | format_date }}</p>
                     <p>{{ allposts | selectattr("parent_id", "equalto", post.id) | list | length }} Comments</p>
                     <p>{{ likes | selectattr("post_id", "equalto", post.id) | list | length }} Likes</p>
                     <p class="truncate-paragraph">{{ post.content }}</p>
@@ -73,7 +73,7 @@
                         </header>
                         <img src="/static/uploads/{{post.profile_image}}" alt="{{post.username}}'s profile image">
                         <a href="/user/profile/{{post.user_id}}">{{ post.username }}</a>
-                        <p>{{ post.timestamp }}</p>
+                        <p>{{ post.timestamp | format_date }}</p>
                         <p>{{ allposts | selectattr("parent_id", "equalto", post.id) | list | length }} Comments</p>
                         <p>{{ likes | selectattr("post_id", "equalto", post.id) | list | length }} Likes</p>
                         <p class="truncate-paragraph">{{ post.content }}</p>
@@ -91,7 +91,7 @@
                         </header>
                         <img src="/static/uploads/{{post.profile_image}}" alt="{{post.username}}'s profile image">
                         <a href="/user/profile/{{post.user_id}}">{{ post.username }}</a>
-                        <p>{{ post.timestamp }}</p>
+                        <p>{{  post.timestamp | format_date }}</p>                         
                         <p>{{ allposts | selectattr("parent_id", "equalto", post.id) | list | length }} Comments</p>
                         <p>{{ likes | selectattr("post_id", "equalto", post.id) | list | length }} Likes</p>
                         <p class="truncate-paragraph">{{ post.content }}</p>

@@ -6,6 +6,7 @@
 from flask import Flask, request, session, render_template, flash, redirect, send_file, make_response, jsonify, url_for
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
+from datetime import datetime
 from os import getenv
 from io import BytesIO
 import html
@@ -404,7 +405,7 @@ def show_post(id):
         media = db.execute(sql, params).fetchall()
 
         sql = """
-            SELECT posts.id, posts.content, posts.type, posts.user_id, posts.parent_id, users.username, users.profile_image
+            SELECT posts.id, posts.content, posts.timestamp, posts.type, posts.user_id, posts.parent_id, users.username, users.profile_image
             FROM posts
             INNER JOIN users ON posts.user_id = users.id
             WHERE parent_id IS NOT NULL
@@ -413,6 +414,51 @@ def show_post(id):
         comments = db.execute(sql, params).fetchall()
 
         return render_template("pages/post.jinja", post = post, followed_games=followed_games, followed_pairs=followed_pairs, likes = likes, allposts=allposts, media = media, comments=comments)
+    
+#-----------------------------------------------------------
+# Handle user comment
+#-----------------------------------------------------------
+@app.post("/post/<int:id>/comment")
+def post_comment(id):
+    comment = request.form.get('comment', '').strip()
+    
+    with connect_db() as db:
+        sql = """
+            INSERT INTO posts (content, timestamp, parent_id, user_id, type)
+            VALUES (?, ?, ?, ?, ?)
+        """
+        params = (comment, str(datetime.now()), id, session.get("user")["user_id"], 'comment')
+        db.execute(sql, params)       
+        flash(f"Comment Posted", "success")
+        return redirect(request.referrer or "/")
+    
+
+#-----------------------------------------------------------
+# Delete Post page
+#-----------------------------------------------------------
+@app.get("/post/<int:id>/delete")
+@login_required
+def delete_post(id):
+    with connect_db() as db:
+        sql = """
+            SELECT *
+            FROM posts WHERE user_id = ?  
+        """
+        params = (session.get("user")["user_id"],)
+        post = db.execute(sql, params).fetchone()
+
+        if  post:
+            sql = """
+                DELETE FROM posts WHERE id = ?
+            """
+            params = (id,)
+            db.execute(sql, params)
+
+            flash("Deleted Post", "success")
+        else:
+            flash("Invalid action", "error")
+    return redirect(request.referrer or "/")
+
 
 #-----------------------------------------------------------
 # Profile page
@@ -431,10 +477,16 @@ def show_profile(id):
         sql = """
             SELECT *
             FROM following  
-            WHERE user_id = ?
         """
-        params = (id,)
+        params = ()
         followed_games = db.execute(sql, params).fetchall()
+
+        sql = """
+            SELECT *
+            FROM games
+        """
+        params = ()
+        allgames = db.execute(sql, params).fetchall()
 
         followed_pairs = [
             (game["user_id"], game["game_id"])
@@ -449,10 +501,10 @@ def show_profile(id):
         params = ()
         games = db.execute(sql, params).fetchall()
 
-        return render_template("pages/profile.jinja", user = user,followed_games=followed_games, followed_pairs=followed_pairs, games = games)
+        return render_template("pages/profile.jinja", user = user,followed_games=followed_games, followed_pairs=followed_pairs, games = games, allgames=allgames)
 
 #-----------------------------------------------------------
-# Profile page
+# Edit Profile page
 #-----------------------------------------------------------
 @login_required
 @app.get("/user/profile/<int:id>/edit")
@@ -487,9 +539,6 @@ def edit_user_details(id):
             sql = "SELECT id FROM users WHERE LOWER(username)=?"
             params = (username.lower(),)
             user = db.execute(sql, params).fetchone()
-
-            print(username.lower())
-            print(session["user"].get("username").lower())
 
             if user and username.lower() != (session["user"].get("username")).lower():
                 flash(f"Username '{username}' already exists", "error")

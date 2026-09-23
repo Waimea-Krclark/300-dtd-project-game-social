@@ -8,7 +8,7 @@
 {% block content %}
     <header>
         <p>{{ post.type.upper() }}</p>
-        <p>{{ post.timestamp }}</p>
+        <p>{{ post.timestamp | format_date}}</p>
         <a href="/game/{{post.game_id}}">{{ post.name }}</a>
         <a href="/user/profile/{{post.user_id}}">{{post.username}}</a>
         <h1>{{ post.title }}</h3>
@@ -21,12 +21,27 @@
     {% endfor %}
     <p>{{ post.content }}</p>
     <h3>Comments:</h3>
+    {% if session.logged_in %}
+        <form method="post" action="/post/{{post.id}}/comment">
+            <label>
+                <input placeholder="Leave a Comment..." name="comment" type="text" required>
+            </label>
+
+            <button>Post</button>
+        </form>
+    {% else %}
+        <p>Log in to Comment</p>
+    {% endif %}
     <section id="posts">
         {% for comment in comments %}
             {% if comment.parent_id == post.id%}
                 <div class="post">
                     <img src="/static/uploads/{{comment.profile_image}}" alt="{{comment.username}}'s profile image">
                     <a href="/user/profile/{{comment.user_id}}">{{ comment.username }}</a>
+                    {% if session.user.user_id == comment.user_id %}
+                        <a href="/post/{{comment.id}}/delete">Delete</a>
+                    {%endif%}
+                    <p>{{comment.timestamp  | format_human}}</p>
                     <p>{{comment.content}}</p>
                 </div>  
             {% endif %}
