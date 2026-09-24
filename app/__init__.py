@@ -215,7 +215,12 @@ def show_game(id):
         params = ()
         likes = db.execute(sql, params).fetchall()
 
-        return render_template("pages/game.jinja", game=game, posts = posts, followed_games=followed_games, followed_pairs=followed_pairs, likes = likes, allgames=allgames, allposts=allposts)
+        liked_pairs = [
+            (like["user_id"], like["post_id"])
+            for like in likes
+        ]
+
+        return render_template("pages/game.jinja", game=game, posts = posts, followed_games=followed_games, followed_pairs=followed_pairs, likes = likes, liked_pairs=liked_pairs, allgames=allgames, allposts=allposts)
     
 #-----------------------------------------------------------
 # Game page
@@ -299,7 +304,12 @@ def game_process_search(id):
         params = ()
         likes = db.execute(sql, params).fetchall()
 
-        return render_template("pages/game.jinja", game=game, posts = posts, followed_games=followed_games, followed_pairs=followed_pairs, likes = likes, allgames=allgames, allposts=allposts, search_posts=search_posts, search_term=search_term, sort_term=sort_term)
+        liked_pairs = [
+            (like["user_id"], like["post_id"])
+            for like in likes
+        ]
+
+        return render_template("pages/game.jinja", game=game, posts = posts, followed_games=followed_games, followed_pairs=followed_pairs, likes = likes, liked_pairs=liked_pairs, allgames=allgames, allposts=allposts, search_posts=search_posts, search_term=search_term, sort_term=sort_term)
 
 
 #-----------------------------------------------------------
@@ -397,6 +407,11 @@ def show_post(id):
         params = ()
         likes = db.execute(sql, params).fetchall()
 
+        liked_pairs = [
+            (like["user_id"], like["post_id"])
+            for like in likes
+        ]
+
         sql = """
             SELECT *
             FROM media WHERE post_id = ?
@@ -413,8 +428,61 @@ def show_post(id):
         params = ()
         comments = db.execute(sql, params).fetchall()
 
-        return render_template("pages/post.jinja", post = post, followed_games=followed_games, followed_pairs=followed_pairs, likes = likes, allposts=allposts, media = media, comments=comments)
+        return render_template("pages/post.jinja", post = post, followed_games=followed_games, followed_pairs=followed_pairs, likes = likes, liked_pairs=liked_pairs, allposts=allposts, media = media, comments=comments)
+
+#-----------------------------------------------------------
+# Like Post
+#-----------------------------------------------------------
+@login_required
+@app.get("/post/<int:id>/like")
+def like_post(id):
+    with connect_db() as db:
+        sql = """
+            SELECT *
+            FROM likes  
+            WHERE user_id = ? AND post_id = ?
+        """
+        params = (session.get("user")["user_id"], id)
+        liked_posts = db.execute(sql, params).fetchall()
+
+        if not liked_posts:
+            sql = """
+                INSERT INTO likes (user_id, post_id)
+                VALUES (?, ?)
+            """
+            params = (session.get("user")["user_id"], id)
+            db.execute(sql, params)
+        else:
+            flash(f"Already Liked", "error")
+
+        return redirect(request.referrer or "/")
     
+#-----------------------------------------------------------
+# Unlike Post
+#-----------------------------------------------------------
+@login_required
+@app.get("/post/<int:id>/unlike")
+def unlike_post(id):
+    with connect_db() as db:
+        sql = """
+            SELECT *
+            FROM likes  
+            WHERE user_id = ? AND post_id = ?
+        """
+        params = (session.get("user")["user_id"], id)
+        liked_posts = db.execute(sql, params).fetchall()
+
+        if liked_posts:
+            sql = """
+                DELETE FROM likes WHERE user_id = ? AND post_id = ?
+            """
+            params = (session.get("user")["user_id"], id)
+            db.execute(sql, params)
+        else:
+            flash(f"Already Unliked", "error")
+
+        return redirect(request.referrer or "/")
+
 #-----------------------------------------------------------
 # Handle user comment
 #-----------------------------------------------------------

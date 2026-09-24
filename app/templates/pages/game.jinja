@@ -35,7 +35,11 @@
                     <p>{{ post.name }}</p>
                     <p>{{ post.timestamp | format_date }}</p>
                     <p>{{ allposts | selectattr("parent_id", "equalto", post.id) | list | length }} Comments</p>
-                    <p>{{ likes | selectattr("post_id", "equalto", post.id) | list | length }} Likes</p>
+                    {% if (session.user.user_id, post.id) in liked_pairs%}
+                        <a href="/post/{{post.id}}/unlike">- {{ likes | selectattr("post_id", "equalto", post.id) | list | length }} Likes</a>
+                    {% else %}
+                        <a href="/post/{{post.id}}/like">+ {{ likes | selectattr("post_id", "equalto", post.id) | list | length }} Likes</a>
+                    {% endif %}
                     <p class="truncate-paragraph">{{ post.content }}</p>
                 </div>
             {% endif %}

@@ -13,7 +13,11 @@
         <a href="/user/profile/{{post.user_id}}">{{post.username}}</a>
         <h1>{{ post.title }}</h3>
         <p>{{ allposts | selectattr("parent_id", "equalto", post.id) | list | length }} Comments</p>
-        <p>{{ likes | selectattr("post_id", "equalto", post.id) | list | length }} Likes</p>
+        {% if (session.user.user_id, post.id) in liked_pairs%}
+            <a href="/post/{{post.id}}/unlike">- {{ likes | selectattr("post_id", "equalto", post.id) | list | length }} Likes</a>
+        {% else %}
+            <a href="/post/{{post.id}}/like">+ {{ likes | selectattr("post_id", "equalto", post.id) | list | length }} Likes</a>
+        {% endif %}
     </header>
 
     {% for image in media %}
@@ -43,6 +47,56 @@
                     {%endif%}
                     <p>{{comment.timestamp  | format_human}}</p>
                     <p>{{comment.content}}</p>
+                    <p>{{ comments | selectattr("parent_id", "equalto", comment.id) | list | length }} Replies</p>
+                    {% if (session.user.user_id, comment.id) in liked_pairs%}
+                        <a href="/post/{{comment.id}}/unlike">- {{ likes | selectattr("post_id", "equalto", comment.id) | list | length }} Likes</a>
+                    {% else %}
+                        <a href="/post/{{comment.id}}/like">+ {{ likes | selectattr("post_id", "equalto", comment.id) | list | length }} Likes</a>
+                    {% endif %}
+
+                    {% if session.logged_in %}
+                        <form method="post" action="/post/{{post.id}}/comment">
+                            <label>
+                                <input placeholder="Leave a Reply..." name="comment" type="text" required>
+                            </label>
+
+                            <button>Post</button>
+                        </form>
+                    {% else %}
+                        <p>Log in to Comment</p>
+                    {% endif %}
+                    <ul>
+                        {% set replies = comments | selectattr("parent_id", "equalto", comment.id) | list %}
+                        {%for reply in replies recursive%}
+                            {% set replies = comments | selectattr("parent_id", "equalto", reply.id) | list %}
+                            <li>
+                                {# <img src="/static/uploads/{{reply.profile_image}}" alt="{{comment.username}}'s profile image"> #}
+                                <a href="/user/profile/{{reply.user_id}}">{{ comment.username }}</a>
+                                {% if session.user.user_id == reply.user_id %}
+                                    <a href="/post/{{reply.id}}/delete">Delete</a>
+                                {%endif%}
+                                <p>{{reply.timestamp  | format_human}}</p>
+                                <p>{{reply.content}}</p>
+                                {% if session.logged_in and loop.depth < 5  %}
+                                    <form method="post" action="/post/{{reply.id}}/comment">
+                                        <label>
+                                            <input placeholder="Leave a Reply..." name="comment" type="text" required>
+                                        </label>
+
+                                        <button>Post</button>
+                                    </form>
+                                {% else %}
+                                    <p>Log in to Reply</p>
+                                {% endif %}
+                            </li>
+                            {%if replies%}
+                                <ul>
+                                    {{ loop(replies) }}
+                                </ul>
+                                
+                            {%endif%}
+                        {%endfor%}
+                    </ul>
                 </div>  
             {% endif %}
         {% endfor %}

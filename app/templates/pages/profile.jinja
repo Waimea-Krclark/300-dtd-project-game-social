@@ -26,7 +26,7 @@
         <section id="games">
             {% for game in games %}
                 {% if game.developer_id ==  user.id %}
-                    <div class="game">
+                    <div class="game" onclick="window.location.href= '/game/{{game.id}}'">
                         <header>
                             <h3>{{ game.name }}</h3>
                         </header>
