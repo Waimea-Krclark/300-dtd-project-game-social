@@ -97,7 +97,11 @@ This new version of the profile makes it more distinct from standard users by li
 
 ## Testing Dynamic Forms
 
-Replace this text with notes about what you are testing, how you tested it, and the outcome of the testing
+Some forms need to have dynamic inputs that users can control, the main examples of this are the game where users can upload multiple screenshots, and the post where I want to allow users to format their content.
+Being able to upload multiple screenshots wasn't very complicated, as I could use the in built multiple file input, and get them as a list to handle normally.
+For the post form, as I wanted rich text on top of images, I opted to import a Rich Text Editor Library, Trix, and implement that into the post form, the post form also has a multiple image system similar to the game form.
+
+![Trix Form with demo](screenshots/TrixForm.png)
 
 **PLACE SCREENSHOTS AND/OR ANIMATED GIFS OF THE TESTING HERE**
 

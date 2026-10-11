@@ -12,7 +12,7 @@
         <a href="/game/{{post.game_id}}">{{ post.name }}</a>
         <a href="/user/profile/{{post.user_id}}">{{post.username}}</a>
         <h1>{{ post.title }}</h3>
-        <p>{{ allposts | selectattr("parent_id", "equalto", post.id) | list | length }} Comments</p>
+        <p>{{ comments | selectattr("parent_id", "equalto", post.id) | list | length }} Comments</p>
         {% if session.logged_in and session.user.user_id == post.user_id %}
             <a href="/post/{{post.id}}/edit">Edit</a>
             <a href="/post/{{post.id}}/delete" onclick="return confirm('Are you sure you want to delete the post?');">Delete</a>

@@ -92,7 +92,7 @@ def process_image(file_storage, dest_folder, max_dimension=1600, square=False, a
 
 # Removes an image file from uploads
 def delete_image(image):
-    path = os.path.join(app.static_folder, 'uploads', image)
+    path = os.path.join(UPLOAD_FOLDER, image)
     if os.path.exists(path):
         os.remove(path)
 
@@ -1216,7 +1216,8 @@ def delete_user(id):
             """
             params = (id,)
             user = db.execute(sql, params).fetchone()  
-            delete_image(user["image_name"])
+            if user["profile_image"] and user["profile_image"] != 'DefaultProfile.jpg':
+                delete_image(user["profile_image"])
 
             sql = """
                 DELETE FROM users WHERE id = ?
@@ -1270,7 +1271,7 @@ def process_new_user():
                 flash("That image couldn't be used. Please upload a JPG, PNG, WEBP or GIF.", "error")
                 return redirect("/user/new")
         else:
-            unique_filename = None
+            unique_filename = 'DefaultProfile.jpg'
         
 
         pass_hash = generate_password_hash(password)
