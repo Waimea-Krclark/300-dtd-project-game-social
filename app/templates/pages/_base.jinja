@@ -17,11 +17,18 @@
 
     <script src="/static/js/utils.js"></script>
     <script src="/static/js/switch.js"></script>
-    <script src="/static/js/navOption.js"></script>
+    <script src="/static/js/nav_option.js"></script>
+    <script src="/static/js/dyn_form.js"></script>
+    <script src="/static/js/trix_uploads.js"></script>
 
     <link rel="stylesheet" href="/static/css/reset.css">
     <link rel="stylesheet" href="/static/css/messages.css">
+    {# Trix Implementation (Rich Text Editor) #}
+    <link rel="stylesheet" type="text/css" href="https://unpkg.com/trix@2.0.8/dist/trix.css">
+    <script type="text/javascript" src="https://unpkg.com/trix@2.0.8/dist/trix.umd.min.js"></script>
+
     <link rel="stylesheet" href="/static/css/styles.css">
+
 </head>
 
 <body>
@@ -33,12 +40,21 @@
 
         <nav>
             <a href="/">Home</a>
-            <a href="/">Back</a>
+            {% if back_url %}
+                <a href="{{ back_url }}">Back</a>
+            {% else %}
+                 <a href="{{ request.referrer or '/' }}">Back</a>
+            {% endif %}
             <a href="javascript:void(0);" onclick="toggleOptionMenu()">Profile</a>
             {% if session.logged_in %} 
                 <section class="menu" id="menuDrop">
                     <p>Welcome: {{session.user.username}}</p>
                     <a href="/user/profile/{{session.user.user_id}}">Profile</a>
+                    {% if session.user.is_dev %}
+                        <a href="/developer">Developer</a>
+                        <a href="/post/new">New Post</a>
+                        <a href="/game/new">New Game</a>
+                    {% endif %}
                     <a href="/logout">Logout</a>
                 </section>
             {% else %}

@@ -1,0 +1,80 @@
+{#=====================================================
+  Home page
+=====================================================#}
+
+{% extends 'pages/_base.jinja' %}
+
+
+{% block content %}
+    <h2>{{session.user.username | upper}}</h1>
+    <h1>Developer Dashboard</h2>
+
+    <h2>Your Games:</h2>
+    <a href="/game/new">NEW</a>
+    <section id="games">
+        {% for game in games %}
+            <div class="game" onclick="window.location.href= '/game/{{game.id}}'">
+                <header>
+                    <h3>{{ game.name }}</h3>
+                </header>
+                <a href="/user/profile/{{game.developer_id}}">{{ game.username | paragraphs }}</a>
+                {% if session.logged_in and session.user.is_dev == 1 and session.user.user_id == game.developer_id %}
+                    <a href="/game/{{game.id}}/edit">Edit</a>
+                {% endif %}
+                <p>{{ followed_pairs | selectattr("1", "equalto", game.id) | list | length }} following</p>
+                {% if session.logged_in %}    
+                    {% if (session.user.user_id, game.id) in followed_pairs %}
+                        <a href="/game/{{game.id}}/unfollow"><button>- Unfollow</button></a>
+                    {% endif %} 
+                {% endif %}
+                <img src="/static/uploads/{{game.image_name}}" alt="Hero Image of {{game.name}}">
+            </div>
+        {% else %}
+                <p>No games!</p>
+        {% endfor %}
+    </section>
+    
+    <h2>Your Posts:</h2>
+    <a href="/post/new">NEW</a>
+    <section id="search">
+        <form action="/developer/search" method="get">
+            <label>
+                Search for...
+                <input type="search" name="q" value="{{search_term}}">
+            </label>
+            <label>
+            Sort By:
+                <select name="sortby">
+                    <option value="1" {{ 'selected' if sort_term == '1' }}>Newest</option>
+                    <option value="0" {{ 'selected' if sort_term == '0' }}>Alphabetical</option>
+                    <option value="2" {{ 'selected' if sort_term == '2' }}>Oldest</option>
+                </select>
+            </label>
+            <button>Search</button>
+        </form>
+    </section>
+    <section id="posts">
+        {% for post in posts %}
+            <div class="post" onclick="window.location.href= '/post/{{post.id}}'">
+                <header>
+                    <h3>{{ post.title }}</h3>
+                </header>
+                <a href="/user/profile/{{post.user_id}}">{{ post.username }}</a>
+                <p>{{ post.type.upper() }}</p>
+                <p>{{ post.name }}</p>
+                <p>{{ post.timestamp }}</p>
+                <p>{{ comments | selectattr("parent_id", "equalto", post.id) | list | length }} Comments</p>
+                <p>{{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }} Likes</p>
+                {% if session.logged_in and session.user.user_id == post.user_id %}
+                    <a href="/post/{{post.id}}/edit">Edit</a>
+                    <a href="/post/{{post.id}}/delete">Delete</a>
+                {% endif %}
+                <div class="truncate-paragraph">{{ post.content }}</div>
+            </div>
+        {% else %}
+            <p>No posts!</p>
+        {% endfor %}
+    </section>
+
+{% endblock %}
+

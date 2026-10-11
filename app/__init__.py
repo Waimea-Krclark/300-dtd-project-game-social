@@ -1,9 +1,9 @@
 #===========================================================
-# PROJECT NAME HERE
-# By YOUR NAME HERE
+# Checkpoint Social
+# By Kieran Clark
 #===========================================================
 
-from flask import Flask, request, session, render_template, flash, redirect, send_file, make_response, jsonify, url_for
+from flask import Flask, request, session, render_template, flash, redirect, send_file, make_response, jsonify, url_for, abort
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
 from datetime import datetime
@@ -13,12 +13,99 @@ import html
 from app.helpers import *
 import uuid
 import os
+import nh3
 from werkzeug.utils import secure_filename
+from PIL import Image, ImageOps, UnidentifiedImageError
+from bs4 import BeautifulSoup
+from pathlib import Path
+from urllib.parse import urlparse
 
 UPLOAD_FOLDER = os.path.join('app', 'static', 'uploads')
 
+
 # Create the app
 app = Flask(__name__)
+
+# Sanitising Trix inputs before saving
+ALLOWED_TAGS = {
+    "div", "br", "strong", "em", "del", "a", "h1",
+    "blockquote", "pre", "ul", "ol", "li",
+    "figure", "figcaption", "img",
+}
+
+ALLOWED_ATTRIBUTES = {
+    "a": {"href"},
+    "img": {"src", "width", "height"},
+    "figure": {"class"},
+}
+
+def sanitise_html(html: str) -> str:
+    return nh3.clean(
+        html,
+        tags=ALLOWED_TAGS,
+        attributes=ALLOWED_ATTRIBUTES,
+        url_schemes={"http", "https", "mailto"},
+        link_rel="noopener noreferrer nofollow",
+    )
+
+# Image Upload Limits and scaling
+ALLOWED_FORMATS = {"JPEG", "PNG", "WEBP", "GIF"}
+MAX_GIF_BYTES = 5 * 1024 * 1024  # 5 MB
+
+# New Image handling to downscale images to appropriate sizing for profiles, posts etc.
+def process_image(file_storage, dest_folder, max_dimension=1600, square=False, allow_gif=True):
+    try:
+        img = Image.open(file_storage.stream)
+        fmt = img.format
+        if fmt not in ALLOWED_FORMATS:
+            raise ValueError("Unsupported image type")
+
+        if fmt == "GIF" and allow_gif:
+            # Check size of the raw upload
+            file_storage.stream.seek(0, os.SEEK_END)
+            size = file_storage.stream.tell()
+            if size > MAX_GIF_BYTES:
+                raise ValueError("GIF too large")
+
+            # Guard against huge frame counts
+            if getattr(img, "n_frames", 1) > 300:
+                raise ValueError("Too many frames")
+
+            file_storage.stream.seek(0)
+            name = f"{uuid.uuid4().hex}.gif"
+            file_storage.save(os.path.join(dest_folder, name))
+            return name
+        # Fix phone photos that are rotated via EXIF metadata
+        img = ImageOps.exif_transpose(img)
+
+        if square:
+            img = ImageOps.fit(img, (max_dimension, max_dimension), Image.LANCZOS)
+        else:
+            img.thumbnail((max_dimension, max_dimension), Image.LANCZOS)
+
+        # Re-encode to WEBP (small, supports transparency)
+        name = f"{uuid.uuid4().hex}.webp"
+        img.save(os.path.join(dest_folder, name), "WEBP", quality=82)
+        return name
+    except (UnidentifiedImageError, ValueError):
+        return None
+
+# Removes an image file from uploads
+def delete_image(image):
+    path = os.path.join(app.static_folder, 'uploads', image)
+    if os.path.exists(path):
+        os.remove(path)
+
+# For finding all images in provided html, used for Trix
+def find_trix_images(html):
+    soup = BeautifulSoup(html or "", "html.parser")
+    names = []
+    for img in soup.find_all("img"): #Searches trix input for <img> tags
+        src = img.get("src", "")
+        name = Path(urlparse(src).path).name #Gets only filename
+        if name:
+            names.append(name) #Save Image names to List
+    return names
 
 
 #===========================================================
@@ -32,7 +119,7 @@ app = Flask(__name__)
 def show_home():
     with connect_db() as db:
         sql = """
-            SELECT games.id, games.name, games.description, games.store_links, games.developer_id, games.image_name, users.username
+            SELECT games.id, games.name, games.description, games.developer_id, games.image_name, users.username
             FROM games
             INNER JOIN users ON games.developer_id = users.id
             ORDER BY games.id DESC;
@@ -41,21 +128,14 @@ def show_home():
         games = db.execute(sql, params).fetchall()
 
         sql = """
-            SELECT posts.id, posts.title, posts.content, posts.timestamp, posts.game_id, posts.type, posts.user_id, posts.parent_id, users.username, games.name
+            SELECT posts.id, posts.title, posts.content, posts.timestamp, posts.game_id, posts.type, posts.user_id, posts.parent_id, users.username, games.name, games.developer_id
             FROM posts
             INNER JOIN users ON posts.user_id = users.id
-            INNER JOIN games ON posts.game_id = games.id
+            LEFT JOIN games ON posts.game_id = games.id
             ORDER BY posts.id DESC
         """
         params = ()
         posts = db.execute(sql, params).fetchall()
-
-        sql = """
-            SELECT *
-            FROM games
-        """
-        params = ()
-        allgames = db.execute(sql, params).fetchall()
 
         sql = """
             SELECT *
@@ -75,8 +155,13 @@ def show_home():
         """
         params = ()
         likes = db.execute(sql, params).fetchall()
+
+        liked_pairs = [
+            (like["user_id"], like["post_id"])
+            for like in likes
+        ]
         
-        return render_template("pages/home.jinja", games=games, posts = posts, followed_games=followed_games, followed_pairs=followed_pairs, likes = likes, allgames=allgames)
+        return render_template("pages/home.jinja", games=games, posts = posts, followed_pairs=followed_pairs, liked_pairs=liked_pairs, back_url=f"/")
 
 #-----------------------------------------------------------
 # Home search request - Search resuslts
@@ -102,7 +187,7 @@ def home_process_search():
     
     with connect_db() as db:
         sql = """
-            SELECT games.id, games.name, games.description, games.store_links, games.developer_id, games.image_name, users.username
+            SELECT games.id, games.name, games.description, games.developer_id, games.image_name, users.username
             FROM games 
             INNER JOIN users ON games.developer_id = users.id
             WHERE name LIKE ?
@@ -112,10 +197,10 @@ def home_process_search():
         games = db.execute(sql, params).fetchall()
 
         sql = """
-            SELECT posts.id, posts.title, posts.content, posts.timestamp, posts.game_id, posts.type, posts.user_id, posts.parent_id, users.username, games.name
+            SELECT posts.id, posts.title, posts.content, posts.timestamp, posts.game_id, posts.type, posts.user_id, posts.parent_id, users.username, games.name, games.developer_id
             FROM posts
             INNER JOIN users ON posts.user_id = users.id
-            INNER JOIN games ON posts.game_id = games.id
+            LEFT JOIN games ON posts.game_id = games.id
             WHERE title LIKE ?
             ORDER BY {sort} {dir}
         """.format(sort=Psort, dir=dir)
@@ -123,18 +208,12 @@ def home_process_search():
         posts = db.execute(sql, params).fetchall()
 
         sql = """
-            SELECT *
-            FROM games
-        """
-        params = ()
-        allgames = db.execute(sql, params).fetchall()
-
-        sql = """
-            SELECT *
+            SELECT parent_id
             FROM posts
+            WHERE type = 'comment'
         """
         params = ()
-        allposts = db.execute(sql, params).fetchall()
+        comments = db.execute(sql, params).fetchall()
         
         sql = """
             SELECT *
@@ -155,7 +234,13 @@ def home_process_search():
         params = ()
         likes = db.execute(sql, params).fetchall()
 
-        return render_template("pages/home.jinja", games=games, posts = posts, followed_games=followed_games, followed_pairs=followed_pairs, likes = likes, allgames=allgames, allposts=allposts, search_term=search_term, sort_term=sort_term)
+        liked_pairs = [
+                    (like["user_id"], like["post_id"])
+                    for like in likes
+                ]
+
+        return render_template("pages/home.jinja", games=games, posts = posts, followed_pairs=followed_pairs, liked_pairs=liked_pairs, comments=comments, search_term=search_term, sort_term=sort_term, back_url=f"/")
+
 
 #-----------------------------------------------------------
 # Game page
@@ -164,7 +249,7 @@ def home_process_search():
 def show_game(id):
     with connect_db() as db:
         sql = """
-            SELECT games.id, games.name, games.description, games.store_links, games.developer_id, games.image_name, users.username
+            SELECT games.id, games.name, games.description, games.developer_id, games.image_name, users.username
             FROM games 
             INNER JOIN users ON games.developer_id = users.id
             WHERE games.id = ?
@@ -183,18 +268,12 @@ def show_game(id):
         posts = db.execute(sql, params).fetchall()
 
         sql = """
-            SELECT *
-            FROM games
-        """
-        params = ()
-        allgames = db.execute(sql, params).fetchall()
-
-        sql = """
-            SELECT *
+            SELECT parent_id
             FROM posts
+            WHERE type = 'comment'
         """
         params = ()
-        allposts = db.execute(sql, params).fetchall()
+        comments = db.execute(sql, params).fetchall()
         
         sql = """
             SELECT *
@@ -220,7 +299,23 @@ def show_game(id):
             for like in likes
         ]
 
-        return render_template("pages/game.jinja", game=game, posts = posts, followed_games=followed_games, followed_pairs=followed_pairs, likes = likes, liked_pairs=liked_pairs, allgames=allgames, allposts=allposts)
+        sql = """
+            SELECT *
+            FROM media WHERE game_id = ?
+        """
+        params = (id,)
+        media = db.execute(sql, params).fetchall()
+
+        sql = """
+            SELECT *
+            FROM links WHERE game_id = ?
+        """
+        params = (id,)
+        links = db.execute(sql, params).fetchall()
+        
+
+
+        return render_template("pages/game.jinja", game=game, posts = posts,  comments=comments, followed_pairs=followed_pairs, liked_pairs=liked_pairs, links=links, media=media,back_url=f"/")
     
 #-----------------------------------------------------------
 # Game page
@@ -242,7 +337,7 @@ def game_process_search(id):
             dir = "ASC"
     with connect_db() as db:
         sql = """
-            SELECT games.id, games.name, games.description, games.store_links, games.developer_id, games.image_name, users.username
+            SELECT games.id, games.name, games.description, games.developer_id, games.image_name, users.username
             FROM games 
             INNER JOIN users ON games.developer_id = users.id
             WHERE games.id = ?
@@ -265,25 +360,19 @@ def game_process_search(id):
             FROM posts
             INNER JOIN users ON posts.user_id = users.id
             INNER JOIN games ON posts.game_id = games.id
-            WHERE title LIKE ?
+            WHERE title LIKE ? AND game_id = ?
             ORDER BY {sort} {dir}
         """.format(sort=sort, dir=dir)
-        params = (search_match,)
+        params = (search_match, id)
         search_posts = db.execute(sql, params).fetchall()
 
         sql = """
-            SELECT *
-            FROM games
-        """
-        params = ()
-        allgames = db.execute(sql, params).fetchall()
-
-        sql = """
-            SELECT *
+            SELECT parent_id
             FROM posts
+            WHERE type = 'comment'
         """
         params = ()
-        allposts = db.execute(sql, params).fetchall()
+        comments = db.execute(sql, params).fetchall()
         
         sql = """
             SELECT *
@@ -309,7 +398,21 @@ def game_process_search(id):
             for like in likes
         ]
 
-        return render_template("pages/game.jinja", game=game, posts = posts, followed_games=followed_games, followed_pairs=followed_pairs, likes = likes, liked_pairs=liked_pairs, allgames=allgames, allposts=allposts, search_posts=search_posts, search_term=search_term, sort_term=sort_term)
+        sql = """
+                    SELECT *
+                    FROM media WHERE game_id = ?
+        """
+        params = (id,)
+        media = db.execute(sql, params).fetchall()
+        
+        sql = """
+            SELECT *
+            FROM links WHERE game_id = ?
+        """
+        params = (id,)
+        links = db.execute(sql, params).fetchall()
+
+        return render_template("pages/game.jinja", game=game, posts = posts, comments=comments, followed_pairs=followed_pairs, liked_pairs=liked_pairs, search_posts=search_posts, search_term=search_term, sort_term=sort_term, links=links, media=media,back_url=f"/")
 
 
 #-----------------------------------------------------------
@@ -364,7 +467,230 @@ def unfollow_game(id):
             flash(f"Already Unfollowed", "error")
 
         return redirect(request.referrer or "/")
+
+#-----------------------------------------------------------
+# Create Game page
+#-----------------------------------------------------------
+@app.get("/game/new")
+@login_required
+def new_game_form(id=None):
+    if not session.get('user')['is_dev'] == 1:
+        flash(f"Invalid Action", "error")
+        return redirect('/')
+    return render_template("pages/game_form.jinja")
+
+#-----------------------------------------------------------
+# Handle Game Creation
+#-----------------------------------------------------------
+@app.post("/game/new")
+def process_new_game():
+    title = request.form.get('title', '').strip()
+    links = request.form.getlist('link')
+    description = request.form.get('description', '')
+    hero_image = request.files.get('hero', None)
+    screenshots = request.files.getlist('screenshots')
+
+    with connect_db() as db:
+            sql = "SELECT id FROM games WHERE LOWER(name)=?"
+            params = (title.lower(),)
+            game = db.execute(sql, params).fetchone()
     
+            if game:
+                flash(f"Game using title '{title}' already exists", "error")
+                return redirect("/game/new")
+    
+            if hero_image or hero_image.filename != '':
+                unique_filename = process_image(hero_image, UPLOAD_FOLDER, max_dimension=1600, square=True, allow_gif=True)
+                if unique_filename is None:
+                    flash("That image couldn't be used. Please upload a JPG, PNG, WEBP or GIF.", "error")
+                    return redirect("/user/new")
+            else:
+                unique_filename = None
+    
+            sql = """
+                INSERT INTO games (name, description, image_name, developer_id)
+                VALUES (?, ?, ?, ?)
+            """
+            params = (title, description, unique_filename, session.get('user')['user_id'])
+            cursor = db.execute(sql, params)
+            new_game_id = cursor.lastrowid
+
+            for link in links:
+                sql = """
+                    INSERT INTO links (link, game_id)
+                    VALUES (?, ?)
+                """
+                params = (link, new_game_id)
+                db.execute(sql, params)
+
+            for img in screenshots:
+                if img or img.filename != '':
+                    unique_filename = process_image(img, UPLOAD_FOLDER, max_dimension=1600, square=True, allow_gif=True)
+                    if unique_filename is None:
+                        flash("That image couldn't be used. Please upload a JPG, PNG, WEBP or GIF.", "error")
+                        return redirect("/user/new")
+                else:
+                    unique_filename = None
+
+                sql = """
+                    INSERT INTO media (image_file, game_id)
+                    VALUES (?, ?)
+                """
+                params = (unique_filename, new_game_id)
+                db.execute(sql, params)
+
+            flash("Game created", "success")
+            return redirect(f"/game/{new_game_id}")
+
+#-----------------------------------------------------------
+# Edit Game page
+#-----------------------------------------------------------
+@login_required
+@app.get("/game/<int:id>/edit")
+def edit_game_form(id):
+    with connect_db() as db:
+            sql = """
+                SELECT *
+                FROM games
+                WHERE id = ?
+            """
+            params = (id,)
+            game = db.execute(sql, params).fetchone()
+            if session.get("user")["user_id"] != game["developer_id"]:
+                        flash("Invalid action", "error")
+                        return redirect("/")
+
+            sql = """
+                        SELECT *
+                        FROM media WHERE game_id = ?
+            """
+            params = (id,)
+            media = db.execute(sql, params).fetchall()
+            
+            sql = """
+                SELECT *
+                FROM links WHERE game_id = ?
+            """
+            params = (id,)
+            links = db.execute(sql, params).fetchall()
+
+    return render_template("pages/game_edit_form.jinja", game=game, media=media, links=links)
+
+#-----------------------------------------------------------
+# Handle Game Edit
+#-----------------------------------------------------------
+@app.post("/game/<int:id>/edit")
+def process_edit_game(id):
+    title = request.form.get('title', '').strip()
+    links = request.form.getlist('link')
+    description = request.form.get('description', '')
+    hero_image = request.files.get('hero', None)
+    screenshots = request.files.getlist('screenshots')
+    keep_img_ids = set(request.form.getlist('keep_media', type=int))
+    keep_link_ids = set(request.form.getlist('keep_link', type=int))
+
+    with connect_db() as db:
+            sql = "SELECT id FROM games WHERE LOWER(name)=?"
+            params = (title.lower(),)
+            game = db.execute(sql, params).fetchone()
+
+            if game and id != game["id"]:
+                flash(f"Game using title '{title}' already exists", "error")
+                return redirect(f"/game/{id}/edit")
+    
+            if hero_image or hero_image.filename != '':
+                unique_filename = process_image(hero_image, UPLOAD_FOLDER, max_dimension=1600, square=True, allow_gif=True)
+                if unique_filename is None:
+                    flash("That image couldn't be used. Please upload a JPG, PNG, WEBP or GIF.", "error")
+                    return redirect(f"/game/{id}/edit")
+            else:
+                sql = "SELECT image_name FROM games WHERE id=?"
+                params = (id,)
+                image_name = db.execute(sql, params).fetchone()
+                unique_filename = image_name["image_name"]
+    
+            sql = """
+                UPDATE games SET name = ?, description = ?, image_name = ?, developer_id=? WHERE id =?
+            """
+            params = (title, description, unique_filename, session.get('user')['user_id'], id)
+            db.execute(sql, params)
+
+            sql = "SELECT id, link FROM links WHERE game_id=?"
+            params = (id,)
+            check_links = db.execute(sql, params).fetchall()
+            for link in check_links:
+                if link['id'] not in keep_link_ids:
+                    sql = """
+                        DELETE FROM links WHERE id = ? AND game_id = ?
+                    """
+                    params = (link["id"], id)
+                    db.execute(sql, params)
+
+            for link in links:
+                sql = """
+                    INSERT INTO links (link, game_id)
+                    VALUES (?, ?)
+                """
+                params = (link, id)
+                db.execute(sql, params)
+
+            sql = "SELECT id, image_file FROM media WHERE game_id=?"
+            params = (id,)
+            images = db.execute(sql, params).fetchall()
+
+            for image in images:
+                if image['id'] not in keep_img_ids:
+                    sql = """
+                        DELETE FROM media WHERE id = ? AND game_id = ?
+                    """
+                    params = (image["id"], id)
+                    db.execute(sql, params)
+                    delete_image(image["image_file"])
+            
+            for img in screenshots:
+                if img or img.filename != '':
+                    unique_filename = process_image(img, UPLOAD_FOLDER, max_dimension=1600, square=True, allow_gif=True)
+                    if unique_filename is None:
+                        flash("That image couldn't be used. Please upload a JPG, PNG, WEBP or GIF.", "error")
+                        return redirect(f"/game/{id}/edit")
+                    else:
+                        sql = """
+                            INSERT INTO media (image_file, game_id)
+                            VALUES (?, ?)
+                        """
+                        params = (unique_filename, id)
+                        db.execute(sql, params)
+
+            flash("Game updated", "success")
+            return redirect(f"/game/{id}")
+
+#-----------------------------------------------------------
+# Delete Game page
+#-----------------------------------------------------------
+@app.get("/game/<int:id>/delete")
+@login_required
+def delete_game(id):
+    with connect_db() as db:
+        sql = """
+            SELECT *
+            FROM games WHERE developer_id = ? and id = ?  
+        """
+        params = (session.get("user")["user_id"], id)
+        game = db.execute(sql, params).fetchone()
+
+        if  game:
+            delete_image(game["image_name"])
+            sql = """
+                DELETE FROM games WHERE id = ?
+            """
+            params = (id,)
+            db.execute(sql, params)
+
+            flash("Deleted game", "success")
+        else:
+            flash("Invalid action", "error")
+    return redirect(request.referrer or "/")
+
 #-----------------------------------------------------------
 # Post page
 #-----------------------------------------------------------
@@ -383,25 +709,6 @@ def show_post(id):
 
         sql = """
             SELECT *
-            FROM posts
-        """
-        params = ()
-        allposts = db.execute(sql, params).fetchall()
-        
-        sql = """
-            SELECT *
-            FROM following  
-        """
-        params = ()
-        followed_games = db.execute(sql, params).fetchall()
-
-        followed_pairs = [
-            (game["user_id"], game["game_id"])
-            for game in followed_games
-        ]
-
-        sql = """
-            SELECT *
             FROM likes  
         """
         params = ()
@@ -413,13 +720,6 @@ def show_post(id):
         ]
 
         sql = """
-            SELECT *
-            FROM media WHERE post_id = ?
-        """
-        params = (id,)
-        media = db.execute(sql, params).fetchall()
-
-        sql = """
             SELECT posts.id, posts.content, posts.timestamp, posts.type, posts.user_id, posts.parent_id, users.username, users.profile_image
             FROM posts
             INNER JOIN users ON posts.user_id = users.id
@@ -427,8 +727,11 @@ def show_post(id):
         """
         params = ()
         comments = db.execute(sql, params).fetchall()
-
-        return render_template("pages/post.jinja", post = post, followed_games=followed_games, followed_pairs=followed_pairs, likes = likes, liked_pairs=liked_pairs, allposts=allposts, media = media, comments=comments)
+        # Check for when a post is deleted (comments will redirect to the main post page, but deleting a post redirects home)
+        if not post:
+            return redirect('/')
+        
+        return render_template("pages/post.jinja", post = post, likes = likes, liked_pairs=liked_pairs, comments=comments, back_url=f"/game/{post['game_id']}")
 
 #-----------------------------------------------------------
 # Like Post
@@ -510,9 +813,9 @@ def delete_post(id):
     with connect_db() as db:
         sql = """
             SELECT *
-            FROM posts WHERE user_id = ?  
+            FROM posts WHERE user_id = ? AND id =?
         """
-        params = (session.get("user")["user_id"],)
+        params = (session.get("user")["user_id"], id)
         post = db.execute(sql, params).fetchone()
 
         if  post:
@@ -522,11 +825,128 @@ def delete_post(id):
             params = (id,)
             db.execute(sql, params)
 
+            imgs = find_trix_images(post['content'])
+            for img in imgs:
+                delete_image(img)
+        
             flash("Deleted Post", "success")
         else:
             flash("Invalid action", "error")
     return redirect(request.referrer or "/")
 
+#-----------------------------------------------------------
+# Create Post page
+#-----------------------------------------------------------
+@app.get("/post/new/")
+@app.get("/post/new/<int:id>")
+@login_required
+def new_post_form(id=None):
+    with connect_db() as db:
+            sql = """
+                SELECT name
+                FROM games
+                WHERE id = ?
+            """
+            params = (id,)
+            game_name = db.execute(sql, params).fetchone()
+
+            sql = """
+                SELECT id, name
+                FROM games
+                WHERE developer_id = ?
+            """
+            params = (session.get("user")["user_id"],)
+            games = db.execute(sql, params).fetchall()
+    return render_template("pages/post_form.jinja", game_id=id, game_name=game_name, games=games)
+
+#-----------------------------------------------------------
+# Handle Post Creation
+#-----------------------------------------------------------
+@app.post("/post/create/<int:id>")
+def process_new_post(id):
+    title = request.form.get('title', '').strip()
+    raw_content = request.form.get('content', '')
+    post_type = request.form.get('type', None)
+    game_id = request.form.get('game', None)
+
+    content = sanitise_html(raw_content)
+
+    with connect_db() as db:
+        if game_id and post_type:
+            sql = """
+                INSERT INTO posts (title, content, timestamp, game_id, user_id, type)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """
+            params = (title, content, str(datetime.now()), game_id, session.get("user")["user_id"], post_type)
+            db.execute(sql, params)
+        else:
+            sql = """
+                INSERT INTO posts (title, content, timestamp, game_id, user_id, type)
+                VALUES (?, ?, ?, ?, ?, ?)
+            """
+            params = (title, content, str(datetime.now()), id, session.get("user")["user_id"], "discussion")
+            db.execute(sql, params)
+
+        flash("Post posted.", "success")
+        return redirect(f"/game/{id}")
+
+#-----------------------------------------------------------
+# Edit Post page
+#-----------------------------------------------------------
+@login_required
+@app.get("/post/<int:id>/edit")
+def edit_post_form(id):
+    with connect_db() as db:
+            sql = """
+                SELECT posts.user_id, posts.id, posts.title, posts.content, posts.type, games.name, posts.type
+                FROM posts
+                INNER JOIN games ON posts.game_id = games.id
+                WHERE posts.id = ?
+            """
+            params = (id,)
+            post = db.execute(sql, params).fetchone()
+            if session.get("user")["user_id"] != post["user_id"]:
+                        flash("Invalid action", "error")
+                        return redirect("/")
+
+    return render_template("pages/post_edit_form.jinja", post=post)
+
+#-----------------------------------------------------------
+# Handle Post Edit
+#-----------------------------------------------------------
+@login_required
+@app.post("/post/<int:id>/edit")
+def edit_post_details (id):
+    title = request.form.get('title', '').strip()
+    raw_content = request.form.get('content', '')
+
+    content = sanitise_html(raw_content)
+
+    with connect_db() as db:
+        sql = """
+            SELECT *
+            FROM posts WHERE user_id = ? AND id =?
+        """
+        params = (session.get("user")["user_id"], id)
+        post = db.execute(sql, params).fetchone()
+
+        if  post:
+            old_imgs = set(find_trix_images(post['content']))
+            new_imgs = set(find_trix_images(content))
+
+            removed = old_imgs - new_imgs 
+
+            for image in removed:
+                delete_image(image)
+
+            sql = """
+                UPDATE posts SET title = ?, content = ? WHERE id =?
+            """
+            params = (title, content, id)
+            post = db.execute(sql, params)
+
+            flash("Post updated.", "success")
+        return redirect(f"/post/{id}")
 
 #-----------------------------------------------------------
 # Profile page
@@ -549,27 +969,20 @@ def show_profile(id):
         params = ()
         followed_games = db.execute(sql, params).fetchall()
 
-        sql = """
-            SELECT *
-            FROM games
-        """
-        params = ()
-        allgames = db.execute(sql, params).fetchall()
-
         followed_pairs = [
             (game["user_id"], game["game_id"])
             for game in followed_games
         ]
 
         sql = """
-            SELECT games.id, games.name, games.description, games.store_links, games.developer_id, games.image_name, users.username
+            SELECT games.id, games.name, games.description, games.developer_id, games.image_name, users.username
             FROM games
             INNER JOIN users ON games.developer_id = users.id
         """
         params = ()
         games = db.execute(sql, params).fetchall()
 
-        return render_template("pages/profile.jinja", user = user,followed_games=followed_games, followed_pairs=followed_pairs, games = games, allgames=allgames)
+        return render_template("pages/profile.jinja", user = user, followed_pairs=followed_pairs, games = games, back_url=f"/")
 
 #-----------------------------------------------------------
 # Edit Profile page
@@ -613,16 +1026,10 @@ def edit_user_details(id):
                 return redirect(f"/user/profile/{id}")
  
             if image_file:
-                # Sanitise filename and make it unique
-                filename = secure_filename(image_file.filename)
-                random_prefix = uuid.uuid4().hex[:12]
-                unique_filename = f"{random_prefix}_{filename}"
-        
-                # Get the path of the upload folder
-                filepath = os.path.join(UPLOAD_FOLDER, unique_filename)
-        
-                # Save file to disk
-                image_file.save(filepath)
+                unique_filename = process_image(image_file, UPLOAD_FOLDER, max_dimension=400, square=True, allow_gif=False)
+                if unique_filename is None:
+                    flash("That image couldn't be used. Please upload a JPG, PNG, WEBP or GIF.", "error")
+                    return redirect("/user/profile/<int:id>")
             else:
                 sql = "SELECT profile_image FROM users WHERE id=?"
                 params = (id,)
@@ -654,6 +1061,147 @@ def edit_user_details(id):
             return redirect(f"/user/profile/{id}")
 
 #-----------------------------------------------------------
+# Developer Dash page
+#-----------------------------------------------------------
+@login_required
+@app.get("/developer")
+def show_dev_dash():
+    if not session.get("user")["is_dev"]:
+        flash("Invalid  Action", "error")
+        return redirect(request.referrer or "/")
+    with connect_db() as db:
+        sql = """
+            SELECT games.id, games.name, games.description, games.developer_id, games.image_name, users.username
+            FROM games
+            INNER JOIN users ON games.developer_id = users.id
+            WHERE games.developer_id = ?
+            ORDER BY games.id DESC;
+        """
+        params = (session.get("user")["user_id"],)
+        games = db.execute(sql, params).fetchall()
+
+        sql = """
+            SELECT posts.id, posts.title, posts.content, posts.timestamp, posts.game_id, posts.type, posts.user_id, posts.parent_id, users.username, games.name
+            FROM posts
+            INNER JOIN users ON posts.user_id = users.id
+            INNER JOIN games ON posts.game_id = games.id
+            WHERE posts.user_id = ?
+            ORDER BY posts.id DESC
+        """
+        params = (session.get("user")["user_id"],)
+        posts = db.execute(sql, params).fetchall()
+
+        sql = """
+            SELECT parent_id
+            FROM posts
+            WHERE type = 'comment'
+        """
+        params = ()
+        comments = db.execute(sql, params).fetchall()
+
+        sql = """
+            SELECT *
+            FROM following  
+        """
+        params = ()
+        followed_games = db.execute(sql, params).fetchall()
+
+        followed_pairs = [
+            (game["user_id"], game["game_id"])
+            for game in followed_games
+        ]
+
+        sql = """
+            SELECT *
+            FROM likes  
+        """
+        params = ()
+        likes = db.execute(sql, params).fetchall()
+
+        liked_pairs = [
+            (like["user_id"], like["post_id"])
+            for like in likes
+        ]
+        
+        return render_template("pages/dev_dashboard.jinja", games=games, posts = posts, comments=comments, followed_pairs=followed_pairs, liked_pairs = liked_pairs, back_url=f"/")
+
+#-----------------------------------------------------------
+# Dev search request
+#-----------------------------------------------------------
+@app.get("/developer/search")
+def dev_process_search():
+    search_term = request.args.get('q', '')
+    search_match = f"%{search_term}%"
+    sort_term = request.args.get('sortby', '')
+    match sort_term:
+        case "0":
+            sort = "title"
+            dir = "ASC"
+        case "1":
+            sort = "posts.id"
+            dir = "DESC"
+        case "2":
+            sort = "posts.id"
+            dir = "ASC"
+    
+    with connect_db() as db:
+        sql = """
+            SELECT games.id, games.name, games.description, games.developer_id, games.image_name, users.username
+            FROM games
+            INNER JOIN users ON games.developer_id = users.id
+            WHERE games.developer_id = ?
+            ORDER BY games.id DESC;
+        """
+        params = (session.get("user")["user_id"],)
+        games = db.execute(sql, params).fetchall()
+
+        sql = """
+            SELECT posts.id, posts.title, posts.content, posts.timestamp, posts.game_id, posts.type, posts.user_id, posts.parent_id, users.username, games.name
+            FROM posts
+            INNER JOIN users ON posts.user_id = users.id
+            INNER JOIN games ON posts.game_id = games.id
+            WHERE title LIKE ? AND posts.user_id = ?
+            ORDER BY {sort} {dir}
+        """.format(sort=sort, dir=dir)
+        params = (search_match, session.get("user")["user_id"],)
+        posts = db.execute(sql, params).fetchall()
+
+        sql = """
+            SELECT parent_id
+            FROM posts
+            WHERE type = 'comment'
+        """
+        params = ()
+        comments = db.execute(sql, params).fetchall()
+        
+        sql = """
+            SELECT *
+            FROM following  
+        """
+        params = ()
+        followed_games = db.execute(sql, params).fetchall()
+
+        followed_pairs = [
+            (game["user_id"], game["game_id"])
+            for game in followed_games
+        ]
+
+        sql = """
+            SELECT *
+            FROM likes  
+        """
+        params = ()
+        likes = db.execute(sql, params).fetchall()
+
+        liked_pairs = [
+            (like["user_id"], like["post_id"])
+            for like in likes
+        ]
+
+        return render_template("pages/dev_dashboard.jinja", games=games, posts = posts, followed_pairs=followed_pairs, liked_pairs = liked_pairs, comments=comments, search_term=search_term, sort_term=sort_term, back_url=f"/")
+
+
+#-----------------------------------------------------------
 # Delete User page
 #-----------------------------------------------------------
 @app.get("/user/<int:id>/delete")
@@ -661,6 +1209,15 @@ def edit_user_details(id):
 def delete_user(id):
     with connect_db() as db:
         if session.get("user")["user_id"] == id:
+            sql = """
+                SELECT profile_image
+                FROM users
+                WHERE id = ?  
+            """
+            params = (id,)
+            user = db.execute(sql, params).fetchone()  
+            delete_image(user["image_name"])
+
             sql = """
                 DELETE FROM users WHERE id = ?
             """
@@ -708,16 +1265,10 @@ def process_new_user():
             return redirect("/user/new")
 
         if image_file or image_file.filename != '':
-            # Sanitise filename and make it unique
-            filename = secure_filename(image_file.filename)
-            random_prefix = uuid.uuid4().hex[:12]
-            unique_filename = f"{random_prefix}_{filename}"
-    
-            # Get the path of the upload folder
-            filepath = os.path.join(UPLOAD_FOLDER, unique_filename)
-    
-            # Save file to disk
-            image_file.save(filepath)
+            unique_filename = process_image(image_file, UPLOAD_FOLDER, max_dimension=400, square=True, allow_gif=False)
+            if unique_filename is None:
+                flash("That image couldn't be used. Please upload a JPG, PNG, WEBP or GIF.", "error")
+                return redirect("/user/new")
         else:
             unique_filename = None
         
@@ -769,16 +1320,6 @@ def login_user():
         flash(f"Login successful as {username}", "success")
         return redirect("/")
 
-@app.route('/save-checkbox', methods=['POST'])
-def save_checkbox():
-    data = request.get_json()
-    
-    # Store the boolean (True/False) directly into the session
-    session['show_games'] = data.get('checked', False)
-    
-    # Return a quick JSON response to let the front-end know it worked
-    return jsonify({"status": "success", "session_state": session['show_games']})
-
 #-----------------------------------------------------------
 # Handle User Log Out
 #-----------------------------------------------------------
@@ -788,6 +1329,33 @@ def logout_user():
     session.clear()
     flash(f"You have been logged out", "success")
     return redirect("/")
+
+#-----------------------------------------------------------
+# Handle Switch for session
+#-----------------------------------------------------------
+@app.route('/save-checkbox', methods=['POST'])
+def save_checkbox():
+    data = request.get_json()
+    
+    # Store the boolean directly into the session
+    session['show_games'] = data.get('checked', False)
+    
+    return jsonify({"status": "success", "session_state": session['show_games']})
+
+#-----------------------------------------------------------
+# Handle Trix Image Uploads
+#-----------------------------------------------------------
+@app.post("/upload-image")
+def upload_image():
+    file = request.files.get("file")
+    if not file or not file.filename:
+        abort(400)
+
+    name = process_image(file, UPLOAD_FOLDER)
+    if name is None:
+        return jsonify(error="Invalid image"), 400
+
+    return jsonify(url=url_for("static", filename=f"uploads/{name}"))
 
 #===========================================================
 # Configure the app
@@ -800,4 +1368,3 @@ init_date_filters(app)
 init_error_handlers(app)
 init_database()
 register_commands(app)
-

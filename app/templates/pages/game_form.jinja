@@ -1,0 +1,51 @@
+{#=====================================================
+  Home page
+=====================================================#}
+
+{% extends 'pages/_base.jinja' %}
+
+
+{% block content %}
+    <section id="sign-in">
+        <h2>Create New Game Page</h2>
+        <form method="post" action="/game/new" enctype="multipart/form-data">
+            <label>
+              Title
+              <input name="title" type="text" required>
+            </label>
+        
+            <label id="store_links">
+                Store Links
+                <input name="link" type="text" required>
+                <button type="button"  onclick="new_link()"  id="new_link_button">New Link</button>
+            </label>
+
+            <label>
+                Description:
+                <input name="description" type="text" required>
+            </label>
+
+            <label>
+                Hero Image:
+                <input
+                    name="hero"
+                    type="file"
+                    accept="image/png, image/jpeg, image/gif"
+                >
+            </label>
+            <h3>Optional Screenshots</h3>
+            <label>
+                <input
+                    name="screenshots"
+                    type="file"
+                    multiple
+                    accept="image/png, image/jpeg, image/gif"
+                >
+            </label>
+
+            <button>Create Game</button>
+            <a href="/developer"><button type="button" >Cancel</button></a>
+        </form>
+    </section>
+{% endblock %}
+

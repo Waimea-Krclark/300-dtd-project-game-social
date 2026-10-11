@@ -10,8 +10,14 @@
         <h1>{{ game.name }}</h3>
     </header>
     <a href="/user/profile/{{game.developer_id}}">{{ game.username | paragraphs }}</a>
-    <p>{{ followed_games | selectattr("game_id", "equalto", game.id) | list | length }} following</p>
-    <a href="{{game.store_links}}">Store Page</a>
+    <p>{{ followed_pairs | selectattr("1", "equalto", game.id) | list | length }} following</p>
+    {% for link in links %}
+        <a href="{{link.link}}">{{link.link}}</a>
+    {%endfor%}
+    {% if session.logged_in and session.user.is_dev == 1 and session.user.user_id == game.developer_id %}
+        <a href="/game/{{game.id}}/edit">Edit</a>
+        <a href="/game/{{game.id}}/delete" onclick="return confirm('Are you sure you want to delete the game?');">Delete</a>
+    {% endif %}
     {% if session.logged_in %}    
         {% if (session.user.user_id, game.id) in followed_pairs %}
             <a href="/game/{{game.id}}/unfollow"><button>- Unfollow</button></a>
@@ -20,9 +26,14 @@
         {% endif %} 
     {% endif %}
     <img src="/static/uploads/{{game.image_name}}" alt="Hero Image of {{game.name}}">
-
+    {% for img in media %}
+        <img src="/static/uploads/{{img.image_file}}" alt="{{game.name}} screenshots">
+    {%endfor%}
     <p>{{game.description}}</p>
     <br>
+    {% if session.logged_in and session.user.is_dev == 1 and session.user.user_id == game.developer_id %}
+        <a href="/post/new/{{game.id}}">NEW</a>
+    {% endif %}
     <section id="posts">
         {% for post in posts %}
             {% if game.developer_id == post.user_id %}
@@ -34,13 +45,19 @@
                     <p>{{ post.type.upper() }}</p>
                     <p>{{ post.name }}</p>
                     <p>{{ post.timestamp | format_date }}</p>
-                    <p>{{ allposts | selectattr("parent_id", "equalto", post.id) | list | length }} Comments</p>
-                    {% if (session.user.user_id, post.id) in liked_pairs%}
-                        <a href="/post/{{post.id}}/unlike">- {{ likes | selectattr("post_id", "equalto", post.id) | list | length }} Likes</a>
-                    {% else %}
-                        <a href="/post/{{post.id}}/like">+ {{ likes | selectattr("post_id", "equalto", post.id) | list | length }} Likes</a>
+                    <p>{{ comments | selectattr("parent_id", "equalto", post.id) | list | length }} Comments</p>
+                    {% if session.logged_in and (session.user.user_id, post.id) in liked_pairs%}
+                        <a href="/post/{{post.id}}/unlike">- {{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }} Likes</a>
+                    {% elif session.logged_in %}
+                        <a href="/post/{{post.id}}/like">+ {{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }} Likes</a>
+                    {% else%}
+                        <p>{{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }} Likes</p>
                     {% endif %}
-                    <p class="truncate-paragraph">{{ post.content }}</p>
+                    {% if session.logged_in and session.user.user_id == post.user_id %}
+                        <a href="/post/{{post.id}}/edit">Edit</a>
+                        <a href="/post/{{post.id}}/delete" onclick="return confirm('Are you sure you want to delete the post?');">Delete</a>
+                    {% endif %}
+                    <div class="truncate-paragraph">{{ post.content }}</div>
                 </div>
             {% endif %}
         {% else %}
@@ -49,6 +66,11 @@
     </section>
 
     <h3>Discussions</h3>
+    {% if session.logged_in and session.user.is_dev == 0 %}
+        <a href="/post/new/{{game.id}}">NEW</a>
+    {% else %}
+        <p>Login to post</p>
+    {% endif %}
     <section id="search">
         <form action="/game/{{game.id}}/search" method="get">
             <label>
@@ -68,19 +90,28 @@
     </section>
 
     <section id="posts">
-        {% if search_term %}
+        {% if search_term or sort_term%}
             {% for post in search_posts %}
                 {% if game.developer_id != post.user_id and post.game_id == game.id%}
                     <div class="post" onclick="window.location.href= '/post/{{post.id}}'">
                         <header>
                             <h3>{{ post.title }}</h3>
+                            {% if session.logged_in and session.user.user_id == post.user_id %}
+                                <a href="/post/{{post.id}}/edit">Edit</a>
+                            {% endif %}
                         </header>
                         <img src="/static/uploads/{{post.profile_image}}" alt="{{post.username}}'s profile image">
                         <a href="/user/profile/{{post.user_id}}">{{ post.username }}</a>
                         <p>{{ post.timestamp | format_date }}</p>
-                        <p>{{ allposts | selectattr("parent_id", "equalto", post.id) | list | length }} Comments</p>
-                        <p>{{ likes | selectattr("post_id", "equalto", post.id) | list | length }} Likes</p>
-                        <p class="truncate-paragraph">{{ post.content }}</p>
+                        <p>{{ comments | selectattr("parent_id", "equalto", post.id) | list | length }} Comments</p>
+                        {% if session.logged_in and (session.user.user_id, post.id) in liked_pairs%}
+                            <a href="/post/{{post.id}}/unlike">- {{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }} Likes</a>
+                        {% elif session.logged_in %}
+                            <a href="/post/{{post.id}}/like">+ {{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }} Likes</a>
+                        {% else%}
+                            <p>{{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }} Likes</p>
+                        {% endif %}
+                        <p>See More</p>
                     </div>
                 {% endif %}
             {% else %}
@@ -92,13 +123,23 @@
                     <div class="post" onclick="window.location.href= '/post/{{post.id}}'">
                         <header>
                             <h3>{{ post.title }}</h3>
+                            {% if session.logged_in and session.user.user_id == post.user_id %}
+                                <a href="/post/{{post.id}}/edit">Edit</a>
+                                <a href="/post/{{post.id}}/delete" onclick="return confirm('Are you sure you want to delete the post?');">Delete</a>
+                            {% endif %}
                         </header>
                         <img src="/static/uploads/{{post.profile_image}}" alt="{{post.username}}'s profile image">
                         <a href="/user/profile/{{post.user_id}}">{{ post.username }}</a>
                         <p>{{  post.timestamp | format_date }}</p>                         
-                        <p>{{ allposts | selectattr("parent_id", "equalto", post.id) | list | length }} Comments</p>
-                        <p>{{ likes | selectattr("post_id", "equalto", post.id) | list | length }} Likes</p>
-                        <p class="truncate-paragraph">{{ post.content }}</p>
+                        <p>{{ comments | selectattr("parent_id", "equalto", post.id) | list | length }} Comments</p>
+                        {% if session.logged_in and (session.user.user_id, post.id) in liked_pairs%}
+                            <a href="/post/{{post.id}}/unlike">- {{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }} Likes</a>
+                        {% elif session.logged_in %}
+                            <a href="/post/{{post.id}}/like">+ {{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }} Likes</a>
+                        {% else%}
+                            <p>{{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }} Likes</p>
+                        {% endif %}
+                        <p>See More</p>
                     </div>
                 {% endif %}
             {% else %}

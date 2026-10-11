@@ -1,0 +1,58 @@
+{#=====================================================
+  Home page
+=====================================================#}
+
+{% extends 'pages/_base.jinja' %}
+
+
+{% block content %}
+    <section id="sign-in">
+        {% if session.user.is_dev == 1 %}
+            <h2>New Developer Post</h2>
+        {% else %}
+            <h2>New Discussion for {{game_name.name}}</h2>
+        {% endif %}
+        
+        <form method="post" action="/post/create/{{game_id}}" enctype="multipart/form-data">
+           
+            <label>
+                Title
+                <input name="title" type="text" required>
+            </label>
+
+            {% if session.user.is_dev == 1 %}
+                <label>
+                    Type
+                    <select name="type" required>
+                        <option disabled selected hidden>Choose an option</option>
+                        <option value="news">News</option>
+                        <option value="announcement">Announcement</option>
+                        <option value="major update">Major Update</option>
+                        <option value="patch">Patch</option>
+                    </select>
+                </label>
+
+                <label>
+                    Game
+                    <select name="game">
+                        <option disabled {{ 'selected' if game_id == None }} hidden>Choose an option</option>
+                        {% for game in games %}
+                            <option value="{{game.id}}"  {{ 'selected' if game_id == game.id }}>{{game.name}}</option>
+                        {%endfor%}
+                    </select>
+                </label>
+            {% endif %}
+
+            <label>
+                <input type="hidden" name="content" id="content">
+                <input type="file" name="image_files" id="image_files" multiple hidden>
+                <trix-editor input="content"></trix-editor>
+            </label>
+            
+
+            <br>
+            <button>Post</button>
+            <a href="/developer"><button type="button" >Cancel</button></a>
+        </form>
+    </section>
+{% endblock %}

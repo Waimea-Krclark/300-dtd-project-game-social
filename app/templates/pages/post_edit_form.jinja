@@ -1,0 +1,24 @@
+{#=====================================================
+  Home page
+=====================================================#}
+
+{% extends 'pages/_base.jinja' %}
+
+
+{% block content %}
+    <section id="sign-in">
+        <h2>Edit {{post.title  | capitalize}}</h2>
+        <form method="post" action="/post/{{post.id}}/edit" enctype="multipart/form-data">
+            <label>
+                Title
+                <input name="title" type="text" value="{{post.title}}" required>
+            </label>
+            <input type="hidden" name="content" id="content" value="{{post.content | e}}">
+            <input type="file" name="image_files" id="image_files" multiple hidden>
+            <trix-editor input="content"></trix-editor>
+            <br>
+            <button>Save Changes</button>
+            <a href="{{ request.referrer or '/' }}"><button type="button" >Cancel</button></a>
+        </form>
+    </section>
+{% endblock %}

@@ -2,4 +2,6 @@ Flask              # Web framework for building web applications
 python-dotenv      # Load environment variables from .env files
 arrow              # Better date and time handling
 rich               # Terminal formatting, logging, and tracebacks
-
+nh3 
+pillow             
+bs4                # HTML Parser, for finding trix tags

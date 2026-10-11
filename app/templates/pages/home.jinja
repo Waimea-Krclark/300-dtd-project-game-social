@@ -13,7 +13,7 @@
         <p id="switchText">Games</p>
     </label>
    
-     <section id="search">
+    <section id="search">
         <form action="/search" method="get">
             <label>
                 Search for...
@@ -33,18 +33,37 @@
     
     <section id="posts">
         {% for post in posts %}
-            {% if allgames | selectattr("developer_id", "equalto", post.user_id) | list %}
+            {% if post.developer_id == post.user_id and post.game_id%}
                 <div class="post" onclick="window.location.href= '/post/{{post.id}}'">
                     <header>
                         <h3>{{ post.title }}</h3>
                     </header>
                     <a href="/user/profile/{{post.user_id}}">{{ post.username }}</a>
                     <p>{{ post.type.upper() }}</p>
-                    <p>{{ post.name }}</p>
-                    <p>{{ post.timestamp }}</p>
-                    <p>{{ allposts | selectattr("parent_id", "equalto", post.id) | list | length }} Comments</p>
-                    <p>{{ likes | selectattr("post_id", "equalto", post.id) | list | length }} Likes</p>
-                    <p class="truncate-paragraph">{{ post.content }}</p>
+                    <a href="/game/{{post.game_id}}">{{ post.name }}</a>
+                    <p>{{ post.timestamp | format_date}}</p>
+
+                    {% if search_term or sort_term%}
+                        <p>{{ comments | selectattr("parent_id", "equalto", post.id) | list | length }} Comments</p>
+                    {% else %}
+                        <p>{{ posts | selectattr("parent_id", "equalto", post.id) | list | length }} Comments</p>
+                    {% endif %}
+
+                    {# selectattr is 1, as since liked_pairs is a tuple, jinja needs to reference the index, rather than the name, so 1 is the post_id #}
+                    {% if session.logged_in and (session.user.user_id, post.id) in liked_pairs%}
+                        <a href="/post/{{post.id}}/unlike">- {{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }} Likes</a>
+                    {% elif session.logged_in %}
+                        <a href="/post/{{post.id}}/like">+ {{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }} Likes</a>
+                    {% else%}
+                        <p>{{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }} Likes</p>
+                    {% endif %}
+
+                    {% if session.logged_in and session.user.user_id == post.user_id %}
+                        <a href="/post/{{post.id}}/edit">Edit</a>
+                        <a href="/post/{{post.id}}/delete" onclick="return confirm('Are you sure you want to delete the post?');">Delete</a>
+                    {% endif %}
+                    
+                    <div class="truncate-paragraph">{{ post.content }}</div>
                 </div>
             {% endif %}
         {% else %}
@@ -59,7 +78,10 @@
                     <h3>{{ game.name }}</h3>
                 </header>
                 <a href="/user/profile/{{game.developer_id}}">{{ game.username | paragraphs }}</a>
-                <p>{{ followed_games | selectattr("game_id", "equalto", game.id) | list | length }} following</p>
+                {% if session.logged_in and session.user.is_dev == 1 and session.user.user_id == game.developer_id %}
+                    <a href="/game/{{game.id}}/edit">Edit</a>
+                {% endif %}
+                <p>{{ followed_pairs | selectattr("1", "equalto", game.id) | list | length }} following</p>
                 {% if session.logged_in %}    
                     {% if (session.user.user_id, game.id) in followed_pairs %}
                         <a href="/game/{{game.id}}/unfollow"><button>- Unfollow</button></a>

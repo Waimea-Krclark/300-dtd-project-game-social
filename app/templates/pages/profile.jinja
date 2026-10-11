@@ -18,6 +18,7 @@
     <h1>{{user.username}}</h1>
     {% if session.logged_in and user.id == session.user.user_id%}
         <a href="/user/profile/{{session.user.user_id}}/edit">Edit Details</a>
+        <a href="/user/profile/{{session.user.user_id}}/edit">Delete Account</a>
     {% endif %}
     <p>{{user.bio}}</p>
  
@@ -30,7 +31,10 @@
                         <header>
                             <h3>{{ game.name }}</h3>
                         </header>
-                        <p>{{ followed_games | selectattr("game_id", "equalto", game.id) | list | length }} following</p>
+                        {% if session.logged_in and session.user.is_dev == 1 and session.user.user_id == game.developer_id %}
+                            <a href="/game/{{game.id}}/edit">Edit</a>
+                        {% endif %}
+                        <p>{{ followed_pairs | selectattr("1", "equalto", game.id) | list | length }} following</p>
                         <img src="/static/uploads/{{game.image_name}}" alt="Hero Image of {{game.name}}">
                     </div>
                 {%endif%}
@@ -48,7 +52,7 @@
                             <h3>{{ game.name }}</h3>
                         </header>
                         <a href="/user/profile/{{game.developer_id}}">{{ game.username | paragraphs }}</a>
-                        <p>{{ followed_games | selectattr("game_id", "equalto", game.id) | list | length }} following</p>
+                        <p>{{ followed_pairs | selectattr("1", "equalto", game.id) | list | length }} following</p>
                         {% if session.logged_in %}    
                             {% if (session.user.user_id, game.id) in followed_pairs %}
                                 <a href="/game/{{game.id}}/unfollow"><button>- Unfollow</button></a>

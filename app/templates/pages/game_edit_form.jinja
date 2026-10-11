@@ -1,0 +1,69 @@
+{#=====================================================
+  Home page
+=====================================================#}
+
+{% extends 'pages/_base.jinja' %}
+
+
+{% block content %}
+    <section id="sign-in">
+        <h2>Edit {{game.name}} details</h2>
+        <form method="post" action="/game/{{game.id}}/edit" enctype="multipart/form-data">
+            <label>
+              Title
+              <input name="title" type="text" value="{{game.name}}" required>
+            </label>
+        
+            <label id="store_links">
+                Store Links
+                {% for link in links %}
+                    <div class="link_row">
+                        <input name="old_link" type="text" value="{{link.link}}" required>
+                        <input type="hidden" name="keep_link" value="{{ link.id }}">
+                        <button type="button"  onclick="remove_edit_link(this)"  id="link_remove">X</button>
+                    </div>
+                {% endfor %}
+                <script>counter = {{ links|length }};</script>
+                <button type="button"  onclick="new_link()"  id="new_link_button">New Link</button>
+            </label>
+
+            <label>
+                Description:
+                <input name="description" type="text" value="{{game.description}}" required>
+            </label>
+
+            <label>
+                Hero Image:
+                Current Image:
+                <img src="/static/uploads/{{game.image_name}}">
+                New Image:
+                <input
+                    name="hero"
+                    type="file"
+                    accept="image/png, image/jpeg, image/gif"
+                >
+            </label>
+            <h3>Optional Screenshots</h3>
+            <label>
+                {% for img in media %}
+                    <div class="screenshot_row">
+                        <img src="/static/uploads/{{ img.image_file }}">
+                        <input type="hidden" name="keep_media" value="{{ img.id }}">
+                        <button type="button" class="img_remove" onclick="remove_screenshot(this)">X</button>
+                    </div>
+                {% endfor %}
+                <input
+                    name="screenshots"
+                    type="file"
+                    multiple
+                    accept="image/png, image/jpeg, image/gif"
+                >
+            </label>
+
+            <button>Update</button>
+            <a href="{{ request.referrer or '/' }}"><button type="button" >Cancel</button></a>
+            <a href="/game/{{game.id}}/delete" onclick="return confirm('Are you sure you want to delete the game?');"><button type="button">Delete Game</button></a>
+        </form>
+    </section>
+{% endblock %}
+

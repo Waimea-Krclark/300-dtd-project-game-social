@@ -10,17 +10,14 @@ Implement the database, populated with test data. Create queries that retrieve t
 - Implement the database
 - Add test data to the database
 - Create the following web pages:
-    - Home pages showing games and posts, with searching and sort functions.
-    - Game pages with more details for the game as well as a display for all developer posts and a user discussion.
-    - Post pages displaying all content and allowing users to comment and react.
-    - Forms for creating/editing posts and games, along with login/signup pages.
-    - Developer dashboard for easy creation and management.
+    - Home pages showing games and posts
+    - Forms for users to login and sign up, as well as edit their profile
     - User profiles
 - Develop SQL database queries to:
-    - Retrieve all games, posts and users needed
-    - Retrieve specific posts for games, comments for posts users that have liked or commented ect.
-    - Creating/updating/deleting entries into different tables (User, Posts, Games ect.)
-    - Users liking posts, or following games.
+    - Retrieve data from the database, such as games, posts and users
+    - Creating user entries into the database
+    - Comparing user inputs to database entries and setting session variables
+    - Editing and Deleting User Data
 
 
 ## Testing Database Config
@@ -60,9 +57,11 @@ The query is correctly collecting the data from posts and games.
 The next step of this test was to get the data to display in the web app, using Jinja and HTML, I set up the begginings of the apps home page to test this.
 
 Posts Displaying Correctly
+
 ![Posts Display](screenshots/PostDisplays.png)
 
 Games Displaying Correctly
+
 ![Games Display](screenshots/GamesDisplay.png)
 
 The web app is correctly displaying the data retrieved from the queries, as well as processing references between tables into displaying correctly, for example the game name on the posts, and the number of likes/followers.
