@@ -99,33 +99,53 @@ This new version of the profile makes it more distinct from standard users by li
 
 Some forms need to have dynamic inputs that users can control, the main examples of this are the game where users can upload multiple screenshots, and the post where I want to allow users to format their content.
 Being able to upload multiple screenshots wasn't very complicated, as I could use the in built multiple file input, and get them as a list to handle normally.
-For the post form, as I wanted rich text on top of images, I opted to import a Rich Text Editor Library, Trix, and implement that into the post form, the post form also has a multiple image system similar to the game form.
+For the post form, as I wanted rich text on top of images, I opted to import a Rich Text Editor Library, Trix, and implement that into the post form. As trix saves the rich text as html i set up a sanitiser to restrict the tags and ensure the html is safe before uploading. The post form also has a multiple image system similar to the game form.
 
 ![Trix Form with demo](screenshots/TrixForm.png)
+![Multiple Image Selection](screenshots/ImageSelecting.gif)
 
-**PLACE SCREENSHOTS AND/OR ANIMATED GIFS OF THE TESTING HERE**
+Both of the Rich text form and multiple file uploads
 
 ### Changes / Improvements
 
-Replace this text with notes any improvements you made as a result of the testing.
+I tested these with end users, and I got some feedback on the forms. For posts, end users wanted to be able to put images throughout the text rather than a list before the actual content, and users also thought applying the optional multiple inputs to store links, to allow developers to link their game to multiple store pages if they have them.
 
-**PLACE SCREENSHOTS AND/OR ANIMATED GIFS OF THE IMPROVED SYSTEM HERE**
+Trix has a file uploading system, so using that and setting up flask routes, I can allow users to embed images directly into the rich text where they want, while it will save into uploads and be properly processed. For this I set up a system restricting the file types to a few common image types, and optimising and limiting the size of the files.
 
+Using Javascript to create and remove child inputs for store links, I could make a list of links, for this to work in the database I would have to create a separate links table to allow multiple to one for the games.
+
+Image formatting for trix, but set up to work with any image input such as profile pictures
+![Function to format and save Images](screenshots/ImageFormatting.png)
+
+Dynamic Link creation via js
+![Creating and removing link inputs](screenshots/LinkChildren.gif)
+
+End users thought that the way of using images through Trix allowed easier control of images in posts, and thought that the dynamic link creation was good but should be restricted to a certain number, as there are usually only a few store pages. For this I just added a counter to the Javascript and limited the link count to 6, giving a reasonable maximum that should allow all developers to list every store page link.
 
 ## Testing Editing Forms and Games
 
-Replace this text with notes about what you are testing, how you tested it, and the outcome of the testing
+Intially I had a simple edit form that retrieved the entry data from the database fed that into a form an allowed the user to change the details before updating, however this system wouldn't work with the dynamic parts of the creation, like the store links and trix rich text. 
+For Trix, it wasn't much more complcated as I only had to format it to display in the trix text area, but for the links I had to create more functions to add and count the links to display and allow developers to edit them properly.
 
-**PLACE SCREENSHOTS AND/OR ANIMATED GIFS OF THE TESTING HERE**
+Form filling with current data and allowing users to edit, add or remove dynamic parts of form.
+![Filled Form for editing](screenshots/FormEditing.gif)
 
 ### Changes / Improvements
 
-Replace this text with notes any improvements you made as a result of the testing.
+When showing to end users, the feedback on the game form was that the system I used for single images, like profile and game hero image wasn't great for the list of screenshots. The system displayed the current images, and allowed the user to choose new ones. If they submitted new images then they would replace the current ones, otherwise it would keep the old ones. With this, developers would need to re upload the old ones as well as any new ones if they wanted to just add more images.
 
-**PLACE SCREENSHOTS AND/OR ANIMATED GIFS OF THE IMPROVED SYSTEM HERE**
+I implemented a similar system for the screenshots that I did with the links, of listing them and allowing users to remove one by one. Using a hidden input I can retrieve the the image files that are submitted and compare them to the ones that were saved before the edit saving the overlap and new ones.
 
+![Image Editing Form](screenshots/ImageForm.png)
+
+![Image Comparing in database](screenshots/ComparingImageRoute.png)
+
+This new system allows developers to remove images they want, keeping others and adding new ones without overwriting previous ones.
 
 ## Testing Deletion of data
+
+Due to the nature of my web app, most of the data is in some way connected to 
+
 
 TESTING DELETION CASCADED BLAH BLAH BLAH also confirms before deleting heavy data like game, post account, also account and game have to be deleted from certain places rather than anywhere for higher security
 
