@@ -67,7 +67,7 @@
                 <p>{{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }} Likes</p>
                 {% if session.logged_in and session.user.user_id == post.user_id %}
                     <a href="/post/{{post.id}}/edit">Edit</a>
-                    <a href="/post/{{post.id}}/delete">Delete</a>
+                    <a href="/post/{{post.id}}/delete" onclick="return confirm('Are you sure you want to delete the post?');">Delete</a>
                 {% endif %}
                 <div class="truncate-paragraph">{{ post.content }}</div>
             </div>

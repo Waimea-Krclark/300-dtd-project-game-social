@@ -418,8 +418,8 @@ def game_process_search(id):
 #-----------------------------------------------------------
 # Follow Game page
 #-----------------------------------------------------------
-@login_required
 @app.get("/game/<int:id>/follow")
+@login_required
 def follow_game(id):
     with connect_db() as db:
         sql = """
@@ -445,8 +445,8 @@ def follow_game(id):
 #-----------------------------------------------------------
 # Unfollow Game page
 #-----------------------------------------------------------
-@login_required
 @app.get("/game/<int:id>/unfollow")
+@login_required
 def unfollow_game(id):
     with connect_db() as db:
         sql = """
@@ -545,8 +545,8 @@ def process_new_game():
 #-----------------------------------------------------------
 # Edit Game page
 #-----------------------------------------------------------
-@login_required
 @app.get("/game/<int:id>/edit")
+@login_required
 def edit_game_form(id):
     with connect_db() as db:
             sql = """
@@ -736,8 +736,8 @@ def show_post(id):
 #-----------------------------------------------------------
 # Like Post
 #-----------------------------------------------------------
-@login_required
 @app.get("/post/<int:id>/like")
+@login_required
 def like_post(id):
     with connect_db() as db:
         sql = """
@@ -763,8 +763,8 @@ def like_post(id):
 #-----------------------------------------------------------
 # Unlike Post
 #-----------------------------------------------------------
-@login_required
 @app.get("/post/<int:id>/unlike")
+@login_required
 def unlike_post(id):
     with connect_db() as db:
         sql = """
@@ -893,8 +893,8 @@ def process_new_post(id):
 #-----------------------------------------------------------
 # Edit Post page
 #-----------------------------------------------------------
-@login_required
 @app.get("/post/<int:id>/edit")
+@login_required
 def edit_post_form(id):
     with connect_db() as db:
             sql = """
@@ -914,8 +914,8 @@ def edit_post_form(id):
 #-----------------------------------------------------------
 # Handle Post Edit
 #-----------------------------------------------------------
-@login_required
 @app.post("/post/<int:id>/edit")
+@login_required
 def edit_post_details (id):
     title = request.form.get('title', '').strip()
     raw_content = request.form.get('content', '')
@@ -987,8 +987,8 @@ def show_profile(id):
 #-----------------------------------------------------------
 # Edit Profile page
 #-----------------------------------------------------------
-@login_required
 @app.get("/user/profile/<int:id>/edit")
+@login_required
 def edit_profile(id):
     with connect_db() as db:
         if session.get("user")["user_id"] != id:
@@ -1007,8 +1007,8 @@ def edit_profile(id):
 #-----------------------------------------------------------
 # Handle Profile Edit
 #-----------------------------------------------------------
-@login_required
 @app.post("/profile/edit/<int:id>")
+@login_required
 def edit_user_details(id):
     username = request.form.get('username', '').strip()
     old_password = request.form.get('password', '').strip()
@@ -1063,8 +1063,8 @@ def edit_user_details(id):
 #-----------------------------------------------------------
 # Developer Dash page
 #-----------------------------------------------------------
-@login_required
 @app.get("/developer")
+@login_required
 def show_dev_dash():
     if not session.get("user")["is_dev"]:
         flash("Invalid  Action", "error")
@@ -1129,6 +1129,7 @@ def show_dev_dash():
 # Dev search request
 #-----------------------------------------------------------
 @app.get("/developer/search")
+@login_required
 def dev_process_search():
     search_term = request.args.get('q', '')
     search_match = f"%{search_term}%"
@@ -1324,8 +1325,8 @@ def login_user():
 #-----------------------------------------------------------
 # Handle User Log Out
 #-----------------------------------------------------------
-@login_required
 @app.get("/logout")
+@login_required
 def logout_user():
     session.clear()
     flash(f"You have been logged out", "success")

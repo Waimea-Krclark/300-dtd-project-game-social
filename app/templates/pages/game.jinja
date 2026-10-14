@@ -16,7 +16,6 @@
     {%endfor%}
     {% if session.logged_in and session.user.is_dev == 1 and session.user.user_id == game.developer_id %}
         <a href="/game/{{game.id}}/edit">Edit</a>
-        <a href="/game/{{game.id}}/delete" onclick="return confirm('Are you sure you want to delete the game?');">Delete</a>
     {% endif %}
     {% if session.logged_in %}    
         {% if (session.user.user_id, game.id) in followed_pairs %}

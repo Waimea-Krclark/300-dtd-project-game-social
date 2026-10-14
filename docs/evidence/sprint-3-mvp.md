@@ -144,34 +144,39 @@ This new system allows developers to remove images they want, keeping others and
 
 ## Testing Deletion of data
 
-Due to the nature of my web app, most of the data is in some way connected to 
+Due to the nature of my web app, most of the data is in some way connected to to eachother, making deleting data likely to leave hanging entries in other tables. My intial idea for deleting data was to search tables for linked data and also delete those, but I found a faster way directly in SQL which is Cascade deletion that can be set on foreign keys, removing linked data from tables with parents automatically. Though it requires some SQL config to enable.
 
+![Cascade deletion in DB config](screenshots/CascadeInDB.png)
 
-TESTING DELETION CASCADED BLAH BLAH BLAH also confirms before deleting heavy data like game, post account, also account and game have to be deleted from certain places rather than anywhere for higher security
+I caught a bug with Trix, as images names are saved in the content rather than a table, its much harder to find and delete images from the uploads and my current system would delete them. In posts, before deleting the entry, I would find images in the content and find the actual file route and remove that. This bug also occurred if an image in the trix form was removed while editing a post's contents, so I compared and remove images the same way when updating posts.
 
-**PLACE SCREENSHOTS AND/OR ANIMATED GIFS OF THE TESTING HERE**
+![Function to fine image files in post content](screenshots/TrixImageScan.png)
+
+I also added a Javascript popup, making users confirm before deleting anything to add accident prevention.
+![Confirmation Popup](screenshots/popup.png)
 
 ### Changes / Improvements
 
-Replace this text with notes any improvements you made as a result of the testing.
-
-**PLACE SCREENSHOTS AND/OR ANIMATED GIFS OF THE IMPROVED SYSTEM HERE**
-
+Most things can be deleting form whatever page its from, for example users from their profile, games from their page. End users thought that for added security to avoid accidental deletion, important data like games and users should only be able to be deleted through the edit page, reducing the chance of accidents even further.
+Doing this was simple, and just required moving the deletion buttons into the edit form and removing them from other places.
 
 ## Testing Site Security and Navigation
 
-Replace this text with notes about what you are testing, how you tested it, and the outcome of the testing
+In specific routes such as creating, editing and deleting data, and user specific pages like the developer dashboard, I needed to implement some security to stop any users, signed in or not to access these routes. 
+The first security I implemented was an @login_required to routes that should only be accessed by a user with an account. I also added a check to compared session user to the owner of the entry being changed or deleted and a check for if the user is a developer before accessing developer routes.
 
-**PLACE SCREENSHOTS AND/OR ANIMATED GIFS OF THE TESTING HERE**
+![Accessing Restricted Pages](screenshots/AccessRestrictions.gif)
+
+I also implemented a back button in the nav, in which I can set a url per jinja template to return to on clicked, providing users with a global way to simply navigate the site.
 
 ### Changes / Improvements
 
-Replace this text with notes any improvements you made as a result of the testing.
+End users tested the security and it worked, stopping users from doing actions or acessing pages and routes they shouldn't be able to or would throw errors. However, the back button only rerouted if a back url was provided, and end users thought that there should be a fallback.
+I added a check that if no back url was provided, it would fall back to attempting a request.refferer which is the same as the url back arrow and if that also fails then it will redirect to the home back.
 
-**PLACE SCREENSHOTS AND/OR ANIMATED GIFS OF THE IMPROVED SYSTEM HERE**
-
+![Fallback Nav Button](screenshots/UrlFallback.png)
 
 ## Sprint Review
 
-Replace this text with a statement about how the sprint has moved the project forward - key success point, any things that didn't go so well, etc.
+The functionality, as well as the testing with end users has resulted in a dynamic and robust app. It is usable and not complicated, giving users back option, helping prevent errors and accidents and providing users with a non confusing application that will allow a wide variety of users to make use of the web app and reach the goal they may have using the system.
 
