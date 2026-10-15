@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const element = document.getElementById("toggle")
     
     if (element.checked){
-        games.style.display = "table-row";
+        games.style.display = "block";
         posts.style.display = "none";
         text.textContent = "Games";
     } else{
@@ -31,7 +31,7 @@ function toggleSwitch(element) {
     .then(response => response.json())
     
     if (element.checked){
-        games.style.display = "table-row";
+        games.style.display = "block";
         posts.style.display = "none";
         text.textContent = "Games";
     } else{

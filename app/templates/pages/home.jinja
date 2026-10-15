@@ -36,28 +36,30 @@
             {% if post.developer_id == post.user_id and post.game_id%}
                 <div class="post" onclick="window.location.href= '/post/{{post.id}}'">
                     <header>
-                        <h3>{{ post.title }}</h3>
+                        <h3>{{ post.title | upper}}</h3>
+                        <div class="details">
+                            <a href="/user/profile/{{post.user_id}}">{{ post.username }}</a>
+                            <p>{{ post.type.upper() }}</p>
+                            <a href="/game/{{post.game_id}}">{{ post.name }}</a>
+                            <p>{{ post.timestamp | format_date}}</p>
+
+                            {% if search_term or sort_term%}
+                            <p>{{ comments | selectattr("parent_id", "equalto", post.id) | list | length }} Comments</p>
+                            {% else %}
+                                <p>{{ posts | selectattr("parent_id", "equalto", post.id) | list | length }} Comments</p>
+                            {% endif %}
+
+                            {# selectattr is 1, as since liked_pairs is a tuple, jinja needs to reference the index, rather than the name, so 1 is the post_id #}
+                            {% if session.logged_in and (session.user.user_id, post.id) in liked_pairs%}
+                                <a href="/post/{{post.id}}/unlike">- {{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }} Likes</a>
+                            {% elif session.logged_in %}
+                                <a href="/post/{{post.id}}/like">+ {{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }} Likes</a>
+                            {% else%}
+                                <p>{{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }} Likes</p>
+                            {% endif %}                        
+                        </div>
                     </header>
-                    <a href="/user/profile/{{post.user_id}}">{{ post.username }}</a>
-                    <p>{{ post.type.upper() }}</p>
-                    <a href="/game/{{post.game_id}}">{{ post.name }}</a>
-                    <p>{{ post.timestamp | format_date}}</p>
-
-                    {% if search_term or sort_term%}
-                        <p>{{ comments | selectattr("parent_id", "equalto", post.id) | list | length }} Comments</p>
-                    {% else %}
-                        <p>{{ posts | selectattr("parent_id", "equalto", post.id) | list | length }} Comments</p>
-                    {% endif %}
-
-                    {# selectattr is 1, as since liked_pairs is a tuple, jinja needs to reference the index, rather than the name, so 1 is the post_id #}
-                    {% if session.logged_in and (session.user.user_id, post.id) in liked_pairs%}
-                        <a href="/post/{{post.id}}/unlike">- {{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }} Likes</a>
-                    {% elif session.logged_in %}
-                        <a href="/post/{{post.id}}/like">+ {{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }} Likes</a>
-                    {% else%}
-                        <p>{{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }} Likes</p>
-                    {% endif %}
-
+                
                     {% if session.logged_in and session.user.user_id == post.user_id %}
                         <a href="/post/{{post.id}}/edit">Edit</a>
                         <a href="/post/{{post.id}}/delete" onclick="return confirm('Are you sure you want to delete the post?');">Delete</a>
@@ -72,24 +74,30 @@
     </section>
     <section id="games">
         {% for game in games %}
-            {# <div class="game" onclick="window.location.href= '/game/{{game.id}}'" style="background-image:linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/static/uploads/{{ game.image_name }}');"> #}
-                <div class="game" onclick="window.location.href= '/game/{{game.id}}'">
+            <div class="game" onclick="window.location.href= '/game/{{game.id}}'" style="background-image:linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/static/uploads/{{ game.image_name }}');">
                 <header>
-                    <h3>{{ game.name }}</h3>
+                    <h3>{{ game.name | upper}}</h3>
                 </header>
-                <a href="/user/profile/{{game.developer_id}}">{{ game.username | paragraphs }}</a>
-                {% if session.logged_in and session.user.is_dev == 1 and session.user.user_id == game.developer_id %}
-                    <a href="/game/{{game.id}}/edit">Edit</a>
-                {% endif %}
-                <p>{{ followed_pairs | selectattr("1", "equalto", game.id) | list | length }} following</p>
-                {% if session.logged_in %}    
-                    {% if (session.user.user_id, game.id) in followed_pairs %}
-                        <a href="/game/{{game.id}}/unfollow"><button>- Unfollow</button></a>
-                    {% else %}
-                        <a href="/game/{{game.id}}/follow"><button>+ Follow</button></a>
-                    {% endif %} 
-                {% endif %}
-                <img src="/static/uploads/{{ game.image_name }}">
+
+                <div class="details">
+                    <a href="/user/profile/{{game.developer_id}}">{{ game.username | paragraphs }}</a>
+                    {% if session.logged_in and session.user.is_dev == 1 and session.user.user_id == game.developer_id %}
+                        <a href="/game/{{game.id}}/edit">Edit</a>
+                    {% endif %}
+
+                    <footer>
+                        <img src="/static/images/follower.svg" alt='Following Icon' class="icon">
+                        <p>{{ followed_pairs | selectattr("1", "equalto", game.id) | list | length }} following</p>
+                        {% if session.logged_in %}    
+                            {% if (session.user.user_id, game.id) in followed_pairs %}
+                                <a href="/game/{{game.id}}/unfollow"><button class="interaction"><img src="/static/images/remove.svg" alt="unfollow icon" class="icon">Unfollow</button></a>
+                            {% else %}
+                                <a href="/game/{{game.id}}/follow"><button class="interaction"><img src="/static/images/add.svg" alt="follow icon" class="icon">Follow</button></a>
+                            {% endif %} 
+                        {% endif %} 
+                    </footer>
+
+                </div>
             </div>
         {% else %}
             <p>No games!</p>

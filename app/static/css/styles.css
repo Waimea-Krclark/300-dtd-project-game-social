@@ -4,14 +4,27 @@
 ===========================================================*/
 
 :root {
-    --text-col:         #111;
+    /* Colours */
+    --text-col:         #dfefea;
+    
+    --primary-col:      #6cdcc8;
+    --primary-darker-col:#80baac;
 
-    --back-col:         #eee;
-    --back-col-panel:   #929292;
+    --back-col:         #0c1715;
+    --back-col-panel:   #262227;
 
     --border-col:       #355;
 
     --accent-col:       #e43;
+
+    --interact-bg:         #322632;
+    --interact-fg:         #d5b3c3;
+
+    /* Default Formatting */
+
+    --border-radius:      2rem;
+    --heading-weight:     900;
+    --heading-size:       xx-large;
 }
 
 
@@ -42,6 +55,16 @@ img {
     object-fit: cover; 
 }
 
+.icon{
+    width: 24px;
+}
+
+.interaction{
+    background-color: var(--interact-bg);
+    color: var(--interact-fg);
+    border-radius: var(--border-radius);
+    border: none;
+}
 
 
 /* Header & Nav -----------------------------------------------*/
@@ -114,64 +137,95 @@ main > h2 {
 #games {
     gap: 2rem;
     margin: 2rem;
-    grid-template-columns: repeat(auto-fit, minmax(min(15rem, 100%), 1fr));
-    align-items: start;
 
     .game {
+        display: flex;
+        flex-direction: column;
         padding: 1rem;
         margin: 2rem;
         box-shadow: 0 0.5rem 1rem #0004;
-        border: 1px solid var(--border-col);
         background-color: var(--back-col-panel);
+        border-radius: var(--border-radius);
+        background-position:center;
+        background-size: cover;
+        background-repeat: no-repeat;
+        min-height: 15rem;
+        text-shadow: 0 0 5px #000000, 0 0 15px #000000, 0 0 25px #000000;
 
-        header {
+            header {
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+
+                h3{
+                   font-weight: var(--heading-weight);
+                   font-size: var(--heading-size);
+                   color: var(--text-col);
+                  
+                }  
+            }
+        
+        .details{
+            flex: 1;
             display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
+            flex-direction: column;
         }
 
         footer {
-            font-size: 0.8rem;
-            font-style: italic;
-        }
+            display: flex;
+            margin-top: auto ;
+            vertical-align: bottom;
+            justify-content: space-between;
 
-        &.pinned {
-            border-color: var(--accent-col);
+            a{
+                margin-left: auto;
+            }
         }
     }
 }
 
+
+
 #posts {
     gap: 2rem;
     margin: 2rem;
-    grid-template-columns: repeat(auto-fit, minmax(min(15rem, 100%), 1fr));
-    align-items: start;
 
     .post {
         padding: 1rem;
         margin: 2rem;
         box-shadow: 0 0.5rem 1rem #0004;
-        border: 1px solid var(--border-col);
         background-color: var(--back-col-panel);
-        
+        border-radius: var(--border-radius);
 
         header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
+            
+                h3{
+                    font-weight: var(--heading-weight);
+                    font-size: var(--heading-size);
+                    color: var(--primary-col);
+                }
         }
 
         footer {
             font-size: 0.8rem;
             font-style: italic;
-        }
-
-        &.pinned {
-            border-color: var(--accent-col);
         }
     }
 }
 
 .switch{
     display: flex;
+}
+
+.details {
+    color:var(--primary-darker-col);
+    text-decoration: none;
+
+    a{
+        text-decoration: none;
+        color: inherit; 
+    }
 }
