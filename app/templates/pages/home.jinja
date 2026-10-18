@@ -6,19 +6,9 @@
 
 
 {% block content %}
-    
-    <label class="switch">
-        <input type="checkbox" id="toggle" onchange="toggleSwitch(this)" {% if session.show_games %}checked{% endif %}>
-        <span class="slider"></span>
-        <p id="switchText">Games</p>
-    </label>
-   
     <section id="search">
         <form action="/search" method="get">
-            <label>
-                Search for...
-                <input type="search" name="q" value="{{search_term}}">
-            </label>
+            <input type="search" name="q" value="{{search_term}}" placeholder="Search...">
             <label>
             Sort By:
                 <select name="sortby">
@@ -30,7 +20,12 @@
             <button>Search</button>
         </form>
     </section>
-    
+
+    <div class="toggle switch">
+        <input type="checkbox" id="toggle" onchange="toggleSwitch(this)" {% if session.show_games %}checked{% endif %}>
+        <label></label>
+    </div>
+
     <section id="posts">
         {% for post in posts %}
             {% if post.developer_id == post.user_id and post.game_id%}

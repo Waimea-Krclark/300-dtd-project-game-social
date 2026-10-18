@@ -35,21 +35,21 @@
 
     <header>
         <a href="/">
-            Checkpoint
+            <img src="/static/images/logo.png" id="web_logo">
         </a>
 
         <nav>
-            <a href="/">Home</a>
             {% if back_url %}
-                <a href="{{ back_url }}">Back</a>
+                <a href="{{ back_url }}"><img src="/static/images/back-arrow.svg" class="icon"><p>Back</p></a>
             {% else %}
-                 <a href="{{ request.referrer or '/' }}">Back</a>
+                 <a href="{{ request.referrer or '/' }}"><img src="/static/images/back-arrow.svg" class="icon"><p>Back</p></a>
             {% endif %}
-            <a href="javascript:void(0);" onclick="toggleOptionMenu()">Profile</a>
+            <a href="/"><img src="/static/images/home-icon.svg" class="icon"><p>Home</p></a>
+            <a href="javascript:void(0);" onclick="toggleOptionMenu()"><img src="/static/images/profile-icon.svg" class="icon"><p>Profile</p></a>
             {% if session.logged_in %} 
                 <section class="menu" id="menuDrop">
                     <p>Welcome: {{session.user.username}}</p>
-                    <a href="/user/profile/{{session.user.user_id}}">Profile</a>
+                    <a href="/user/profile/{{session.user.user_id}}"><p>Profile</p></a>
                     {% if session.user.is_dev %}
                         <a href="/developer">Developer</a>
                         <a href="/post/new">New Post</a>
@@ -71,6 +71,8 @@
     {% include "partials/messages.jinja" %}
 
     <main>
+        <img src="/static/images/logo.png" id="mobile_logo">
+        <div id="mobile-shadow"></div>
         <section id="page_content">
             {% block content %}
             {% endblock %}
