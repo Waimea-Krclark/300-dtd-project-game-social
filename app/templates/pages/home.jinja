@@ -6,7 +6,8 @@
 
 
 {% block content %}
-    <section id="search">
+    <div id="mobile-shadow"></div>
+    <section id="search" class="dynamic">
         <form action="/search" method="get">
             <input type="search" name="q" value="{{search_term}}" placeholder="Search...">
             <label>
@@ -17,7 +18,7 @@
                     <option value="2" {{ 'selected' if sort_term == '2' }}>Oldest</option>
                 </select>
             </label>
-            <button>Search</button>
+            <button>SEARCH</button>
         </form>
     </section>
 
@@ -34,33 +35,34 @@
                         <h3>{{ post.title | upper}}</h3>
                         <div class="details">
                             <a href="/user/profile/{{post.user_id}}">{{ post.username }}</a>
-                            <p>{{ post.type.upper() }}</p>
                             <a href="/game/{{post.game_id}}">{{ post.name }}</a>
+                            <p>{{ post.type.upper() }}</p>
                             <p>{{ post.timestamp | format_date}}</p>
-
-                            {% if search_term or sort_term%}
-                            <p>{{ comments | selectattr("parent_id", "equalto", post.id) | list | length }} Comments</p>
-                            {% else %}
-                                <p>{{ posts | selectattr("parent_id", "equalto", post.id) | list | length }} Comments</p>
-                            {% endif %}
 
                             {# selectattr is 1, as since liked_pairs is a tuple, jinja needs to reference the index, rather than the name, so 1 is the post_id #}
                             {% if session.logged_in and (session.user.user_id, post.id) in liked_pairs%}
-                                <a href="/post/{{post.id}}/unlike">- {{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }} Likes</a>
+                                <a href="/post/{{post.id}}/unlike"><img src="/static/images/heart-filled-icon.svg" class="icon"> {{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }}</a>
                             {% elif session.logged_in %}
-                                <a href="/post/{{post.id}}/like">+ {{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }} Likes</a>
+                                <a href="/post/{{post.id}}/like"><img src="/static/images/heart-icon.svg" class="icon"> {{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }}</a>
                             {% else%}
-                                <p>{{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }} Likes</p>
-                            {% endif %}                        
+                                <p><img src="/static/images/heart-icon.svg" class="icon">{{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }}</p>
+                            {% endif %}              
+
+                            {% if search_term or sort_term%}
+                                <p><img src="/static/images/comment.svg" class="icon">{{ comments | selectattr("parent_id", "equalto", post.id) | list | length }}</p>
+                            {% else %}
+                                <p><img src="/static/images/comment.svg" class="icon">{{ posts | selectattr("parent_id", "equalto", post.id) | list | length }}</p>
+                            {% endif %}          
                         </div>
                     </header>
                 
                     {% if session.logged_in and session.user.user_id == post.user_id %}
-                        <a href="/post/{{post.id}}/edit">Edit</a>
-                        <a href="/post/{{post.id}}/delete" onclick="return confirm('Are you sure you want to delete the post?');">Delete</a>
+                        <a href="/post/{{post.id}}/edit"><button class="interaction"><img src="/static/images/edit-icon.svg" class="icon">Edit</button></a>
+                        <a href="/post/{{post.id}}/delete" onclick="return confirm('Are you sure you want to delete the post?);"><button class="interaction"><img src="/static/images/remove.svg" alt="unfollow icon" class="icon">Delete</button></a>
                     {% endif %}
                     
                     <div class="truncate-paragraph">{{ post.content }}</div>
+                    <footer>Read more...</footer>
                 </div>
             {% endif %}
         {% else %}
@@ -69,7 +71,7 @@
     </section>
     <section id="games">
         {% for game in games %}
-            <div class="game" onclick="window.location.href= '/game/{{game.id}}'" style="background-image:linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('/static/uploads/{{ game.image_name }}');">
+            <div class="game" onclick="window.location.href= '/game/{{game.id}}'" style="background-image:linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)), url('/static/uploads/{{ game.image_name }}');">
                 <header>
                     <h3>{{ game.name | upper}}</h3>
                 </header>
@@ -77,7 +79,7 @@
                 <div class="details">
                     <a href="/user/profile/{{game.developer_id}}">{{ game.username | paragraphs }}</a>
                     {% if session.logged_in and session.user.is_dev == 1 and session.user.user_id == game.developer_id %}
-                        <a href="/game/{{game.id}}/edit">Edit</a>
+                        <a href="/game/{{game.id}}/edit"><button class="interaction"><img src="/static/images/edit-icon.svg" class="icon">Edit</button></a>
                     {% endif %}
 
                     <footer>

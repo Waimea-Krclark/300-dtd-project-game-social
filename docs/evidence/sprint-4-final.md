@@ -13,6 +13,11 @@ Develop the system until it is fully featured, with a refined UI and it satisfie
 - Refine the user experience (UX) of the system
 - Perform final, full-system testing
 
+testing screenshots, from row to stack
+testing post on game list, sp they dont go on forever if there heaps
+testing screen size formatting
+also buttons and stuff spanning full page very annoying
+
 
 ## Testing FEATURE NAME HERE
 

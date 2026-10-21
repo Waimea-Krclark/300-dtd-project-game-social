@@ -6,11 +6,17 @@
 
 
 {% block content %}
-    <header>
-        <p>{{ post.type.upper() }}</p>
-        <p>{{ post.timestamp | format_date}}</p>
-        <a href="/game/{{post.game_id}}">{{ post.name }}</a>
-        <a href="/user/profile/{{post.user_id}}">{{post.username}}</a>
+    <header id="post-header">
+        <div class="details">
+            <div>
+                <p>{{ post.type.upper() }}</p>
+                <p>{{ post.timestamp | format_date}}</p>
+            </div>
+
+            <a href="/game/{{post.game_id}}">{{ post.name | upper}}</a>
+            <a href="/user/profile/{{post.user_id}}">{{post.username}}</a>
+        </div>
+
         <h1>{{ post.title }}</h3>
         <p>{{ comments | selectattr("parent_id", "equalto", post.id) | list | length }} Comments</p>
         {% if session.logged_in and session.user.user_id == post.user_id %}

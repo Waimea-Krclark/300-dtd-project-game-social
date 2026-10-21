@@ -48,7 +48,8 @@
             <a href="javascript:void(0);" onclick="toggleOptionMenu()"><img src="/static/images/profile-icon.svg" class="icon"><p>Profile</p></a>
             {% if session.logged_in %} 
                 <section class="menu" id="menuDrop">
-                    <p>Welcome: {{session.user.username}}</p>
+                    <div id="arrow"></div>
+                    <p>WELCOME: {{session.user.username | upper}}</p>
                     <a href="/user/profile/{{session.user.user_id}}"><p>Profile</p></a>
                     {% if session.user.is_dev %}
                         <a href="/developer">Developer</a>
@@ -59,6 +60,7 @@
                 </section>
             {% else %}
                 <section class="menu" id="menuDrop">
+                    <div id="arrow"></div>
                     <a href="/user/login">Sign In</a>
                     <a href="/user/signup">Sign Up</a>
                 </section>
@@ -72,7 +74,6 @@
 
     <main>
         <img src="/static/images/logo.png" id="mobile_logo">
-        <div id="mobile-shadow"></div>
         <section id="page_content">
             {% block content %}
             {% endblock %}
