@@ -731,7 +731,7 @@ def show_post(id):
         if not post:
             return redirect('/')
         
-        return render_template("pages/post.jinja", post = post, likes = likes, liked_pairs=liked_pairs, comments=comments, back_url=f"/game/{post['game_id']}")
+        return render_template("pages/post.jinja", post = post, liked_pairs=liked_pairs, comments=comments, back_url=f"/game/{post['game_id']}")
 
 #-----------------------------------------------------------
 # Like Post

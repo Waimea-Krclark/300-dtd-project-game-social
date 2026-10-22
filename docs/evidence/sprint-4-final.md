@@ -17,6 +17,7 @@ testing screenshots, from row to stack
 testing post on game list, sp they dont go on forever if there heaps
 testing screen size formatting
 also buttons and stuff spanning full page very annoying
+show/hide comment replieas
 
 
 ## Testing FEATURE NAME HERE

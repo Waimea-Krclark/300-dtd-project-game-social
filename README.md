@@ -11,6 +11,11 @@ The app has the following key features:
 - ...
 
 
+## Live Site
+
+The site is hosted on **Render.com** and can be [accessed live at this link](https://checkpoint-level-3-dtd-web-app.onrender.com/)
+
+
 ## Supporting Documents
 
 All documentations is hosted on [Github Pages](https://waimea-krclark.github.io/300-dtd-project-game-social/)
@@ -22,8 +27,9 @@ Task Instructions:
 Project Evidence
 - [Sprint 0: Project Requirements](docs/evidence/sprint-0-requirements.md)
 - [Sprint 1: Prototype Development](docs/evidence/sprint-1-prototype.md)
-- [Sprint 2: MVP Development](docs/evidence/sprint-2-mvp.md)
-- [Sprint 3: Final System Development](docs/evidence/sprint-3-final.md)
+- [Sprint 2: Database](docs/evidence/sprint-2-database.md)
+- [Sprint 3: MVP Development](docs/evidence/sprint-3-mvp.md)
+- [Sprint 4: Final System Development](docs/evidence/sprint-4-final.md)
 - [Review: Project Final Review](docs/evidence/system-review.md)
 
 
@@ -32,14 +38,20 @@ Project Evidence
 The following user accounts have been created to demonstrate the features of the system:
 
 Test User 1:
-- Username: xxxxx
-- Password: xxxxx
+- Username: Dudeman
+- Password: test
 
 Test User 2:
-- Username: xxxxx
-- Password: xxxxx
+- Username: Testman
+- Password: test
 
-...
+Test Developer 1:
+- Username: FastTurnipGames
+- Password: test
+
+Test Developer 2:
+- Username: MidnightSunStudios
+- Password: test
 
 
 ## Technologies Used

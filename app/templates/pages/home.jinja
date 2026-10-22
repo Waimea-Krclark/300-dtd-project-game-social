@@ -6,8 +6,9 @@
 
 
 {% block content %}
+    <img src="/static/images/logo.png" id="mobile_logo">
     <div id="mobile-shadow"></div>
-    <section id="search" class="dynamic">
+    <section class="form dynamic">
         <form action="/search" method="get">
             <input type="search" name="q" value="{{search_term}}" placeholder="Search...">
             <label>

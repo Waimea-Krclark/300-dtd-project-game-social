@@ -7,112 +7,124 @@
 
 {% block content %}
     <header id="post-header">
-        <div class="details">
-            <div>
-                <p>{{ post.type.upper() }}</p>
-                <p>{{ post.timestamp | format_date}}</p>
+        <section>
+            <div class="details">
+                <div>
+                    <p>{{ post.type.upper() }}</p>
+                    <p>{{ post.timestamp | format_date}}</p>
+                </div>
+                <a href="/game/{{post.game_id}}">{{ post.name | upper}}</a>
+                <a href="/user/profile/{{post.user_id}}">{{post.username}}</a>
             </div>
 
-            <a href="/game/{{post.game_id}}">{{ post.name | upper}}</a>
-            <a href="/user/profile/{{post.user_id}}">{{post.username}}</a>
-        </div>
+            <h1>{{ post.title }}</h3>   
+            <div class="post-options">
+                <div>
+                    {% if session.logged_in and session.user.user_id == post.user_id %}
+                        <a href="/post/{{post.id}}/edit"><button class="interaction"><img src="/static/images/edit-icon.svg" class="icon">Edit</button></a>
+                        <a href="/post/{{post.id}}/delete" onclick="return confirm('Are you sure you want to delete the post?');"><button class="interaction"><img src="/static/images/remove.svg" alt="unfollow icon" class="icon">Delete</button></a>
+                    {% endif %}                 
+                </div>
+                <div>
+                    {# selectattr is 1, as since liked_pairs is a tuple, jinja needs to reference the index, rather than the name, so 1 is the post_id #}
+                    {% if session.logged_in and (session.user.user_id, post.id) in liked_pairs%}
+                        <a href="/post/{{post.id}}/unlike"><img src="/static/images/heart-filled-icon.svg" class="icon"> {{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }}</a>
+                    {% elif session.logged_in %}
+                        <a href="/post/{{post.id}}/like"><img src="/static/images/heart-icon.svg" class="icon"> {{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }}</a>
+                    {% else%}
+                        <p><img src="/static/images/heart-icon.svg" class="icon">{{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }}</p>
+                    {% endif %}              
+                    <p><img src="/static/images/comment.svg" class="icon">{{ comments | selectattr("parent_id", "equalto", post.id) | list | length }}</p>                    
+                </div>
 
-        <h1>{{ post.title }}</h3>
-        <p>{{ comments | selectattr("parent_id", "equalto", post.id) | list | length }} Comments</p>
-        {% if session.logged_in and session.user.user_id == post.user_id %}
-            <a href="/post/{{post.id}}/edit">Edit</a>
-            <a href="/post/{{post.id}}/delete" onclick="return confirm('Are you sure you want to delete the post?');">Delete</a>
-        {% endif %}
-        {% if session.logged_in and (session.user.user_id, post.id) in liked_pairs%}
-            <a href="/post/{{post.id}}/unlike">- {{ likes | selectattr("post_id", "equalto", post.id) | list | length }} Likes</a>
-        {% else %}
-            <a href="/post/{{post.id}}/like">+ {{ likes | selectattr("post_id", "equalto", post.id) | list | length }} Likes</a>
-        {% endif %}
+            </div>
+        </section>
     </header>
 
     {% for image in media %}
         <img src="/static/uploads/{{image.image_file}}" alt="{{image.image_file}}">
     {% endfor %}
-    <p>{{ post.content }}</p>
-    <h3>Comments:</h3>
-    {% if session.logged_in %}
-        <form method="post" action="/post/{{post.id}}/comment">
-            <label>
-                <input placeholder="Leave a Comment..." name="comment" type="text" required>
-            </label>
+    <div>{{ post.content }}</div>
+    <section id="comments">
+        <h3>Comments:</h3>
+        {% if session.logged_in %}
+            <section class="form">
+                <form method="post" action="/post/{{post.id}}/comment">
+                    <label>
+                        <input placeholder="Leave a Comment..." name="comment" type="text" required>
+                    </label>
 
-            <button>Post</button>
-        </form>
-    {% else %}
-        <p>Log in to Comment</p>
-    {% endif %}
-    <section id="posts">
-        {% for comment in comments %}
-            {% if comment.parent_id == post.id%}
-                <div class="post">
-                    <img src="/static/uploads/{{comment.profile_image}}" alt="{{comment.username}}'s profile image">
-                    <a href="/user/profile/{{comment.user_id}}">{{ comment.username }}</a>
-                    {% if session.logged_in and session.user.user_id == comment.user_id %}
-                        <a href="/post/{{comment.id}}/delete">Delete</a>
-                    {% endif %}
-                    <p>{{comment.timestamp  | format_human}}</p>
-                    <div>{{comment.content | safe}}</div>
-                    <p>{{ comments | selectattr("parent_id", "equalto", comment.id) | list | length }} Replies</p>
-                    {% if session.logged_in and (session.user.user_id, comment.id) in liked_pairs%}
-                        <a href="/post/{{comment.id}}/unlike">- {{ likes | selectattr("post_id", "equalto", comment.id) | list | length }} Likes</a>
-                    {% else %}
-                        <a href="/post/{{comment.id}}/like">+ {{ likes | selectattr("post_id", "equalto", comment.id) | list | length }} Likes</a>
-                    {% endif %}
-
-                    {% if session.logged_in %}
-                        <form method="post" action="/post/{{comment.id}}/comment">
-                            <label>
-                                <input placeholder="Leave a Reply..." name="comment" type="text" required>
-                            </label>
-
-                            <button>Post</button>
-                        </form>
-                    {% else %}
-                        <p>Log in to Comment</p>
-                    {% endif %}
-                    <ul>
-                        {% set replies = comments | selectattr("parent_id", "equalto", comment.id) | list %}
-                        {% for reply in replies recursive %}
-                            {% set replies = comments | selectattr("parent_id", "equalto", reply.id) | list %}
-                            <li>
-                                {# <img src="/static/uploads/{{reply.profile_image}}" alt="{{comment.username}}'s profile image"> #}
-                                <a href="/user/profile/{{reply.user_id}}">{{ reply.username }}</a>
-                                {% if session.logged_in and session.user.user_id == reply.user_id %}
-                                    <a href="/post/{{reply.id}}/delete">Delete</a>
-                                {% endif %}
-                                <p>{{reply.timestamp  | format_human}}</p>
-                                <p>{{reply.content}}</p>
-                                {% if loop.depth < 5 %}
-                                    {% if session.logged_in %}
-                                        <form method="post" action="/post/{{reply.id}}/comment">
-                                            <label>
-                                                <input placeholder="Leave a Reply..." name="comment" type="text" required>
-                                            </label>
-
-                                            <button>Post</button>
-                                        </form>
-                                    {% else %}
-                                        <p>Log in to Reply</p>
-                                    {% endif %}
-                                {% endif %}
-                                
-                            </li>
-                            {% if replies %}
-                                <ul>
-                                    {{ loop(replies) }}
-                                </ul>
-                                
+                    <button>Post</button>
+                </form>
+            </section>
+        {% else %}
+            <p>Log in to Comment</p>
+        {% endif %}
+        <section id="posts">
+            {% for comment in comments %}
+                {% if comment.parent_id == post.id%}
+                    <div class="post">
+                        <header>
+                            <a href="/user/profile/{{comment.user_id}}"><img src="/static/uploads/{{comment.profile_image}}" alt="{{comment.username}}'s profile image" class="profile">{{ comment.username }}</a>
+                            <p>{{comment.timestamp  | format_human}}</p>
+                            {% if session.logged_in and session.user.user_id == comment.user_id %}
+                                <a href="/post/{{comment.id}}/delete" onclick="return confirm('Are you sure you want to delete the comment?);"><button class="interaction"><img src="/static/images/remove.svg" alt="unfollow icon" class="icon">Delete</button></a>
                             {% endif %}
-                        {% endfor %}
-                    </ul>
-                </div>  
-            {% endif %}
-        {% endfor %}
+                        </header>
+                        <div>{{comment.content}}</div>
+                        <div class="options">
+                            {% if session.logged_in %}
+                                <form method="post" action="/post/{{comment.id}}/comment" class="form">
+                                    <label>
+                                        <input placeholder="Leave a Reply..." name="comment" type="text" required>
+                                    </label>
+
+                                    <button>Post</button>
+                                </form>
+                            {% else %}
+                                <p>Log in to Comment</p>
+                            {% endif %}
+                        </div>
+                        <ul>
+                            {% set replies = comments | selectattr("parent_id", "equalto", comment.id) | list %}
+                            {% for reply in replies recursive %}
+                                {% set replies = comments | selectattr("parent_id", "equalto", reply.id) | list %}
+                                <li>
+                                    <header>
+                                        <a href="/user/profile/{{reply.user_id}}"><img src="/static/uploads/{{reply.profile_image}}" alt="{{reply.username}}'s profile image" class="profile"> {{ reply.username }}</a>
+                                        <p>{{reply.timestamp  | format_human}}</p>
+                                        {% if session.logged_in and session.user.user_id == reply.user_id %}
+                                            <a href="/post/{{reply.id}}/delete" onclick="return confirm('Are you sure you want to delete the comment?);"><button class="interaction"><img src="/static/images/remove.svg" alt="unfollow icon" class="icon">Delete</button></a>
+                                        {% endif %}
+                                    </header>
+                                    <p>{{reply.content}}</p>
+                                    {% if loop.depth < 5 %}
+                                        {% if session.logged_in %}
+                                            <form method="post" action="/post/{{reply.id}}/comment" class="form">
+                                                <label>
+                                                    <input placeholder="Leave a Reply..." name="comment" type="text" required>
+                                                </label>
+
+                                                <button>Post</button>
+                                            </form>
+                                        {% else %}
+                                            <p>Log in to Reply</p>
+                                        {% endif %}
+                                    {% endif %}
+
+                                </li>
+                                {% if replies %}
+                                    <ul>
+                                        {{ loop(replies) }}
+                                    </ul>
+
+                                {% endif %}
+                            {% endfor %}
+                        </ul>
+                    </div>  
+                {% endif %}
+            {% endfor %}
+        </section>
     </section>
     
 {% endblock %}

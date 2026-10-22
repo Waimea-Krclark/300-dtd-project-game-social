@@ -90,12 +90,9 @@
             {% endif %}       
         </div>
 
-        <section id="search">
+        <section class="form">
             <form action="/game/{{game.id}}/search" method="get">
-                <label>
-                    Search for...
-                    <input type="search" name="q" value="{{search_term}}">
-                </label>
+                <input type="search" name="q" value="{{search_term}}" placeholder="Search...">
                 <label>
                 Sort By:
                     <select name="sortby">
@@ -116,20 +113,26 @@
                             <header>
                                 <h3>{{ post.title }}</h3>
                                 {% if session.logged_in and session.user.user_id == post.user_id %}
-                                    <a href="/post/{{post.id}}/edit">Edit</a>
+                                    <div class="controls">
+                                        <a href="/post/{{post.id}}/edit"><button class="interaction"><img src="/static/images/edit-icon.svg" class="icon">Edit</button></a>
+                                        <a href="/post/{{post.id}}/delete" onclick="return confirm('Are you sure you want to delete the post?');"><button class="interaction"><img src="/static/images/remove.svg" alt="unfollow icon" class="icon">Delete</button></a>
+                                    </div>
                                 {% endif %}
+                                <div class="details">
+                                    <a href="/user/profile/{{post.user_id}}"><img src="/static/uploads/{{post.profile_image}}" alt="{{post.username}}'s profile image" class="profile">{{ post.username }}</a>
+                                    <p>{{  post.timestamp | format_date }}</p>    
+                                    {% if session.logged_in and (session.user.user_id, post.id) in liked_pairs%}
+                                    <a href="/post/{{post.id}}/unlike"><img src="/static/images/heart-filled-icon.svg" class="icon"> {{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }} Likes</a>
+                                    {% elif session.logged_in %}
+                                        <a href="/post/{{post.id}}/like"><img src="/static/images/heart-icon.svg" class="icon"> {{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }} Likes</a>
+                                    {% else%}
+                                        <p><img src="/static/images/heart-icon.svg" class="icon">{{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }} Likes</p>
+                                    {% endif %}              
+                                    <p><img src="/static/images/comment.svg" class="icon">{{ comments | selectattr("parent_id", "equalto", post.id) | list | length }} Comments</p>
+                                </div>
+
                             </header>
-                            <img src="/static/uploads/{{post.profile_image}}" alt="{{post.username}}'s profile image" class="icon">
-                            <a href="/user/profile/{{post.user_id}}">{{ post.username }}</a>
-                            <p>{{ post.timestamp | format_date }}</p>
-                            <p>{{ comments | selectattr("parent_id", "equalto", post.id) | list | length }} Comments</p>
-                            {% if session.logged_in and (session.user.user_id, post.id) in liked_pairs%}
-                                <a href="/post/{{post.id}}/unlike">- {{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }} Likes</a>
-                            {% elif session.logged_in %}
-                                <a href="/post/{{post.id}}/like">+ {{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }} Likes</a>
-                            {% else%}
-                                <p>{{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }} Likes</p>
-                            {% endif %}
+                            <div class="truncate-paragraph">{{ post.content }}</div>
                             <footer>Read more...</footer>
                         </div>
                     {% endif %}
