@@ -18,6 +18,8 @@ testing post on game list, sp they dont go on forever if there heaps
 testing screen size formatting
 also buttons and stuff spanning full page very annoying
 show/hide comment replieas
+dves dont need to follow
+etc
 
 
 ## Testing FEATURE NAME HERE

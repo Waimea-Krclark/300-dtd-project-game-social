@@ -6,7 +6,7 @@
 
 
 {% block content %}
-    <img src="/static/images/logo.png" id="mobile_logo">
+    <img src="/static/images/logo.png" id="mobile_logo" alt="Mobile Logo">
     <div id="mobile-shadow"></div>
     <section class="form dynamic">
         <form action="/search" method="get">
@@ -28,7 +28,7 @@
         <label></label>
     </div>
 
-    <section id="posts">
+    <section id="posts" class="dynamic">
         {% for post in posts %}
             {% if post.developer_id == post.user_id and post.game_id%}
                 <div class="post" onclick="window.location.href= '/post/{{post.id}}'">
@@ -42,24 +42,24 @@
 
                             {# selectattr is 1, as since liked_pairs is a tuple, jinja needs to reference the index, rather than the name, so 1 is the post_id #}
                             {% if session.logged_in and (session.user.user_id, post.id) in liked_pairs%}
-                                <a href="/post/{{post.id}}/unlike"><img src="/static/images/heart-filled-icon.svg" class="icon"> {{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }}</a>
+                                <a href="/post/{{post.id}}/unlike"><img src="/static/images/heart-filled-icon.svg" class="icon" alt="Liked Icon"> {{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }}</a>
                             {% elif session.logged_in %}
-                                <a href="/post/{{post.id}}/like"><img src="/static/images/heart-icon.svg" class="icon"> {{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }}</a>
+                                <a href="/post/{{post.id}}/like"><img src="/static/images/heart-icon.svg" class="icon" alt="Like Icon"> {{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }}</a>
                             {% else%}
-                                <p><img src="/static/images/heart-icon.svg" class="icon">{{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }}</p>
+                                <p><img src="/static/images/heart-icon.svg" class="icon" alt="Like Icon">{{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }}</p>
                             {% endif %}              
-
+                            
                             {% if search_term or sort_term%}
-                                <p><img src="/static/images/comment.svg" class="icon">{{ comments | selectattr("parent_id", "equalto", post.id) | list | length }}</p>
+                                <p><img src="/static/images/comment.svg" class="icon" alt="Comment Icon">{{ comments | selectattr("parent_id", "equalto", post.id) | list | length }}</p>
                             {% else %}
-                                <p><img src="/static/images/comment.svg" class="icon">{{ posts | selectattr("parent_id", "equalto", post.id) | list | length }}</p>
+                                <p><img src="/static/images/comment.svg" class="icon" alt="Comment Icon">{{ posts | selectattr("parent_id", "equalto", post.id) | list | length }}</p>
                             {% endif %}          
                         </div>
                     </header>
                 
                     {% if session.logged_in and session.user.user_id == post.user_id %}
-                        <a href="/post/{{post.id}}/edit"><button class="interaction"><img src="/static/images/edit-icon.svg" class="icon">Edit</button></a>
-                        <a href="/post/{{post.id}}/delete" onclick="return confirm('Are you sure you want to delete the post?);"><button class="interaction"><img src="/static/images/remove.svg" alt="unfollow icon" class="icon">Delete</button></a>
+                        <a href="/post/{{post.id}}/edit" class="interaction"><img src="/static/images/edit-icon.svg" class="icon" alt="Edit Icon">Edit</a>
+                        <a href="/post/{{post.id}}/delete" onclick="return confirm('Are you sure you want to delete the post?);" class="interaction"><img src="/static/images/remove.svg" alt="Remove icon" class="icon">Delete</a>
                     {% endif %}
                     
                     <div class="truncate-paragraph">{{ post.content }}</div>
@@ -70,7 +70,8 @@
             <p>No posts!</p>
         {% endfor %}
     </section>
-    <section id="games">
+    <section id="games" class="dynamic">
+    <h2></h2>
         {% for game in games %}
             <div class="game" onclick="window.location.href= '/game/{{game.id}}'" style="background-image:linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)), url('/static/uploads/{{ game.image_name }}');">
                 <header>
@@ -80,17 +81,19 @@
                 <div class="details">
                     <a href="/user/profile/{{game.developer_id}}">{{ game.username | paragraphs }}</a>
                     {% if session.logged_in and session.user.is_dev == 1 and session.user.user_id == game.developer_id %}
-                        <a href="/game/{{game.id}}/edit"><button class="interaction"><img src="/static/images/edit-icon.svg" class="icon">Edit</button></a>
+                        <a href="/game/{{game.id}}/edit" class="interaction"><img src="/static/images/edit-icon.svg" class="icon" alt="Edit Icon">Edit</a>
                     {% endif %}
 
                     <footer>
-                        <img src="/static/images/follower.svg" alt='Following Icon' class="icon">
-                        <p>{{ followed_pairs | selectattr("1", "equalto", game.id) | list | length }} following</p>
+                        <div>   
+                            <img src="/static/images/follower.svg" alt='Following Icon' class="icon">
+                            <p>{{ followed_pairs | selectattr("1", "equalto", game.id) | list | length }} following</p>
+                        </div>
                         {% if session.logged_in %}    
                             {% if (session.user.user_id, game.id) in followed_pairs %}
-                                <a href="/game/{{game.id}}/unfollow"><button class="interaction"><img src="/static/images/remove.svg" alt="unfollow icon" class="icon">Unfollow</button></a>
+                                <a href="/game/{{game.id}}/unfollow" class="interaction"><img src="/static/images/remove.svg" alt="unfollow icon" class="icon">Unfollow</a>
                             {% else %}
-                                <a href="/game/{{game.id}}/follow"><button class="interaction"><img src="/static/images/add.svg" alt="follow icon" class="icon">Follow</button></a>
+                                <a href="/game/{{game.id}}/follow" class="interaction"><img src="/static/images/add.svg" alt="follow icon" class="icon">Follow</a>
                             {% endif %} 
                         {% endif %} 
                     </footer>

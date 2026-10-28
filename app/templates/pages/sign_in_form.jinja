@@ -4,24 +4,23 @@
 
 {% extends 'pages/_base.jinja' %}
 
+{% block title %}- Sign in{% endblock %}
 
 {% block content %}
-    <section id="sign-in">
+    <section class="form full">
         <h2>Sign In</h2>
         <form method="post" action="/login">
-          <label>
-              Username
-              <input name="username" type="text" required>
-          </label>
-        
-          <label>
-              Password
-              <input name="password" type="password" required>
-          </label>
-        
-          <button>Login</button>
-          <a href="/"><button type="button" >Cancel</button></a>
-          <p>No account? <a href="/user/signup">Sign up</a> instead.</p>
+            <div class="list">
+                <input name="username" type="text" placeholder="Username..." required>
+                <input name="password" type="password" placeholder="Password..." required>
+            </div>
+
+            <div id="buttons">
+                <button>Login</button>
+                <a href="/"><button type="button" >Cancel</button></a>
+            </div>
+
+            <p>No account? <a href="/user/signup">Sign up</a> instead.</p>
         </form>
     </section>
 {% endblock %}

@@ -36,7 +36,7 @@ class UserTable:
             ("Dudeman", "scrypt:32768:8:1$n7eJTucLbaGmUpAM$c1776374a8d456a6eaf61bccc08db5e1fcc4ff3b3983d364c45ab13074255eeae0a393afb11f99a9fe63fb1d980992ace17a72ba70324523b11e92e36cbe4252", "dudeman.jpg", "I am Dudeman, the greatest dude to exist. Professional prompt engineer and League player.", 0),
             ("Testman", "scrypt:32768:8:1$n7eJTucLbaGmUpAM$c1776374a8d456a6eaf61bccc08db5e1fcc4ff3b3983d364c45ab13074255eeae0a393afb11f99a9fe63fb1d980992ace17a72ba70324523b11e92e36cbe4252", "testman.png", "I am Testman, the greatest tester to exist. Professional tester and player of good games (not league).", 0),
             ("FastTurnipGames", "scrypt:32768:8:1$n7eJTucLbaGmUpAM$c1776374a8d456a6eaf61bccc08db5e1fcc4ff3b3983d364c45ab13074255eeae0a393afb11f99a9fe63fb1d980992ace17a72ba70324523b11e92e36cbe4252", "fastturnip.jpg", "I am Turnip, the greatest Turnip to exist. Professional Game Developer and Turnip.", 1),
-            ("MidnightSunStudios", "scrypt:32768:8:1$n7eJTucLbaGmUpAM$c1776374a8d456a6eaf61bccc08db5e1fcc4ff3b3983d364c45ab13074255eeae0a393afb11f99a9fe63fb1d980992ace17a72ba70324523b11e92e36cbe4252", "fastturnip.png", "I am Sun, the greatest Midnight to exist. Professional Game Developer and yeah.", 1)
+            ("MidnightSunStudios", "scrypt:32768:8:1$n7eJTucLbaGmUpAM$c1776374a8d456a6eaf61bccc08db5e1fcc4ff3b3983d364c45ab13074255eeae0a393afb11f99a9fe63fb1d980992ace17a72ba70324523b11e92e36cbe4252", "midnightsun.png", "I am Sun, the greatest Midnight to exist. Professional Game Developer and yeah.", 1)
     """
 
 class GamesTable:

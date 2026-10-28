@@ -4,66 +4,87 @@
 
 {% extends 'pages/_base.jinja' %}
 
+{% block title %}- {{user.username}}{% endblock %}
 
 {% block content %}
-    {% if user.is_developer == 1 %}
-        <h2>Developer Profile</h2>
-    {% else %}
+    <img src="/static/images/logo.png" id="mobile_logo" alt="Mobile Logo">
+    <section id="profile-content">
+        {% if user.is_developer == 1 %}
+            <h2>Developer Profile</h2>
+        {% else %}
+            {% if session.logged_in and user.id == session.user.user_id%}
+                <h2>Your Profile</h2>
+            {% endif %}
+        {%endif%}
+
+        <img src="/static/uploads/{{user.profile_image}}" alt="{{user.username}}'s profile image" class="profile">
+        <h1>{{user.username}}</h1>
         {% if session.logged_in and user.id == session.user.user_id%}
-            <h2>Your Profile</h2>
+            <a href="/user/profile/{{session.user.user_id}}/edit" class="interaction"><img src="/static/images/edit-icon.svg" class="icon" alt="Edit Icon">Edit</a>
         {% endif %}
-    {%endif%}
-    
-    <img src="/static/uploads/{{user.profile_image}}" alt="{{user.username}}'s profile image">
-    <h1>{{user.username}}</h1>
-    {% if session.logged_in and user.id == session.user.user_id%}
-        <a href="/user/profile/{{session.user.user_id}}/edit">Edit Details</a>
-    {% endif %}
-    <p>{{user.bio}}</p>
- 
-    {% if user.is_developer == 1 %}
-        <h2>Created Games:</h2>
-        <section id="games">
-            {% for game in games %}
-                {% if game.developer_id ==  user.id %}
-                    <div class="game" onclick="window.location.href= '/game/{{game.id}}'">
-                        <header>
-                            <h3>{{ game.name }}</h3>
-                        </header>
-                        {% if session.logged_in and session.user.is_dev == 1 and session.user.user_id == game.developer_id %}
-                            <a href="/game/{{game.id}}/edit">Edit</a>
-                        {% endif %}
-                        <p>{{ followed_pairs | selectattr("1", "equalto", game.id) | list | length }} following</p>
-                        <img src="/static/uploads/{{game.image_name}}" alt="Hero Image of {{game.name}}">
-                    </div>
-                {%endif%}
-            {% else %}
-                    <p>No games!</p>
-            {% endfor %}
-        </section>
-    {% else %}
-        <h2>Followed Games:</h2>
-        <section id="games">
-            {% for game in games %}
-                {% if (user.id, game.id) in followed_pairs %}
-                    <div class="game" onclick="window.location.href= '/game/{{game.id}}'">
-                        <header>
-                            <h3>{{ game.name }}</h3>
-                        </header>
-                        <a href="/user/profile/{{game.developer_id}}">{{ game.username | paragraphs }}</a>
-                        <p>{{ followed_pairs | selectattr("1", "equalto", game.id) | list | length }} following</p>
-                        {% if session.logged_in %}    
-                            {% if (session.user.user_id, game.id) in followed_pairs %}
-                                <a href="/game/{{game.id}}/unfollow"><button>- Unfollow</button></a>
-                            {% endif %} 
-                        {% endif %}
-                        <img src="/static/uploads/{{game.image_name}}" alt="Hero Image of {{game.name}}">
-                    </div>
-                {%endif%}
-            {% else %}
-                    <p>No games!</p>
-            {% endfor %}
-        </section>
-    {%endif%}
+        <p>{{user.bio}}</p>
+    </section>
+    <section id="profile-games">
+        {% if user.is_developer == 1 %}
+            <h2>CREATED GAMES</h2>
+            <section id="games">
+                {% for game in games %}
+                    {% if game.developer_id ==  user.id %}
+                        <div class="game" onclick="window.location.href= '/game/{{game.id}}'" style="background-image:linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)), url('/static/uploads/{{ game.image_name }}');">
+                            <header>
+                                <h3>{{ game.name | upper}}</h3>
+                            </header>
+                            <div class="details">
+                                <a href="/user/profile/{{game.developer_id}}">{{ game.username | paragraphs }}</a>
+                                {% if session.logged_in and session.user.is_dev == 1 and session.user.user_id == game.developer_id %}
+                                    <a href="/game/{{game.id}}/edit" class="interaction"><img src="/static/images/edit-icon.svg" class="icon" alt="Edit Icon">Edit</a>
+                                {% endif %}
+                                <footer>
+                                    <div>
+                                        <img src="/static/images/follower.svg" alt='Following Icon' class="icon">
+                                        <p>{{ followed_pairs | selectattr("1", "equalto", game.id) | list | length }} following</p>
+                                    </div>
+                                </footer>
+                            </div>
+                        </div>
+                    {%endif%}
+                {% endfor %}
+            </section>
+        {% else %}
+            <h2>FOLLOWED GAMES</h2>
+            <section id="games">
+                {% for game in games %}
+                    {% if (user.id, game.id) in followed_pairs %}
+                        <div class="game" onclick="window.location.href= '/game/{{game.id}}'" style="background-image:linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)), url('/static/uploads/{{ game.image_name }}');">
+                            <header>
+                                <h3>{{ game.name | upper}}</h3>
+                            </header>
+
+                            <div class="details">
+                                <a href="/user/profile/{{game.developer_id}}">{{ game.username | paragraphs }}</a>
+                                {% if session.logged_in and session.user.is_dev == 1 and session.user.user_id == game.developer_id %}
+                                    <a href="/game/{{game.id}}/edit" class="interaction"><img src="/static/images/edit-icon.svg" class="icon" alt="Edit Icon">Edit</a>
+                                {% endif %}
+                                <footer>
+                                    <div>
+                                        <img src="/static/images/follower.svg" alt='Following Icon' class="icon">
+                                        <p>{{ followed_pairs | selectattr("1", "equalto", game.id) | list | length }} following</p>
+                                    </div>
+                                    {% if session.logged_in %}    
+                                        {% if (session.user.user_id, game.id) in followed_pairs %}
+                                            <a href="/game/{{game.id}}/unfollow" class="interaction"><img src="/static/images/remove.svg" alt="unfollow icon" class="icon" alt="Edit Icon">Unfollow</a>
+                                        {% endif %} 
+                                    {% endif %} 
+                                </footer>
+                            </div>
+                        </div>
+                    {%endif%}
+                {% endfor %}
+                {% if not user.id in followed_pairs.user_id %}
+                    <p>No Games!</p>
+                {% endif %}
+            </section>
+        {%endif%}
+    </section>
 {% endblock %}
 

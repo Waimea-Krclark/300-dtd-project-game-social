@@ -4,29 +4,30 @@
 
 {% extends 'pages/_base.jinja' %}
 
+{% block title %}- New Game{% endblock %}
 
 {% block content %}
-    <section id="sign-in">
+    <section class="form full">
         <h2>Create New Game Page</h2>
         <form method="post" action="/game/new" enctype="multipart/form-data">
             <label>
-              Title
-              <input name="title" type="text" required>
+                <input name="title" type="text" placeholder="Title" required>
             </label>
         
-            <label id="store_links">
-                Store Links
-                <input name="link" type="text" required>
-                <button type="button"  onclick="new_link()"  id="new_link_button">New Link</button>
+            <div class="list">
+                <label id="store_links">
+                    <p>Store Links</p>
+                    <button type="button" onclick="new_link()" id="new_link_button">New Link</button>
+                    <input name="link" type="text" placeholder="Enter Link" required>
+                </label>
+            </div>
+
+            <label>
+                <textarea name="description" rows="6" placeholder="Description" required></textarea>
             </label>
 
             <label>
-                Description:
-                <input name="description" type="text" required>
-            </label>
-
-            <label>
-                Hero Image:
+                <h3>Hero Image:</h3>
                 <input
                     name="hero"
                     type="file"
@@ -34,6 +35,7 @@
                 >
             </label>
             <h3>Optional Screenshots</h3>
+            <p>Select images:</p>
             <label>
                 <input
                     name="screenshots"
@@ -43,8 +45,10 @@
                 >
             </label>
 
-            <button>Create Game</button>
-            <a href="/developer"><button type="button" >Cancel</button></a>
+            <div id="buttons">
+                <button>Create Game</button>
+                <a href="/developer"><button type="button" >Cancel</button></a>
+            </div>
         </form>
     </section>
 {% endblock %}

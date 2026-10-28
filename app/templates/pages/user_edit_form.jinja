@@ -4,46 +4,43 @@
 
 {% extends 'pages/_base.jinja' %}
 
+{% block title %}- Edit Details{% endblock %}
 
 {% block content %}
-    <section id="sign-in">
-        <h2>Edit {{user.username}}'s profile</h2>
+    <section class="form full">
+        <section id="profile-content">
+            <h2>Edit {{user.username}}'s profile</h2>
+            <p>Current Profile:</p>
+            <img src="/static/uploads/{{user.profile_image}}" alt="{{user.username}}'s profile" class="profile large">
+        </section>
         <form method="post" action="/profile/edit/{{user.id}}" enctype="multipart/form-data">
-          <label>
-              Username
-              <input name="username" type="text" value="{{user.username}}" required>
-          </label>
-        
-          <label>
-              Old Password
-              <input name="password" type="password" required>
-          </label>
-
-          <label>
-              New Password
-              <input name="new_password" type="password">
-          </label>
+            <div class="list">
+                <input name="username" type="text" value="{{user.username}}" placeholder="Username" required>
+                <input name="password" type="password" placeholder="Enter current password..." required>
+            </div>
           
-          <h3>Optional:</h3>
-          <label>
-              Current Image:
-              <img src="/static/uploads/{{user.profile_image}}">
-              New Image:
-              <input
-                  name="image"
-                  type="file"
-                  accept="image/png, image/jpeg, image/gif"
-              >
-          </label>
-          <br>
-          <label>
-              Bio:
-              <input name="bio" type="text" value="{{ user.bio }}">
-          </label>
-          <br>
-          <button type="submit">Save</button>
-          <a href="/user/profile/{{user.id}}"><button type="button" >Cancel</button></a>
-          <a href="/user/{{user.id}}/delete" onclick="return confirm('Are you sure you want to delete the account?');"><button type="button">Delete Account</button></a>
+            <h3>Optional:</h3>
+            <label>
+                <input name="new_password" type="password" placeholder="Enter new password to change...">
+            </label>
+            <label>
+                New Profile Image:
+                <input
+                    name="image"
+                    type="file"
+                    accept="image/png, image/jpeg, image/gif"
+                >
+            </label>
+            <br>
+            <label>
+                <textarea name="bio" rows="6" placeholder="Bio...">{{ user.bio }}</textarea>
+            </label>
+            <br>
+            <div id="buttons">
+                <button type="submit">Save</button>
+                <a href="/user/profile/{{user.id}}"><button type="button" >Cancel</button></a>
+                <a href="/user/{{user.id}}/delete" onclick="return confirm('Are you sure you want to delete the account?');"><button type="button">Delete Account</button></a>
+            </div>
         </form>
     </section>
 {% endblock %}

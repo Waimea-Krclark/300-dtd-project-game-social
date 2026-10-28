@@ -4,65 +4,88 @@
 
 {% extends 'pages/_base.jinja' %}
 
+{% block title %}- Edit Game{% endblock %}
 
 {% block content %}
-    <section id="sign-in">
-        <h2>Edit {{game.name}} details</h2>
+    <header id="editing-header">
+        <h2>{{session.user.username | upper}}</h2>
+        <h1>EDIT {{game.name | upper}} DETAILS</h1>
+    </header>
+    <section class="form full">
         <form method="post" action="/game/{{game.id}}/edit" enctype="multipart/form-data">
             <label>
-              Title
-              <input name="title" type="text" value="{{game.name}}" required>
+                <input name="title" type="text" value="{{game.name}}" placeholder="Title" required>
             </label>
-        
-            <label id="store_links">
-                Store Links
-                {% for link in links %}
-                    <div class="link_row">
-                        <input name="old_link" type="text" value="{{link.link}}" required>
-                        <input type="hidden" name="keep_link" value="{{ link.id }}">
-                        <button type="button"  onclick="remove_edit_link(this)"  id="link_remove">X</button>
+            <div class="list">
+                <label id="store_links">
+                    <p>Store Links</p>
+                    <button type="button" onclick="new_link()"  id="new_link_button">New Link</button>
+                    {% for link in links %}
+                        <div class="link_row">
+                            <input name="old_link" type="text" value="{{link.link}}" placeholder="Enter Link" required>
+                            <input type="hidden" name="keep_link" value="{{ link.id }}">
+                            <button type="button"  onclick="remove_edit_link(this)"  id="link_remove">X</button>
+                        </div>
+                    {% endfor %}
+                    <script>counter = {{ links|length }};</script>
+                    <script>checkCounter();</script>
+                </label>
+            </div>
+
+            <label>
+                <textarea name="description" rows="6" placeholder="Description" required>{{game.description}}</textarea>
+            </label>
+            <br>
+            <br>
+            <div class="hero-image">
+                <label>
+                    <h3>Hero Image:</h3>
+                    <div>
+                        <div>
+                            <p>Current Image:</p>
+                            <img src="/static/uploads/{{game.image_name}}">                    
+                        </div>
+                        <div>
+                            <p>New Image:</p>
+                            Upload, or drop Image below.
+                            <input
+                                name="hero"
+                                type="file"
+                                accept="image/png, image/jpeg, image/gif"
+                            >                    
+                        </div>
                     </div>
-                {% endfor %}
-                <script>counter = {{ links|length }};</script>
-                <button type="button"  onclick="new_link()"  id="new_link_button">New Link</button>
-            </label>
-
-            <label>
-                Description:
-                <input name="description" type="text" value="{{game.description}}" required>
-            </label>
-
-            <label>
-                Hero Image:
-                Current Image:
-                <img src="/static/uploads/{{game.image_name}}">
-                New Image:
-                <input
-                    name="hero"
-                    type="file"
-                    accept="image/png, image/jpeg, image/gif"
-                >
-            </label>
-            <h3>Optional Screenshots</h3>
-            <label>
-                {% for img in media %}
-                    <div class="screenshot_row">
-                        <img src="/static/uploads/{{ img.image_file }}">
-                        <input type="hidden" name="keep_media" value="{{ img.id }}">
-                        <button type="button" class="img_remove" onclick="remove_screenshot(this)">X</button>
+                </label>
+            </div>
+            <br>
+            <div class="screenshot-list">
+                <label class="screenshot-list">
+                    <h3>Optional Screenshots:</h3>
+                    <p>Current:</p>
+                    <div class="grid">
+                        {% for img in media %}
+                            <div class="screenshot_row">
+                                <img src="/static/uploads/{{ img.image_file }}">
+                                <input type="hidden" name="keep_media" value="{{ img.id }}">
+                                <button type="button" class="img_remove" onclick="remove_screenshot(this)">X</button>
+                            </div>
+                        {% endfor %}
                     </div>
-                {% endfor %}
-                <input
-                    name="screenshots"
-                    type="file"
-                    multiple
-                    accept="image/png, image/jpeg, image/gif"
-                >
-            </label>
-
-            <button>Update</button>
-            <a href="{{ request.referrer or '/' }}"><button type="button" >Cancel</button></a>
-            <a href="/game/{{game.id}}/delete" onclick="return confirm('Are you sure you want to delete the game?');"><button type="button">Delete Game</button></a>
+                    <p>Add new images:</p>
+                    <input
+                        name="screenshots"
+                        type="file"
+                        multiple
+                        accept="image/png, image/jpeg, image/gif"
+                    >
+                </label>
+            </div>
+            <div id="buttons">
+                <button>Update</button>
+                <a href="{{ request.referrer or '/' }}"><button type="button" >Cancel</button></a>
+                <a href="/game/{{game.id}}/delete" onclick="return confirm('Are you sure you want to delete the game?');"><button type="button">Delete Game</button></a>
+            </div>
+            
         </form>
     </section>
 {% endblock %}

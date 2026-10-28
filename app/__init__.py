@@ -841,6 +841,9 @@ def delete_post(id):
 @app.get("/post/new/<int:id>")
 @login_required
 def new_post_form(id=None):
+    if not id and session.get("user")['is_dev'] == 0:
+        flash("Invalid action", "error")
+        return redirect(request.referrer or "/")
     with connect_db() as db:
             sql = """
                 SELECT name
@@ -862,8 +865,9 @@ def new_post_form(id=None):
 #-----------------------------------------------------------
 # Handle Post Creation
 #-----------------------------------------------------------
+@app.post("/post/create")
 @app.post("/post/create/<int:id>")
-def process_new_post(id):
+def process_new_post(id = None):
     title = request.form.get('title', '').strip()
     raw_content = request.form.get('content', '')
     post_type = request.form.get('type', None)
@@ -879,6 +883,7 @@ def process_new_post(id):
             """
             params = (title, content, str(datetime.now()), game_id, session.get("user")["user_id"], post_type)
             db.execute(sql, params)
+            id=game_id
         else:
             sql = """
                 INSERT INTO posts (title, content, timestamp, game_id, user_id, type)
@@ -1144,7 +1149,9 @@ def dev_process_search():
         case "2":
             sort = "posts.id"
             dir = "ASC"
-    
+    if not session.get("user")["is_dev"]:
+        flash("Invalid  Action", "error")
+        return redirect(request.referrer or "/")
     with connect_db() as db:
         sql = """
             SELECT games.id, games.name, games.description, games.developer_id, games.image_name, users.username

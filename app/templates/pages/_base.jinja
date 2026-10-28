@@ -25,7 +25,7 @@
     <link rel="stylesheet" href="/static/css/messages.css">
     {# Trix Implementation (Rich Text Editor) #}
     <link rel="stylesheet" type="text/css" href="https://unpkg.com/trix@2.0.8/dist/trix.css">
-    <script type="text/javascript" src="https://unpkg.com/trix@2.0.8/dist/trix.umd.min.js"></script>
+    <script src="https://unpkg.com/trix@2.0.8/dist/trix.umd.min.js"></script>
 
     <link rel="stylesheet" href="/static/css/styles.css">
 
@@ -35,22 +35,22 @@
 
     <header>
         <a href="/">
-            <img src="/static/images/logo.png" id="web_logo">
+            <img src="/static/images/logo.png" id="web_logo" alt="Web Logo">
         </a>
 
         <nav>
             {% if back_url %}
-                <a href="{{ back_url }}"><img src="/static/images/back-arrow.svg" class="icon"><p>Back</p></a>
+                <a href="{{ back_url }}"><img src="/static/images/back-arrow.svg" class="icon" alt="Back Icon"><p>Back</p></a>
             {% else %}
-                 <a href="{{ request.referrer or '/' }}"><img src="/static/images/back-arrow.svg" class="icon"><p>Back</p></a>
+                 <a href="{{ request.referrer or '/' }}"><img src="/static/images/back-arrow.svg" class="icon" alt="Back Icon"><p>Back</p></a>
             {% endif %}
-            <a href="/"><img src="/static/images/home-icon.svg" class="icon"><p>Home</p></a>
-            <a href="javascript:void(0);" onclick="toggleOptionMenu()"><img src="/static/images/profile-icon.svg" class="icon"><p>Profile</p></a>
+            <a href="/"><img src="/static/images/home-icon.svg" class="icon" alt="Home Icon"><p>Home</p></a>
+            <a href="javascript:void(0);" onclick="toggleOptionMenu()"><img src="/static/images/profile-icon.svg" class="icon" alt="Profile Icon"><p>Profile</p></a>
             {% if session.logged_in %} 
                 <section class="menu" id="menuDrop">
                     <div id="arrow"></div>
                     <p>WELCOME: {{session.user.username | upper}}</p>
-                    <a href="/user/profile/{{session.user.user_id}}"><p>Profile</p></a>
+                    <a href="/user/profile/{{session.user.user_id}}">Profile</a>
                     {% if session.user.is_dev %}
                         <a href="/developer">Developer</a>
                         <a href="/post/new">New Post</a>

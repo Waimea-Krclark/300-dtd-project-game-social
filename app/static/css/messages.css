@@ -21,7 +21,10 @@
     position: fixed;
     bottom: 1rem;
     right: 1rem;
-
+    @media (max-width: 700px){
+        bottom: 5rem;
+    }
+    z-index: 20;
     .flash-message {
         width: 15rem;
         margin-block: 1rem;

@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", () => {
             posts.style.display = "none";
         } else{
             games.style.display = "none";
-            posts.style.display = "table-row";
+            posts.style.display = "block";
         }
     }
 
@@ -32,7 +32,7 @@ function toggleSwitch(element) {
         posts.style.display = "none";
     } else{
         games.style.display = "none";
-        posts.style.display = "table-row";
+        posts.style.display = "block";
     }
     
 };

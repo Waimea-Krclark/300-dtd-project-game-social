@@ -4,6 +4,7 @@
 
 {% extends 'pages/_base.jinja' %}
 
+{% block title %}- {{post.title}}{% endblock %}
 
 {% block content %}
     <header id="post-header">
@@ -17,33 +18,29 @@
                 <a href="/user/profile/{{post.user_id}}">{{post.username}}</a>
             </div>
 
-            <h1>{{ post.title }}</h3>   
+            <h1 class="{{ 'discussion' if post.type == 'discussion' }}">{{ post.title }}</h1>   
             <div class="post-options">
                 <div>
                     {% if session.logged_in and session.user.user_id == post.user_id %}
-                        <a href="/post/{{post.id}}/edit"><button class="interaction"><img src="/static/images/edit-icon.svg" class="icon">Edit</button></a>
-                        <a href="/post/{{post.id}}/delete" onclick="return confirm('Are you sure you want to delete the post?');"><button class="interaction"><img src="/static/images/remove.svg" alt="unfollow icon" class="icon">Delete</button></a>
+                        <a href="/post/{{post.id}}/edit" class="interaction"><img src="/static/images/edit-icon.svg" class="icon" alt="Edit Icon">Edit</a>
+                        <a href="/post/{{post.id}}/delete" onclick="return confirm('Are you sure you want to delete the post?');" class="interaction"><img src="/static/images/remove.svg" alt="remove Icon" class="icon">Delete</a>
                     {% endif %}                 
                 </div>
                 <div>
                     {# selectattr is 1, as since liked_pairs is a tuple, jinja needs to reference the index, rather than the name, so 1 is the post_id #}
                     {% if session.logged_in and (session.user.user_id, post.id) in liked_pairs%}
-                        <a href="/post/{{post.id}}/unlike"><img src="/static/images/heart-filled-icon.svg" class="icon"> {{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }}</a>
+                        <a href="/post/{{post.id}}/unlike"><img src="/static/images/heart-filled-icon.svg" class="icon" alt="Liked Icon"> {{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }}</a>
                     {% elif session.logged_in %}
-                        <a href="/post/{{post.id}}/like"><img src="/static/images/heart-icon.svg" class="icon"> {{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }}</a>
+                        <a href="/post/{{post.id}}/like"><img src="/static/images/heart-icon.svg" class="icon" alt="Like Icon"> {{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }}</a>
                     {% else%}
-                        <p><img src="/static/images/heart-icon.svg" class="icon">{{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }}</p>
+                        <p><img src="/static/images/heart-icon.svg" class="icon" alt="Like Icon">{{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }}</p>
                     {% endif %}              
-                    <p><img src="/static/images/comment.svg" class="icon">{{ comments | selectattr("parent_id", "equalto", post.id) | list | length }}</p>                    
+                    <p><img src="/static/images/comment.svg" class="icon" alt="Comments Icon">{{ comments | selectattr("parent_id", "equalto", post.id) | list | length }}</p>                    
                 </div>
 
             </div>
         </section>
     </header>
-
-    {% for image in media %}
-        <img src="/static/uploads/{{image.image_file}}" alt="{{image.image_file}}">
-    {% endfor %}
     <div>{{ post.content }}</div>
     <section id="comments">
         <h3>Comments:</h3>
@@ -68,7 +65,7 @@
                             <a href="/user/profile/{{comment.user_id}}"><img src="/static/uploads/{{comment.profile_image}}" alt="{{comment.username}}'s profile image" class="profile">{{ comment.username }}</a>
                             <p>{{comment.timestamp  | format_human}}</p>
                             {% if session.logged_in and session.user.user_id == comment.user_id %}
-                                <a href="/post/{{comment.id}}/delete" onclick="return confirm('Are you sure you want to delete the comment?);"><button class="interaction"><img src="/static/images/remove.svg" alt="unfollow icon" class="icon">Delete</button></a>
+                                <a href="/post/{{comment.id}}/delete" onclick="return confirm('Are you sure you want to delete the comment?);" class="interaction"><img src="/static/images/remove.svg" alt="Remove icon" class="icon">Delete</a>
                             {% endif %}
                         </header>
                         <div>{{comment.content}}</div>
@@ -94,7 +91,7 @@
                                         <a href="/user/profile/{{reply.user_id}}"><img src="/static/uploads/{{reply.profile_image}}" alt="{{reply.username}}'s profile image" class="profile"> {{ reply.username }}</a>
                                         <p>{{reply.timestamp  | format_human}}</p>
                                         {% if session.logged_in and session.user.user_id == reply.user_id %}
-                                            <a href="/post/{{reply.id}}/delete" onclick="return confirm('Are you sure you want to delete the comment?);"><button class="interaction"><img src="/static/images/remove.svg" alt="unfollow icon" class="icon">Delete</button></a>
+                                            <a href="/post/{{reply.id}}/delete" onclick="return confirm('Are you sure you want to delete the comment?);" class="interaction"><img src="/static/images/remove.svg" alt="remove icon" class="icon">Delete</a>
                                         {% endif %}
                                     </header>
                                     <p>{{reply.content}}</p>
@@ -111,14 +108,14 @@
                                             <p>Log in to Reply</p>
                                         {% endif %}
                                     {% endif %}
-
+                                    {% if replies %}
+                                        <ul>
+                                            {{ loop(replies) }}
+                                        </ul>
+    
+                                    {% endif %}
                                 </li>
-                                {% if replies %}
-                                    <ul>
-                                        {{ loop(replies) }}
-                                    </ul>
-
-                                {% endif %}
+                                
                             {% endfor %}
                         </ul>
                     </div>  
