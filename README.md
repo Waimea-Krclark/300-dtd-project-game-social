@@ -1,15 +1,16 @@
-# Game Dev Social Project
+# Checkpoint - Game Social
 
 ## Project Description
 
-This is an app that allows Game developers to connect with their communities of the games they make, posting announcements, getting feedback and discussing the games.
+This is an app that allows Game developers to connect with their communities of the games they make, posting announcements, getting feedback and discussing the games. Users can discover games, get news and updates on games they follow, and interact with others in their respective communities.
 
 The app has the following key features:
-- Feature one
-- Feature two
-- Feature three
-- ...
-
+- Browsing Games
+- Developer Post for update, announcements etc.
+- User discussions for games
+- User and developer profiles
+- Developer controls for making game pages, posts etc.
+- Following games to easily find news
 
 ## Live Site
 
@@ -60,6 +61,7 @@ Test Developer 2:
 - [Python](https://www.python.org/) as the programming language used
 - [SQLite](https://sqlite.org/) for the database
 - [Jinja2](https://jinja.palletsprojects.com/templates/) for page templating
+- [Trix](https://https://trix-editor.org) rich text editor for posts
 
 
 

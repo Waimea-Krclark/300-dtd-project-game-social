@@ -8,26 +8,27 @@
 
 {% block content %}
     <section class="form full">
-        <h2>Create New Game Page</h2>
+         <header id="editing-header">
+            <h2>{{session.user.username | upper}}</h2>
+            <h1>CREATE GAME PAGE</h1>
+        </header>
         <form method="post" action="/game/new" enctype="multipart/form-data">
             <label>
                 <input name="title" type="text" placeholder="Title" required>
             </label>
         
-            <div class="list">
-                <label id="store_links">
-                    <p>Store Links</p>
-                    <button type="button" onclick="new_link()" id="new_link_button">New Link</button>
-                    <input name="link" type="text" placeholder="Enter Link" required>
-                </label>
+            <div class="list" id="store_links">
+                <p>Store Links</p>
+                <button type="button" onclick="new_link()" id="new_link_button">New Link</button>
+                <input name="link" type="text" placeholder="Enter Link" required>
             </div>
 
             <label>
                 <textarea name="description" rows="6" placeholder="Description" required></textarea>
             </label>
 
+            <h3>Hero Image:</h3>
             <label>
-                <h3>Hero Image:</h3>
                 <input
                     name="hero"
                     type="file"
@@ -47,7 +48,7 @@
 
             <div id="buttons">
                 <button>Create Game</button>
-                <a href="/developer"><button type="button" >Cancel</button></a>
+                <a href="/developer">Cancel</a>
             </div>
         </form>
     </section>

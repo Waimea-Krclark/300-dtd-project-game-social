@@ -83,11 +83,13 @@ img {
     display: inline-flex !important;
     text-decoration: none;
     max-width: max-content;
+    min-width: 5rem;
     cursor: pointer;
     justify-content: space-between;
     align-items: center;
     @media (max-width: 700px) {
         font-size: small;
+        min-width: none;
         .icon{
             height: 20px !important;
             width: 20px !important;
@@ -293,25 +295,21 @@ body > header {
         margin: 1rem;
         text-align: center;
         display: flex;
+        flex-direction: column;
         background-color: var(--header-col);
         padding: var(--padding);
         border-radius: var(--border-radius);
-        #store_links{
+        p{
+           margin-bottom: 0.5rem;
+        }
+        .link_row{
+            margin-top: 3px;
             display: flex;
-            flex-direction: column;
-            flex: 1;
-            p{
-               margin-bottom: 0.5rem;
+            input{
+                border-radius: var(--border-radius) 0 0 var(--border-radius);
             }
-            .link_row{
-                margin-top: 3px;
-                display: flex;
-                input{
-                    border-radius: var(--border-radius) 0 0 var(--border-radius);
-                }
-                button{
-                    border-radius: 0 var(--border-radius) var(--border-radius) 0;
-                }
+            button{
+                border-radius: 0 var(--border-radius) var(--border-radius) 0;
             }
         }
     }
@@ -328,23 +326,20 @@ body > header {
         background-color: var(--header-col);
         padding: var(--padding-small);
         border-radius: var(--border-radius);
-        label{
-            h3{
+        h3{
+            text-align: center;
+        }
+        img{
+            border-radius: var(--border-radius);
+            height: auto;
+        }
+        >:last-child{
+            display: flex;
+            div{
+                flex: 1;
                 text-align: center;
             }
-            img{
-                border-radius: var(--border-radius);
-                height: auto;
-            }
-            >:last-child{
-                display: flex;
-                div{
-                    flex: 1;
-                    text-align: center;
-                }
-            }
         }
-
     }
     .screenshot-list{
         text-align: center;
@@ -419,6 +414,10 @@ trix-toolbar .trix-dialogs .trix-dialog--link {
     border: 1px var(--interact-border) solid;
     text-align: start;
     min-height: 250px;
+    a{
+        background-color: transparent;
+        border: none;
+    }
 }
 
 .trix-button--icon-quote,
@@ -431,6 +430,8 @@ trix-toolbar .trix-dialogs .trix-dialog--link {
 .truncate-paragraph img,
 .truncate-paragraph figcaption {
     display: none !important;
+    
+
 }
 
 .visble{
@@ -706,6 +707,9 @@ main > h2 {
     flex-wrap: nowrap; 
     justify-content: space-between; 
     align-items: center;
+    h5{
+        display: block;
+    }
     img{
         flex: 1;           
         min-width: 0;      
@@ -722,6 +726,16 @@ main > h2 {
     margin-left: calc(50% - 50vw);
     padding-inline: calc(50vw - 50%); 
     text-align: center;
+    .post{
+        padding: var(--padding-small);
+        header{
+            h3{
+                padding: 0;
+                width: max-content;
+                max-width: 20rem;
+            }
+        }
+    }
     @media (max-width: 700px) {
         .form{
             margin-bottom: 1rem;

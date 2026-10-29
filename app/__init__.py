@@ -17,6 +17,7 @@ import nh3
 from werkzeug.utils import secure_filename
 from PIL import Image, ImageOps, UnidentifiedImageError
 from bs4 import BeautifulSoup
+from markupsafe import Markup
 from pathlib import Path
 from urllib.parse import urlparse
 
@@ -61,16 +62,17 @@ def process_image(file_storage, dest_folder, max_dimension=1600, square=False, a
             raise ValueError("Unsupported image type")
 
         if fmt == "GIF" and allow_gif:
-            # Check size of the raw upload
+            # Check size of the upload
             file_storage.stream.seek(0, os.SEEK_END)
             size = file_storage.stream.tell()
             if size > MAX_GIF_BYTES:
                 raise ValueError("GIF too large")
 
-            # Guard against huge frame counts
+            # Check frame count
             if getattr(img, "n_frames", 1) > 300:
                 raise ValueError("Too many frames")
 
+            # Save to uploads and return file name
             file_storage.stream.seek(0)
             name = f"{uuid.uuid4().hex}.gif"
             file_storage.save(os.path.join(dest_folder, name))
@@ -78,12 +80,13 @@ def process_image(file_storage, dest_folder, max_dimension=1600, square=False, a
         # Fix phone photos that are rotated via EXIF metadata
         img = ImageOps.exif_transpose(img)
 
+        # Resize image to square
         if square:
             img = ImageOps.fit(img, (max_dimension, max_dimension), Image.LANCZOS)
         else:
             img.thumbnail((max_dimension, max_dimension), Image.LANCZOS)
 
-        # Re-encode to WEBP (small, supports transparency)
+        # Change file type to WEBP to optimise size
         name = f"{uuid.uuid4().hex}.webp"
         img.save(os.path.join(dest_folder, name), "WEBP", quality=82)
         return name
@@ -107,6 +110,20 @@ def find_trix_images(html):
             names.append(name) #Save Image names to List
     return names
 
+# Trix Cleaner, to stop the <a> wrapping trix uses on images, and to reduce heading size to fit more with formatting and stop html formatting errors
+@app.template_filter("clean_trix")
+def clean_trix(html, heading_level=4):
+    soup = BeautifulSoup(html or "", "html.parser")
+
+    # Changes the H1 to a smaller heading to fit more with formatting
+    for h in soup.find_all("h1"):
+        h.name = f"h{heading_level}"
+
+    # Removes the a tag causing the wrapping error
+    for a in soup.find_all("a"):
+        if a.find("img") or a.find("figcaption"):
+            a.unwrap()
+    return Markup(str(soup))
 
 #===========================================================
 # App Routes Handlers
@@ -114,6 +131,7 @@ def find_trix_images(html):
 
 #-----------------------------------------------------------
 # Home page - Show all games/posts
+# - Retrieves all games, posts, and other linked info such as game followers and post likes
 #-----------------------------------------------------------
 @app.get("/")
 def show_home():
@@ -164,13 +182,15 @@ def show_home():
         return render_template("pages/home.jinja", games=games, posts = posts, followed_pairs=followed_pairs, liked_pairs=liked_pairs, back_url=f"/")
 
 #-----------------------------------------------------------
-# Home search request - Search resuslts
+# Home search request - Search results
+# - Retrieves games and posts relevant to the search term, and other linked info such as game followers and post likes
 #-----------------------------------------------------------
 @app.get("/search")
 def home_process_search():
     search_term = request.args.get('q', '')
     search_match = f"%{search_term}%"
     sort_term = request.args.get('sortby', '')
+    # Sets sort parameters using the form
     match sort_term:
         case "0":
             Gsort = "name"
@@ -192,7 +212,7 @@ def home_process_search():
             INNER JOIN users ON games.developer_id = users.id
             WHERE name LIKE ?
             ORDER BY {sort} {dir};
-        """.format(sort=Gsort, dir=dir)
+        """.format(sort=Gsort, dir=dir) #.format() allows to inject into sql rather than using parameters
         params = (search_match,)
         games = db.execute(sql, params).fetchall()
 
@@ -244,6 +264,7 @@ def home_process_search():
 
 #-----------------------------------------------------------
 # Game page
+# Displays game details, along with developer posts and user discussions
 #-----------------------------------------------------------
 @app.get("/game/<int:id>")
 def show_game(id):
@@ -313,12 +334,11 @@ def show_game(id):
         params = (id,)
         links = db.execute(sql, params).fetchall()
         
-
-
         return render_template("pages/game.jinja", game=game, posts = posts,  comments=comments, followed_pairs=followed_pairs, liked_pairs=liked_pairs, links=links, media=media,back_url=f"/")
     
 #-----------------------------------------------------------
-# Game page
+# Game Search page
+# Game page with discussions relevant to the search
 #-----------------------------------------------------------
 @app.get("/game/<int:id>/search")
 def game_process_search(id):
@@ -416,7 +436,7 @@ def game_process_search(id):
 
 
 #-----------------------------------------------------------
-# Follow Game page
+# Follow Game route
 #-----------------------------------------------------------
 @app.get("/game/<int:id>/follow")
 @login_required
@@ -429,7 +449,7 @@ def follow_game(id):
         """
         params = (session.get("user")["user_id"], id)
         followed_games = db.execute(sql, params).fetchall()
-
+        # Checks if user follows game first
         if not followed_games:
             sql = """
                 INSERT INTO following (user_id, game_id)
@@ -443,7 +463,7 @@ def follow_game(id):
         return redirect(request.referrer or "/")
     
 #-----------------------------------------------------------
-# Unfollow Game page
+# Unfollow Game Route
 #-----------------------------------------------------------
 @app.get("/game/<int:id>/unfollow")
 @login_required
@@ -474,6 +494,7 @@ def unfollow_game(id):
 @app.get("/game/new")
 @login_required
 def new_game_form(id=None):
+    # Checks if user has developer access before allowing access to page
     if not session.get('user')['is_dev'] == 1:
         flash(f"Invalid Action", "error")
         return redirect('/')
@@ -491,6 +512,7 @@ def process_new_game():
     screenshots = request.files.getlist('screenshots')
 
     with connect_db() as db:
+            # Checks if identical game title exists
             sql = "SELECT id FROM games WHERE LOWER(name)=?"
             params = (title.lower(),)
             game = db.execute(sql, params).fetchone()
@@ -498,15 +520,16 @@ def process_new_game():
             if game:
                 flash(f"Game using title '{title}' already exists", "error")
                 return redirect("/game/new")
-    
+
+            # Checks if Game's hero image exists or is valid, then uploads
             if hero_image or hero_image.filename != '':
                 unique_filename = process_image(hero_image, UPLOAD_FOLDER, max_dimension=1600, square=True, allow_gif=True)
                 if unique_filename is None:
                     flash("That image couldn't be used. Please upload a JPG, PNG, WEBP or GIF.", "error")
-                    return redirect("/user/new")
+                    return redirect("/game/new")
             else:
                 unique_filename = None
-    
+            # Creates game in database
             sql = """
                 INSERT INTO games (name, description, image_name, developer_id)
                 VALUES (?, ?, ?, ?)
@@ -515,6 +538,7 @@ def process_new_game():
             cursor = db.execute(sql, params)
             new_game_id = cursor.lastrowid
 
+            # Saves each link to its table
             for link in links:
                 sql = """
                     INSERT INTO links (link, game_id)
@@ -523,12 +547,12 @@ def process_new_game():
                 params = (link, new_game_id)
                 db.execute(sql, params)
 
+            # Validates and uploads each screenshot to table
             for img in screenshots:
                 if img or img.filename != '':
                     unique_filename = process_image(img, UPLOAD_FOLDER, max_dimension=1600, square=True, allow_gif=True)
                     if unique_filename is None:
                         flash("That image couldn't be used. Please upload a JPG, PNG, WEBP or GIF.", "error")
-                        return redirect("/user/new")
                 else:
                     unique_filename = None
 
@@ -549,6 +573,7 @@ def process_new_game():
 @login_required
 def edit_game_form(id):
     with connect_db() as db:
+            # Checks for developer access and retrieves current game detail
             sql = """
                 SELECT *
                 FROM games
@@ -560,6 +585,7 @@ def edit_game_form(id):
                         flash("Invalid action", "error")
                         return redirect("/")
 
+            # Retrieves other linked data, Screenshots and Links
             sql = """
                         SELECT *
                         FROM media WHERE game_id = ?
@@ -865,8 +891,8 @@ def new_post_form(id=None):
 #-----------------------------------------------------------
 # Handle Post Creation
 #-----------------------------------------------------------
-@app.post("/post/create")
-@app.post("/post/create/<int:id>")
+@app.post("/post/new")
+@app.post("/post/new/<int:id>")
 def process_new_post(id = None):
     title = request.form.get('title', '').strip()
     raw_content = request.form.get('content', '')

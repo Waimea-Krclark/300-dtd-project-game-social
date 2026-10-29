@@ -8,13 +8,16 @@
 
 {% block content %}
     <section class="form full">
-        {% if session.user.is_dev == 1 %}
-            <h2>New Developer Post</h2>
-        {% else %}
-            <h2>New Discussion for {{game_name.name}}</h2>
-        {% endif %}
+        <header id="editing-header">
+            <h2>{{session.user.username | upper}}</h2>
+            {% if session.user.is_dev == 1 %}
+                <h1>NEW DEVELOPER POST</h1>
+            {% else %}
+                <h1>NEW DISCUSSION FOR {{game_name.name}}</h1>
+            {% endif %}
+         </header>
         
-        <form method="post" action="/post/create{{ '/' ~ game_id if game_id and game_id != None else '' }}" enctype="multipart/form-data">
+        <form method="post" action="/post/new{{ '/' ~ game_id if game_id and game_id != None else '' }}" enctype="multipart/form-data">
             <input name="title" type="text" placeholder="Post Title" required>
 
             {% if session.user.is_dev == 1 %}

@@ -8,17 +8,21 @@
 
 {% block content %}
     <section class="form full">
-        <h2>Edit {{post.title  | capitalize}}</h2>
+        <header id="editing-header">
+            <h2>{{session.user.username | upper}}</h2>
+            <h1>EDIT {{post.title | upper}}</h1>
+        </header>
+
         <form method="post" action="/post/{{post.id}}/edit" enctype="multipart/form-data">
             <input name="title" type="text" value="{{post.title}}" placeholder="Post Title" required>
 
-            <input type="hidden" name="content" id="content" value="{{post.content | e}}">
+            <input type="hidden" name="content" id="content" value="{{post.content | e }}">
             <input type="file" name="image_files" id="image_files" multiple hidden>
             <trix-editor input="content" class="trix-editor" placeholder="Content..." required></trix-editor>
             
             <div id="buttons">
                 <button>Save Changes</button>
-                <a href="{{ request.referrer or '/' }}"><button type="button" >Cancel</button></a>
+                <a href="{{ request.referrer or '/' }}">Cancel</a>
             </div>
         </form>
     </section>

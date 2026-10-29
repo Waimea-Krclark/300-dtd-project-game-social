@@ -44,7 +44,7 @@
         <h2>Your Posts:</h2>
         <a href="/post/new">New Post</a>
     </section>
-    <section class="form">
+    <div class="form">
         <form action="/developer/search" method="get">
             <input type="search" name="q" value="{{search_term}}" placeholder="Search...">
             <label>
@@ -57,7 +57,7 @@
             </label>
             <button>SEARCH</button>
         </form>
-    </section>
+    </div>
     <section id="posts">
         {% for post in posts %}
             <div class="post" onclick="window.location.href= '/post/{{post.id}}'">
@@ -87,7 +87,7 @@
                         <a href="/post/{{post.id}}/delete" onclick="return confirm('Are you sure you want to delete the post?);" class="interaction"><img src="/static/images/remove.svg" alt="Remove icon" class="icon">Delete</a>
                     {% endif %}
                     
-                    <div class="truncate-paragraph">{{ post.content }}</div>
+                    <div class="truncate-paragraph">{{ post.content | clean_trix}}</div>
                     <footer>Read more...</footer>
                 </div>
         {% else %}

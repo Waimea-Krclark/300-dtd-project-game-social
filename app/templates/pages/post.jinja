@@ -41,23 +41,22 @@
             </div>
         </section>
     </header>
-    <div>{{ post.content }}</div>
+    <div>{{ post.content | clean_trix(2)}}</div>
     <section id="comments">
         <h3>Comments:</h3>
         {% if session.logged_in %}
-            <section class="form">
+            <div class="form">
                 <form method="post" action="/post/{{post.id}}/comment">
                     <label>
                         <input placeholder="Leave a Comment..." name="comment" type="text" required>
                     </label>
-
                     <button>Post</button>
                 </form>
-            </section>
+            </div>
         {% else %}
             <p>Log in to Comment</p>
         {% endif %}
-        <section id="posts">
+        <div id="posts">
             {% for comment in comments %}
                 {% if comment.parent_id == post.id%}
                     <div class="post">
@@ -75,7 +74,6 @@
                                     <label>
                                         <input placeholder="Leave a Reply..." name="comment" type="text" required>
                                     </label>
-
                                     <button>Post</button>
                                 </form>
                             {% else %}
@@ -121,7 +119,7 @@
                     </div>  
                 {% endif %}
             {% endfor %}
-        </section>
+        </div>
     </section>
     
 {% endblock %}

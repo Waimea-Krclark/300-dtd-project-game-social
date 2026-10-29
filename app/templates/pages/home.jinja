@@ -8,7 +8,7 @@
 {% block content %}
     <img src="/static/images/logo.png" id="mobile_logo" alt="Mobile Logo">
     <div id="mobile-shadow"></div>
-    <section class="form dynamic">
+    <div class="form dynamic">
         <form action="/search" method="get">
             <input type="search" name="q" value="{{search_term}}" placeholder="Search...">
             <label>
@@ -21,7 +21,7 @@
             </label>
             <button>SEARCH</button>
         </form>
-    </section>
+    </div>
 
     <div class="toggle switch">
         <input type="checkbox" id="toggle" onchange="toggleSwitch(this)" {% if session.show_games %}checked{% endif %}>
@@ -62,7 +62,7 @@
                         <a href="/post/{{post.id}}/delete" onclick="return confirm('Are you sure you want to delete the post?);" class="interaction"><img src="/static/images/remove.svg" alt="Remove icon" class="icon">Delete</a>
                     {% endif %}
                     
-                    <div class="truncate-paragraph">{{ post.content }}</div>
+                    <div class="truncate-paragraph">{{ post.content | clean_trix}}</div>
                     <footer>Read more...</footer>
                 </div>
             {% endif %}
@@ -71,7 +71,6 @@
         {% endfor %}
     </section>
     <section id="games" class="dynamic">
-    <h2></h2>
         {% for game in games %}
             <div class="game" onclick="window.location.href= '/game/{{game.id}}'" style="background-image:linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.5)), url('/static/uploads/{{ game.image_name }}');">
                 <header>

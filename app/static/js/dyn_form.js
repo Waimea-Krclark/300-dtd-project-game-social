@@ -11,7 +11,6 @@ function new_link(){
         new_link.required = true;
         const link_remove = document.createElement('button');
         link_remove.textContent='X';
-        link_remove.id = 'link_remove';
         link_remove.type = 'button';
         link_remove.addEventListener('click', () => remove_link(link_div));
 

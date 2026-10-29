@@ -16,20 +16,18 @@
             <label>
                 <input name="title" type="text" value="{{game.name}}" placeholder="Title" required>
             </label>
-            <div class="list">
-                <label id="store_links">
-                    <p>Store Links</p>
-                    <button type="button" onclick="new_link()"  id="new_link_button">New Link</button>
-                    {% for link in links %}
-                        <div class="link_row">
-                            <input name="old_link" type="text" value="{{link.link}}" placeholder="Enter Link" required>
-                            <input type="hidden" name="keep_link" value="{{ link.id }}">
-                            <button type="button"  onclick="remove_edit_link(this)"  id="link_remove">X</button>
-                        </div>
-                    {% endfor %}
-                    <script>counter = {{ links|length }};</script>
-                    <script>checkCounter();</script>
-                </label>
+            <div class="list" id="store_links">
+                <p>Store Links</p>
+                <button type="button" onclick="new_link()"  id="new_link_button">New Link</button>
+                {% for link in links %}
+                    <div class="link_row">
+                        <input name="old_link" type="text" value="{{link.link}}" placeholder="Enter Link" required>
+                        <input type="hidden" name="keep_link" value="{{ link.id }}">
+                        <button type="button"  onclick="remove_edit_link(this)" >X</button>
+                    </div>
+                {% endfor %}
+                <script>counter = {{ links|length }};</script>
+                <script>checkCounter();</script>
             </div>
 
             <label>
@@ -38,52 +36,48 @@
             <br>
             <br>
             <div class="hero-image">
-                <label>
-                    <h3>Hero Image:</h3>
+                <h2>Hero Image:</h2>
+                <div>
                     <div>
-                        <div>
-                            <p>Current Image:</p>
-                            <img src="/static/uploads/{{game.image_name}}">                    
-                        </div>
-                        <div>
-                            <p>New Image:</p>
-                            Upload, or drop Image below.
-                            <input
-                                name="hero"
-                                type="file"
-                                accept="image/png, image/jpeg, image/gif"
-                            >                    
-                        </div>
+                        <p>Current Image:</p>
+                        <img src="/static/uploads/{{game.image_name}}" alt="Current Image">                    
                     </div>
-                </label>
+                    <div>
+                        <p>New Image:</p>
+                        Upload, or drop Image below.
+                        <input
+                            name="hero"
+                            type="file"
+                            accept="image/png, image/jpeg, image/gif"
+                        >                    
+                    </div>
+                </div>
             </div>
             <br>
             <div class="screenshot-list">
-                <label class="screenshot-list">
-                    <h3>Optional Screenshots:</h3>
-                    <p>Current:</p>
-                    <div class="grid">
-                        {% for img in media %}
-                            <div class="screenshot_row">
-                                <img src="/static/uploads/{{ img.image_file }}">
-                                <input type="hidden" name="keep_media" value="{{ img.id }}">
-                                <button type="button" class="img_remove" onclick="remove_screenshot(this)">X</button>
-                            </div>
-                        {% endfor %}
-                    </div>
-                    <p>Add new images:</p>
-                    <input
-                        name="screenshots"
-                        type="file"
-                        multiple
-                        accept="image/png, image/jpeg, image/gif"
-                    >
-                </label>
+                <h2>Optional Screenshots:</h2>
+                <p>Current:</p>
+                <div class="grid">
+                    {% for img in media %}
+                        <div class="screenshot_row">
+                            <img src="/static/uploads/{{ img.image_file }}" alt="Screenshot">
+                            <input type="hidden" name="keep_media" value="{{ img.id }}">
+                            <button type="button" class="img_remove" onclick="remove_screenshot(this)">X</button>
+                        </div>
+                    {% endfor %}
+                </div>
+                <p>Add new images:</p>
+                <input
+                    name="screenshots"
+                    type="file"
+                    multiple
+                    accept="image/png, image/jpeg, image/gif"
+                >
             </div>
             <div id="buttons">
                 <button>Update</button>
-                <a href="{{ request.referrer or '/' }}"><button type="button" >Cancel</button></a>
-                <a href="/game/{{game.id}}/delete" onclick="return confirm('Are you sure you want to delete the game?');"><button type="button">Delete Game</button></a>
+                <a href="{{ request.referrer or '/' }}">Cancel</a>
+                <a href="/game/{{game.id}}/delete" onclick="return confirm('Are you sure you want to delete the game?');">Delete Game</a>
             </div>
             
         </form>

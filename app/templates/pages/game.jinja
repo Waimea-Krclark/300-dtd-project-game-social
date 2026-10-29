@@ -29,15 +29,15 @@
         
     </header>
     
-    <section id="screenshots">
+    <div id="screenshots">
         {% for img in media %}
             <img src="/static/uploads/{{img.image_file}}" alt="{{game.name}} screenshots">
         {%endfor%}  
-    </section>
+    </div>
     <p>{{game.description}}</p>
     <br>
     <section class="section-heading">
-        <h3>Game Posts</h3>
+        <h2>Game Posts</h2>
         {% if session.logged_in and session.user.is_dev == 1 and session.user.user_id == game.developer_id %}
             <a href="/post/new/{{game.id}}">New Post</a>
         {% endif %}
@@ -72,7 +72,7 @@
                         <a href="/post/{{post.id}}/delete" onclick="return confirm('Are you sure you want to delete the post?);" class="interaction"><img src="/static/images/remove.svg" alt="unfollow icon" class="icon">Delete</a>
                     {% endif %}
                     
-                    <div class="truncate-paragraph">{{ post.content }}</div>
+                    <div class="truncate-paragraph">{{ post.content | clean_trix}}</div>
                     <footer>Read more...</footer>
                 </div>
             {% endif %}
@@ -91,7 +91,7 @@
             {% endif %}       
         </div>
 
-        <section class="form">
+        <div class="form">
             <form action="/game/{{game.id}}/search" method="get">
                 <input type="search" name="q" value="{{search_term}}" placeholder="Search...">
                 <label>
@@ -104,9 +104,8 @@
                 </label>
                 <button>SEARCH</button>
             </form>
-        </section>
-
-        <section id="discussion-posts">
+        </div>
+        <div id="discussion-posts">
             {% if search_term or sort_term%}
                 {% for post in search_posts %}
                     {% if game.developer_id != post.user_id and post.game_id == game.id%}
@@ -131,9 +130,8 @@
                                     {% endif %}              
                                     <p><img src="/static/images/comment.svg" class="icon">{{ comments | selectattr("parent_id", "equalto", post.id) | list | length }}</p>
                                 </div>
-
                             </header>
-                            <div class="truncate-paragraph">{{ post.content }}</div>
+                            <div class="truncate-paragraph">{{ post.content | clean_trix}}</div>
                             <footer>Read more...</footer>
                         </div>
                     {% endif %}
@@ -164,9 +162,8 @@
                                     {% endif %}              
                                     <p><img src="/static/images/comment.svg" class="icon" alt="Comments Icon">{{ comments | selectattr("parent_id", "equalto", post.id) | list | length }}</p>
                                 </div>
-
                             </header>
-                            <div class="truncate-paragraph">{{ post.content }}</div>
+                            <div class="truncate-paragraph">{{ post.content | clean_trix}}</div>
                             <footer>Read more...</footer>
                         </div>
                     {% endif %}
@@ -174,7 +171,7 @@
                     <p>No posts!</p>
                 {% endfor %}
             {% endif %}
-        </section>
+        </div>
     </section>
 {% endblock %}
 

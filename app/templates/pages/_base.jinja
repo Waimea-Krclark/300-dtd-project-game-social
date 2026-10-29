@@ -49,7 +49,7 @@
             {% if session.logged_in %} 
                 <section class="menu" id="menuDrop">
                     <div id="arrow"></div>
-                    <p>WELCOME: {{session.user.username | upper}}</p>
+                    <h5>WELCOME: {{session.user.username | upper}}</h5>
                     <a href="/user/profile/{{session.user.user_id}}">Profile</a>
                     {% if session.user.is_dev %}
                         <a href="/developer">Developer</a>
@@ -60,6 +60,7 @@
                 </section>
             {% else %}
                 <section class="menu" id="menuDrop">
+                    <h5>WELCOME GUEST</h5>
                     <div id="arrow"></div>
                     <a href="/user/login">Sign In</a>
                     <a href="/user/signup">Sign Up</a>
@@ -73,10 +74,10 @@
     {% include "partials/messages.jinja" %}
 
     <main>
-        <section id="page_content">
+        <div id="page_content">
             {% block content %}
             {% endblock %}
-        </section>
+        </div>
     </main>
 
 </body>
