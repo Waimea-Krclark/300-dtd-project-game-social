@@ -44,7 +44,7 @@ I ended up returning to this error, and with some research into trix, I discover
 
 ## Testing Mobile Formatting
 
-To maximise accessibility, I wanted my website to work with mobile devices to make it portable and accessible anywhere, rather than just on a laptop or PC. Throughout the UI design of the web app, I 
+To maximise accessibility, I wanted my website to work with mobile devices to make it portable and accessible anywhere, rather than just on a laptop or PC. Throughout the UI design of the web app, I changed formatting for mobile, using the @media function with width to reformat the site at smaller sizes. The majority of the formatting came down to changing the minimum widths an object can be at those smaller sizes, allowing the content to fit in the screen. I also changed how the navigation bar is formatted on mobile, moving it to the bottom of the screen and changing the buttons to be more mobile friendly, fitting with more typical mobile apps, making the web app more comfortable and familiar for users.
 
 **PLACE SCREENSHOTS AND/OR ANIMATED GIFS OF THE TESTING HERE**
 
