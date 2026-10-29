@@ -44,7 +44,7 @@ I ended up returning to this error, and with some research into trix, I discover
 
 ## Testing Mobile Formatting
 
-Replace this text with notes about what you are testing, how you tested it, and the outcome of the testing
+To maximise accessibility, I wanted my website to work with mobile devices to make it portable and accessible anywhere, rather than just on a laptop or PC. Throughout the UI design of the web app, I 
 
 **PLACE SCREENSHOTS AND/OR ANIMATED GIFS OF THE TESTING HERE**
 
