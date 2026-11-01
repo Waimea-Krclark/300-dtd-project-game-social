@@ -430,8 +430,6 @@ trix-toolbar .trix-dialogs .trix-dialog--link {
 .truncate-paragraph img,
 .truncate-paragraph figcaption {
     display: none !important;
-    
-
 }
 
 .visble{
@@ -544,6 +542,9 @@ main > h2 {
                 text-align: left;
             }
         }
+        a{
+            width: fit-content;
+        }
         @media (max-width: 700px) {
             min-height: 12rem;
             margin: 0 0 1rem;
@@ -632,6 +633,18 @@ main > h2 {
     }
 }
 
+#vertical-slider .splide__slide{
+    width: auto !important;
+    border: none !important;
+    .post{
+        margin: 0 !important;
+    }
+}
+
+#main-slider{
+    padding-top: var(--padding);
+}
+
 .details {
     color:var(--primary-darker-col);
     text-decoration: none;
@@ -678,6 +691,9 @@ main > h2 {
         display: block;
         color: var(--primary-darker-col);
         text-decoration: none;
+        text-align: center;
+        justify-self: center;
+        width: fit-content;
     }
     div{
         margin-top: 10rem;
@@ -702,20 +718,10 @@ main > h2 {
 }
 
 #screenshots{
-    display: flex;
-    flex-direction: row;
-    flex-wrap: nowrap; 
-    justify-content: space-between; 
-    align-items: center;
-    h5{
-        display: block;
-    }
-    img{
-        flex: 1;           
-        min-width: 0;      
-        height: auto;      
-        object-fit: cover;
-    }
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr;
+    width: 300px; 
 }
 
 #discussions{

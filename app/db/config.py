@@ -120,6 +120,7 @@ class MediaTable:
             ("NutScreenshot1.png", 1),
             ("NutScreenshot2.png", 1),
             ("NutScreenshot3.png", 1),
+            ("NutScreenshot4.png", 1),
             ("FlopScreenshot1.png", 2),
             ("FlopScreenshot2.png", 2),
             ("DrunkScreenshot1.png", 3),

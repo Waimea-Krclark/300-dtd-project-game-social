@@ -28,12 +28,28 @@
         </div>
         
     </header>
-    
-    <div id="screenshots">
-        {% for img in media %}
-            <img src="/static/uploads/{{img.image_file}}" alt="{{game.name}} screenshots">
-        {%endfor%}  
+
+    <div id="main-slider" class="splide" style="max-width: 640px; margin: auto;">
+      <div class="splide__track">
+        <ul class="splide__list">
+            {% for img in media %}
+                <li class="splide__slide"><img src="/static/uploads/{{img.image_file}}" alt="{{game.name}} screenshots"></li>
+            {%endfor%}  
+        </ul>
+      </div>
     </div>
+
+    <div id="thumbnail-slider" class="splide" style="max-width: 640px; margin: 10px auto;">
+      <div class="splide__track">
+        <ul class="splide__list">
+            {% for img in media %}
+                <li class="splide__slide"><img src="/static/uploads/{{img.image_file}}" alt="{{game.name}} screenshots" id="img-{{ loop.index }}"></li>
+            {%endfor%} 
+        </ul>
+      </div>
+    </div>
+
+
     <p>{{game.description}}</p>
     <br>
     <section class="section-heading">
@@ -44,41 +60,49 @@
     </section>
 
     <section id="posts">
-        {% for post in posts %}
-            {% if game.developer_id == post.user_id %}
-                <div class="post" onclick="window.location.href= '/post/{{post.id}}'">
-                    <header>
-                        <h3>{{ post.title | upper}}</h3>
-                        <div class="details">
-                            <a href="/user/profile/{{post.user_id}}">{{ post.username }}</a>
-                            <a href="/game/{{post.game_id}}">{{ post.name }}</a>
-                            <p>{{ post.type.upper() }}</p>
-                            <p>{{ post.timestamp | format_date}}</p>
+        <div id="vertical-slider" class="splide" style="max-width: 640px; margin: 10px auto;">
+            <div class="splide__track">
+                <ul class="splide__list">
+                    {% for post in posts %}
+                        {% if game.developer_id == post.user_id %}
+                            <li class="splide__slide">
+                            <div class="post" onclick="window.location.href= '/post/{{post.id}}'">
+                                <header>
+                                    <h3>{{ post.title | upper}}</h3>
+                                    <div class="details">
+                                        <a href="/user/profile/{{post.user_id}}">{{ post.username }}</a>
+                                        <a href="/game/{{post.game_id}}">{{ post.name }}</a>
+                                        <p>{{ post.type.upper() }}</p>
+                                        <p>{{ post.timestamp | format_date}}</p>
 
-                            {# selectattr is 1, as since liked_pairs is a tuple, jinja needs to reference the index, rather than the name, so 1 is the post_id #}
-                            {% if session.logged_in and (session.user.user_id, post.id) in liked_pairs%}
-                                <a href="/post/{{post.id}}/unlike"><img src="/static/images/heart-filled-icon.svg" class="icon" alt="Liked Icon"> {{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }}</a>
-                            {% elif session.logged_in %}
-                                <a href="/post/{{post.id}}/like"><img src="/static/images/heart-icon.svg" class="icon" alt="Like Icon"> {{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }}</a>
-                            {% else%}
-                                <p><img src="/static/images/heart-icon.svg" class="icon" alt="Like Icon">{{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }}</p>
-                            {% endif %}              
+                                        {# selectattr is 1, as since liked_pairs is a tuple, jinja needs to reference the index, rather than the name, so 1 is the post_id #}
+                                        {% if session.logged_in and (session.user.user_id, post.id) in liked_pairs%}
+                                            <a href="/post/{{post.id}}/unlike"><img src="/static/images/heart-filled-icon.svg" class="icon" alt="Liked Icon"> {{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }}</a>
+                                        {% elif session.logged_in %}
+                                            <a href="/post/{{post.id}}/like"><img src="/static/images/heart-icon.svg" class="icon" alt="Like Icon"> {{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }}</a>
+                                        {% else%}
+                                            <p><img src="/static/images/heart-icon.svg" class="icon" alt="Like Icon">{{ liked_pairs | selectattr("1", "equalto", post.id) | list | length }}</p>
+                                        {% endif %}              
 
-                            <p><img src="/static/images/comment.svg" class="icon" alt="Comment Icon">{{ comments | selectattr("parent_id", "equalto", post.id) | list | length }}</p>    
-                        </div>
-                    </header>
-                    {% if session.logged_in and session.user.user_id == post.user_id %}
-                        <a href="/post/{{post.id}}/edit" class="interaction"><img src="/static/images/edit-icon.svg" class="icon" alt="Edit Icon">Edit</a>
-                        <a href="/post/{{post.id}}/delete" onclick="return confirm('Are you sure you want to delete the post?);" class="interaction"><img src="/static/images/remove.svg" alt="unfollow icon" class="icon">Delete</a>
-                    {% endif %}
-                    
-                    <div class="truncate-paragraph">{{ post.content | clean_trix}}</div>
-                    <footer>Read more...</footer>
-                </div>
-            {% endif %}
-        {% else %}
-            <p>No posts!</p>
-        {% endfor %}
+                                        <p><img src="/static/images/comment.svg" class="icon" alt="Comment Icon">{{ comments | selectattr("parent_id", "equalto", post.id) | list | length }}</p>    
+                                    </div>
+                                </header>
+                                {% if session.logged_in and session.user.user_id == post.user_id %}
+                                    <a href="/post/{{post.id}}/edit" class="interaction"><img src="/static/images/edit-icon.svg" class="icon" alt="Edit Icon">Edit</a>
+                                    <a href="/post/{{post.id}}/delete" onclick="return confirm('Are you sure you want to delete the post?);" class="interaction"><img src="/static/images/remove.svg" alt="unfollow icon" class="icon">Delete</a>
+                                {% endif %}
+
+                                <div class="truncate-paragraph">{{ post.content | clean_trix}}</div>
+                                <footer>Read more...</footer>
+                            </div>
+                            </li>
+                        {% endif %}      
+                    {% else %}
+                        <p>No posts!</p>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
     </section>
     
     <section id="discussions">

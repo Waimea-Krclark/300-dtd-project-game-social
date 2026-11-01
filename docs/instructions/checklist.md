@@ -125,12 +125,12 @@ Use complex techniques to develop an informed digital media outcome means **all 
    - [x] Show the **improvements made** as a result
 
 2. You have used testing tools to help improve your web site:
-   - [ ] You have used **code validation** tools for generated HTML and CSS
-   - [ ] You have **fixed any issues** identified
+   - [x] You have used **code validation** tools for generated HTML and CSS
+   - [x] You have **fixed any issues** identified
 
 3. You have applied user experience (UX) principles to improve the quality of your web site:
-   - [ ] Show evidence that you **tested your system against identified UX principles** during development
-   - [ ] Show the **improvements made** as a result
+   - [x] Show evidence that you **tested your system against identified UX principles** during development
+   - [x] Show the **improvements made** as a result
 
 
 ## Excellence Criteria
@@ -138,15 +138,15 @@ Use complex techniques to develop an informed digital media outcome means **all 
 Use complex techniques to develop a refined digital media outcome means **all of the criteria for Merit**, plus:
 
 1. You have made iterative improvements throughout the design, development and testing process:
-   - [ ] You have refined features of the web site (layout, theme, etc.) over **multiple iterations**
-   - [ ] Each iteration is **clearly documented**, showing testing and resulting refinements
+   - [x] You have refined features of the web site (layout, theme, etc.) over **multiple iterations**
+   - [x] Each iteration is **clearly documented**, showing testing and resulting refinements
 
 2. You have used efficient tools and techniques in the web site's production:
-   - [ ] You have effectively used **version control**
-   - [ ] You git **commits are regular with descriptive commit messages**
-   - [ ] You have **effectively used tools** like DrawSQL, Figma, VS Code, Turso SQL editor, etc. to help develop the outcome
-   - [ ] You have made good use of **templates** (Jinja) to organise and structure content
+   - [x] You have effectively used **version control**
+   - [x] You git **commits are regular with descriptive commit messages**
+   - [x] You have **effectively used tools** like DrawSQL, Figma, VS Code, Turso SQL editor, etc. to help develop the outcome
+   - [x] You have made good use of **templates** (Jinja) to organise and structure content
    - [ ] Your code is **commented** as needed
-   - [ ] You have **optimised media assets** (e.g. image sizing)
+   - [x] You have **optimised media assets** (e.g. image sizing)
 
 

@@ -1386,7 +1386,7 @@ def upload_image():
     if not file or not file.filename:
         abort(400)
 
-    name = process_image(file, UPLOAD_FOLDER)
+    name = process_image(file, UPLOAD_FOLDER, square=False)
     if name is None:
         return jsonify(error="Invalid image"), 400
 
