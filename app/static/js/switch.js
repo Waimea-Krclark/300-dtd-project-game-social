@@ -14,7 +14,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
 });
 
-
 function toggleSwitch(element) {
     const posts = document.getElementById("posts");
     const games = document.getElementById("games");
@@ -35,4 +34,16 @@ function toggleSwitch(element) {
         posts.style.display = "block";
     }
     
+};
+
+function toggleReplies(element){
+    const parent = element.parentElement;
+    const reply = parent.querySelector(".replies");
+
+    if (reply.style.display == "block"){
+        reply.style.display = "none";
+    } else {
+        reply.style.display = "block";
+    };
+
 };

@@ -110,9 +110,11 @@ End users agreed this was a much better version than the other two, and that it 
 
 ## Testing Post Comments
 
-Replace this text with notes about what you are testing, how you tested it, and the outcome of the testing
+Currently on the post page, comments to posts fully display, with all nested replies below. End users commented that it was quite messy and cluttered, especially with a lot of replies. They suggested making it so users can show the replies if wanted, otherwise they are hidden.
 
-**PLACE SCREENSHOTS AND/OR ANIMATED GIFS OF THE TESTING HERE**
+Current comment display:
+
+![Old Comments with reply](screenshots/OldComment.png)
 
 ### Changes / Improvements
 

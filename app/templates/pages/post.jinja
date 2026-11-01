@@ -62,35 +62,38 @@
                     <div class="post">
                         <header>
                             <a href="/user/profile/{{comment.user_id}}"><img src="/static/uploads/{{comment.profile_image}}" alt="{{comment.username}}'s profile image" class="profile">{{ comment.username }}</a>
-                            <p>{{comment.timestamp  | format_human}}</p>
                             {% if session.logged_in and session.user.user_id == comment.user_id %}
                                 <a href="/post/{{comment.id}}/delete" onclick="return confirm('Are you sure you want to delete the comment?);" class="interaction"><img src="/static/images/remove.svg" alt="Remove icon" class="icon">Delete</a>
                             {% endif %}
+                            <p>{{comment.timestamp  | format_human}}</p>
                         </header>
                         <div>{{comment.content}}</div>
-                        <div class="options">
-                            {% if session.logged_in %}
-                                <form method="post" action="/post/{{comment.id}}/comment" class="form">
-                                    <label>
-                                        <input placeholder="Leave a Reply..." name="comment" type="text" required>
-                                    </label>
-                                    <button>Post</button>
-                                </form>
-                            {% else %}
-                                <p>Log in to Comment</p>
-                            {% endif %}
-                        </div>
-                        <ul>
+                        <br>
+                        <button class="interaction" onclick="toggleReplies(this)">Show replies...</button>
+
+                        <ul class="replies">
+                            <div class="options">
+                                {% if session.logged_in %}
+                                    <form method="post" action="/post/{{comment.id}}/comment" class="form">
+                                        <label>
+                                            <input placeholder="Leave a Reply..." name="comment" type="text" required>
+                                        </label>
+                                        <button>Post</button>
+                                    </form>
+                                {% else %}
+                                    <p>Log in to Reply</p>
+                                {% endif %}
+                            </div>
                             {% set replies = comments | selectattr("parent_id", "equalto", comment.id) | list %}
                             {% for reply in replies recursive %}
                                 {% set replies = comments | selectattr("parent_id", "equalto", reply.id) | list %}
                                 <li>
                                     <header>
                                         <a href="/user/profile/{{reply.user_id}}"><img src="/static/uploads/{{reply.profile_image}}" alt="{{reply.username}}'s profile image" class="profile"> {{ reply.username }}</a>
-                                        <p>{{reply.timestamp  | format_human}}</p>
                                         {% if session.logged_in and session.user.user_id == reply.user_id %}
                                             <a href="/post/{{reply.id}}/delete" onclick="return confirm('Are you sure you want to delete the comment?);" class="interaction"><img src="/static/images/remove.svg" alt="remove icon" class="icon">Delete</a>
                                         {% endif %}
+                                        <p>{{reply.timestamp  | format_human}}</p>
                                     </header>
                                     <p>{{reply.content}}</p>
                                     {% if loop.depth < 5 %}

@@ -162,6 +162,7 @@ def show_home():
         params = ()
         followed_games = db.execute(sql, params).fetchall()
 
+        # Turns into a tuple for easier use in page
         followed_pairs = [
             (game["user_id"], game["game_id"])
             for game in followed_games
@@ -174,6 +175,7 @@ def show_home():
         params = ()
         likes = db.execute(sql, params).fetchall()
 
+        # Turns into a tuple for easier use in page
         liked_pairs = [
             (like["user_id"], like["post_id"])
             for like in likes
@@ -242,6 +244,7 @@ def home_process_search():
         params = ()
         followed_games = db.execute(sql, params).fetchall()
 
+        # Turns into a tuple for easier use in page
         followed_pairs = [
             (game["user_id"], game["game_id"])
             for game in followed_games
@@ -254,6 +257,7 @@ def home_process_search():
         params = ()
         likes = db.execute(sql, params).fetchall()
 
+        # Turns into a tuple for easier use in page
         liked_pairs = [
                     (like["user_id"], like["post_id"])
                     for like in likes
@@ -345,6 +349,7 @@ def game_process_search(id):
     search_term = request.args.get('q', '')
     search_match = f"%{search_term}%"
     sort_term = request.args.get('sortby', '')
+    # Sets sort parameters using the form
     match sort_term:
         case "0":
             sort = "title"
@@ -442,6 +447,7 @@ def game_process_search(id):
 @login_required
 def follow_game(id):
     with connect_db() as db:
+        # Retrives any data that would match from table
         sql = """
             SELECT *
             FROM following  
@@ -449,7 +455,7 @@ def follow_game(id):
         """
         params = (session.get("user")["user_id"], id)
         followed_games = db.execute(sql, params).fetchall()
-        # Checks if user follows game first
+        # If found, doesn't add to table
         if not followed_games:
             sql = """
                 INSERT INTO following (user_id, game_id)
@@ -469,6 +475,7 @@ def follow_game(id):
 @login_required
 def unfollow_game(id):
     with connect_db() as db:
+        # Retrives any data that would match from table
         sql = """
             SELECT *
             FROM following  
@@ -476,7 +483,7 @@ def unfollow_game(id):
         """
         params = (session.get("user")["user_id"], id)
         followed_games = db.execute(sql, params).fetchall()
-
+        # If found, doesn't remove from table
         if followed_games:
             sql = """
                 DELETE FROM following WHERE user_id = ? AND game_id = ?
@@ -568,12 +575,13 @@ def process_new_game():
 
 #-----------------------------------------------------------
 # Edit Game page
+# Opens game page form with pre-existing data
 #-----------------------------------------------------------
 @app.get("/game/<int:id>/edit")
 @login_required
 def edit_game_form(id):
     with connect_db() as db:
-            # Checks for developer access and retrieves current game detail
+            # Checks for developer access and retrieves current game details
             sql = """
                 SELECT *
                 FROM games
@@ -619,33 +627,39 @@ def process_edit_game(id):
             sql = "SELECT id FROM games WHERE LOWER(name)=?"
             params = (title.lower(),)
             game = db.execute(sql, params).fetchone()
-
+            # Checks for a matching game name that isn't the old entry
             if game and id != game["id"]:
                 flash(f"Game using title '{title}' already exists", "error")
                 return redirect(f"/game/{id}/edit")
-    
+            # Checks if a valid hero image exists
             if hero_image or hero_image.filename != '':
+                # If found, uploads and sets new image
                 unique_filename = process_image(hero_image, UPLOAD_FOLDER, max_dimension=1600, square=True, allow_gif=True)
                 if unique_filename is None:
                     flash("That image couldn't be used. Please upload a JPG, PNG, WEBP or GIF.", "error")
                     return redirect(f"/game/{id}/edit")
             else:
+                # If not, retrieves and uses old image
                 sql = "SELECT image_name FROM games WHERE id=?"
                 params = (id,)
                 image_name = db.execute(sql, params).fetchone()
                 unique_filename = image_name["image_name"]
-    
+
+            # Updates entry with new data
             sql = """
                 UPDATE games SET name = ?, description = ?, image_name = ?, developer_id=? WHERE id =?
             """
             params = (title, description, unique_filename, session.get('user')['user_id'], id)
             db.execute(sql, params)
 
+            # -- Link Handling
             sql = "SELECT id, link FROM links WHERE game_id=?"
             params = (id,)
             check_links = db.execute(sql, params).fetchall()
             for link in check_links:
+                # Compares all link entries to those saved in the form
                 if link['id'] not in keep_link_ids:
+                    # Deletes if not in updated link list
                     sql = """
                         DELETE FROM links WHERE id = ? AND game_id = ?
                     """
@@ -653,6 +667,7 @@ def process_edit_game(id):
                     db.execute(sql, params)
 
             for link in links:
+                # Adds all new links to table
                 sql = """
                     INSERT INTO links (link, game_id)
                     VALUES (?, ?)
@@ -664,8 +679,11 @@ def process_edit_game(id):
             params = (id,)
             images = db.execute(sql, params).fetchall()
 
+            # -- Image Handling
             for image in images:
+                # Compares all image entries to those saved in the form
                 if image['id'] not in keep_img_ids:
+                    # Deletes if not in updated image list
                     sql = """
                         DELETE FROM media WHERE id = ? AND game_id = ?
                     """
@@ -674,6 +692,7 @@ def process_edit_game(id):
                     delete_image(image["image_file"])
             
             for img in screenshots:
+                # Checks and uploads all valid images into screenshots
                 if img or img.filename != '':
                     unique_filename = process_image(img, UPLOAD_FOLDER, max_dimension=1600, square=True, allow_gif=True)
                     if unique_filename is None:
@@ -703,9 +722,12 @@ def delete_game(id):
         """
         params = (session.get("user")["user_id"], id)
         game = db.execute(sql, params).fetchone()
-
+        # Checks if a game exists that the user has created
         if  game:
+            # Deletes the Hero Image
             delete_image(game["image_name"])
+
+            # Deletes the game entry
             sql = """
                 DELETE FROM games WHERE id = ?
             """
@@ -719,6 +741,7 @@ def delete_game(id):
 
 #-----------------------------------------------------------
 # Post page
+# Retrieves post data, as well as linked table information, then opens post page
 #-----------------------------------------------------------
 @app.get("/post/<int:id>")
 def show_post(id):
@@ -773,8 +796,10 @@ def like_post(id):
         """
         params = (session.get("user")["user_id"], id)
         liked_posts = db.execute(sql, params).fetchall()
+        # Checks for matching entry
 
         if not liked_posts:
+            # Adds if not found
             sql = """
                 INSERT INTO likes (user_id, post_id)
                 VALUES (?, ?)
@@ -800,8 +825,10 @@ def unlike_post(id):
         """
         params = (session.get("user")["user_id"], id)
         liked_posts = db.execute(sql, params).fetchall()
+        # Checks for matching entry
 
-        if liked_posts:
+        if liked_posts:\
+            # Adds if not found
             sql = """
                 DELETE FROM likes WHERE user_id = ? AND post_id = ?
             """
@@ -816,10 +843,13 @@ def unlike_post(id):
 # Handle user comment
 #-----------------------------------------------------------
 @app.post("/post/<int:id>/comment")
+@login_required
 def post_comment(id):
+    # Gets comment
     comment = request.form.get('comment', '').strip()
     
     with connect_db() as db:
+        # Adds users comment to post
         sql = """
             INSERT INTO posts (content, timestamp, parent_id, user_id, type)
             VALUES (?, ?, ?, ?, ?)
@@ -837,6 +867,7 @@ def post_comment(id):
 @login_required
 def delete_post(id):
     with connect_db() as db:
+        # Checks if post exists and user owns it
         sql = """
             SELECT *
             FROM posts WHERE user_id = ? AND id =?
@@ -845,12 +876,14 @@ def delete_post(id):
         post = db.execute(sql, params).fetchone()
 
         if  post:
+            # Deletes post entry
             sql = """
                 DELETE FROM posts WHERE id = ?
             """
             params = (id,)
             db.execute(sql, params)
 
+            # Finds and deletes any images in the trix content
             imgs = find_trix_images(post['content'])
             for img in imgs:
                 delete_image(img)
@@ -867,10 +900,12 @@ def delete_post(id):
 @app.get("/post/new/<int:id>")
 @login_required
 def new_post_form(id=None):
+    # Checks if developer if no game id is provided
     if not id and session.get("user")['is_dev'] == 0:
         flash("Invalid action", "error")
         return redirect(request.referrer or "/")
     with connect_db() as db:
+            # Gets name for current game id, None if no ID
             sql = """
                 SELECT name
                 FROM games
@@ -879,6 +914,7 @@ def new_post_form(id=None):
             params = (id,)
             game_name = db.execute(sql, params).fetchone()
 
+            # Gets developer name and game id from all developer games
             sql = """
                 SELECT id, name
                 FROM games
@@ -899,10 +935,12 @@ def process_new_post(id = None):
     post_type = request.form.get('type', None)
     game_id = request.form.get('game', None)
 
+    # Restricts html input by only allowing certain tags, ensuring its safe
     content = sanitise_html(raw_content)
 
     with connect_db() as db:
         if game_id and post_type:
+            # Developer post if provided
             sql = """
                 INSERT INTO posts (title, content, timestamp, game_id, user_id, type)
                 VALUES (?, ?, ?, ?, ?, ?)
@@ -911,6 +949,7 @@ def process_new_post(id = None):
             db.execute(sql, params)
             id=game_id
         else:
+            # User discussion post otherwise
             sql = """
                 INSERT INTO posts (title, content, timestamp, game_id, user_id, type)
                 VALUES (?, ?, ?, ?, ?, ?)
@@ -928,6 +967,7 @@ def process_new_post(id = None):
 @login_required
 def edit_post_form(id):
     with connect_db() as db:
+            # Gets post details
             sql = """
                 SELECT posts.user_id, posts.id, posts.title, posts.content, posts.type, games.name, posts.type
                 FROM posts
@@ -936,6 +976,8 @@ def edit_post_form(id):
             """
             params = (id,)
             post = db.execute(sql, params).fetchone()
+
+            # Checks if user is post owner
             if session.get("user")["user_id"] != post["user_id"]:
                         flash("Invalid action", "error")
                         return redirect("/")
@@ -954,6 +996,7 @@ def edit_post_details (id):
     content = sanitise_html(raw_content)
 
     with connect_db() as db:
+        # Checks if post exists and user owns it
         sql = """
             SELECT *
             FROM posts WHERE user_id = ? AND id =?
@@ -962,14 +1005,19 @@ def edit_post_details (id):
         post = db.execute(sql, params).fetchone()
 
         if  post:
+            # Gets current trix images
             old_imgs = set(find_trix_images(post['content']))
+            # Gets new trix images from form
             new_imgs = set(find_trix_images(content))
 
+            # Finds any images that aren't in the new images
             removed = old_imgs - new_imgs 
 
             for image in removed:
+                # Deletes each
                 delete_image(image)
 
+            # Updates post entry with new details
             sql = """
                 UPDATE posts SET title = ?, content = ? WHERE id =?
             """
@@ -978,125 +1026,13 @@ def edit_post_details (id):
 
             flash("Post updated.", "success")
         return redirect(f"/post/{id}")
-
-#-----------------------------------------------------------
-# Profile page
-#-----------------------------------------------------------
-@app.get("/user/profile/<int:id>")
-def show_profile(id):
-    with connect_db() as db:
-        sql = """
-            SELECT *
-            FROM users
-            WHERE id = ?
-        """
-        params = (id,)
-        user = db.execute(sql, params).fetchone()
-
-        sql = """
-            SELECT *
-            FROM following  
-        """
-        params = ()
-        followed_games = db.execute(sql, params).fetchall()
-
-        followed_pairs = [
-            (game["user_id"], game["game_id"])
-            for game in followed_games
-        ]
-
-        sql = """
-            SELECT games.id, games.name, games.description, games.developer_id, games.image_name, users.username
-            FROM games
-            INNER JOIN users ON games.developer_id = users.id
-        """
-        params = ()
-        games = db.execute(sql, params).fetchall()
-
-        return render_template("pages/profile.jinja", user = user, followed_pairs=followed_pairs, games = games, back_url=f"/")
-
-#-----------------------------------------------------------
-# Edit Profile page
-#-----------------------------------------------------------
-@app.get("/user/profile/<int:id>/edit")
-@login_required
-def edit_profile(id):
-    with connect_db() as db:
-        if session.get("user")["user_id"] != id:
-            flash("Invalid action", "error")
-            return redirect("/")
-        sql = """
-            SELECT *
-            FROM users
-            WHERE id = ?
-        """
-        params = (id,)
-        user = db.execute(sql, params).fetchone()
-
-        return render_template("pages/user_edit_form.jinja", user = user)
-
-#-----------------------------------------------------------
-# Handle Profile Edit
-#-----------------------------------------------------------
-@app.post("/profile/edit/<int:id>")
-@login_required
-def edit_user_details(id):
-    username = request.form.get('username', '').strip()
-    old_password = request.form.get('password', '').strip()
-    new_password = request.form.get('new_password', None).strip()
-    image_file = request.files.get('image', None)
-    bio = request.form.get('bio', '').strip()
-
-    with connect_db() as db:
-            sql = "SELECT id FROM users WHERE LOWER(username)=?"
-            params = (username.lower(),)
-            user = db.execute(sql, params).fetchone()
-
-            if user and username.lower() != (session["user"].get("username")).lower():
-                flash(f"Username '{username}' already exists", "error")
-                return redirect(f"/user/profile/{id}")
- 
-            if image_file:
-                unique_filename = process_image(image_file, UPLOAD_FOLDER, max_dimension=400, square=True, allow_gif=False)
-                if unique_filename is None:
-                    flash("That image couldn't be used. Please upload a JPG, PNG, WEBP or GIF.", "error")
-                    return redirect("/user/profile/<int:id>")
-            else:
-                sql = "SELECT profile_image FROM users WHERE id=?"
-                params = (id,)
-                image_name = db.execute(sql, params).fetchone()
-                unique_filename = image_name["profile_image"]
- 
-            sql = "SELECT pass_hash FROM users WHERE id=?"
-            params = (id,)
-            current_hash = db.execute(sql, params).fetchone()
-            hash_string = current_hash["pass_hash"]
-
-            if check_password_hash(current_hash["pass_hash"], old_password):
-                if new_password:
-                    pass_hash = generate_password_hash(new_password)
-                    flash(f"Password changed")
-                else:
-                    pass_hash = hash_string
-            else:
-                flash(f"Incorrect password", "error")
-                return redirect("/user/login")
-
-            sql = """
-                UPDATE users SET username = ?, pass_hash = ?, profile_image = ?, bio =? WHERE id =?
-            """
-            params = (username, pass_hash, unique_filename, bio, id)
-            db.execute(sql, params)
-            session["user"]['username'] = username
-            flash("Updated Profile", "success")
-            return redirect(f"/user/profile/{id}")
-
 #-----------------------------------------------------------
 # Developer Dash page
 #-----------------------------------------------------------
 @app.get("/developer")
 @login_required
 def show_dev_dash():
+    # Checks is user is a developer
     if not session.get("user")["is_dev"]:
         flash("Invalid  Action", "error")
         return redirect(request.referrer or "/")
@@ -1165,6 +1101,7 @@ def dev_process_search():
     search_term = request.args.get('q', '')
     search_match = f"%{search_term}%"
     sort_term = request.args.get('sortby', '')
+    # Sets sort format
     match sort_term:
         case "0":
             sort = "title"
@@ -1175,6 +1112,7 @@ def dev_process_search():
         case "2":
             sort = "posts.id"
             dir = "ASC"
+    # Checks if user is a developer
     if not session.get("user")["is_dev"]:
         flash("Invalid  Action", "error")
         return redirect(request.referrer or "/")
@@ -1233,7 +1171,122 @@ def dev_process_search():
         ]
 
         return render_template("pages/dev_dashboard.jinja", games=games, posts = posts, followed_pairs=followed_pairs, liked_pairs = liked_pairs, comments=comments, search_term=search_term, sort_term=sort_term, back_url=f"/")
+    
+#-----------------------------------------------------------
+# Profile page
+#-----------------------------------------------------------
+@app.get("/user/profile/<int:id>")
+def show_profile(id):
+    with connect_db() as db:
+        sql = """
+            SELECT *
+            FROM users
+            WHERE id = ?
+        """
+        params = (id,)
+        user = db.execute(sql, params).fetchone()
 
+        sql = """
+            SELECT *
+            FROM following  
+        """
+        params = ()
+        followed_games = db.execute(sql, params).fetchall()
+
+        followed_pairs = [
+            (game["user_id"], game["game_id"])
+            for game in followed_games
+        ]
+
+        sql = """
+            SELECT games.id, games.name, games.description, games.developer_id, games.image_name, users.username
+            FROM games
+            INNER JOIN users ON games.developer_id = users.id
+        """
+        params = ()
+        games = db.execute(sql, params).fetchall()
+
+        return render_template("pages/profile.jinja", user = user, followed_pairs=followed_pairs, games = games, back_url=f"/")
+
+#-----------------------------------------------------------
+# Edit Profile page
+#-----------------------------------------------------------
+@app.get("/user/profile/<int:id>/edit")
+@login_required
+def edit_profile(id):
+    with connect_db() as db:
+        # Makes sure the logged in user is the same as the profile
+        if session.get("user")["user_id"] != id:
+            flash("Invalid action", "error")
+            return redirect("/")
+        sql = """
+            SELECT *
+            FROM users
+            WHERE id = ?
+        """
+        params = (id,)
+        user = db.execute(sql, params).fetchone()
+
+        return render_template("pages/user_edit_form.jinja", user = user)
+
+#-----------------------------------------------------------
+# Handle Profile Edit
+#-----------------------------------------------------------
+@app.post("/profile/edit/<int:id>")
+@login_required
+def edit_user_details(id):
+    username = request.form.get('username', '').strip()
+    old_password = request.form.get('password', '').strip()
+    new_password = request.form.get('new_password', None).strip()
+    image_file = request.files.get('image', None)
+    bio = request.form.get('bio', '').strip()
+
+    with connect_db() as db:
+            sql = "SELECT id FROM users WHERE LOWER(username)=?"
+            params = (username.lower(),)
+            user = db.execute(sql, params).fetchone()
+
+            # Makes sure username is unique
+            if user and username.lower() != (session["user"].get("username")).lower():
+                flash(f"Username '{username}' already exists", "error")
+                return redirect(f"/user/profile/{id}")
+
+            if image_file:
+                # If image found, uploads and saves
+                unique_filename = process_image(image_file, UPLOAD_FOLDER, max_dimension=400, square=True, allow_gif=False)
+                if unique_filename is None:
+                    flash("That image couldn't be used. Please upload a JPG, PNG, WEBP or GIF.", "error")
+                    return redirect("/user/profile/<int:id>")
+            else:
+                # Otherwise, set to previous profile picture
+                sql = "SELECT profile_image FROM users WHERE id=?"
+                params = (id,)
+                image_name = db.execute(sql, params).fetchone()
+                unique_filename = image_name["profile_image"]
+ 
+            sql = "SELECT pass_hash FROM users WHERE id=?"
+            params = (id,)
+            current_hash = db.execute(sql, params).fetchone()
+            hash_string = current_hash["pass_hash"]
+
+            if check_password_hash(current_hash["pass_hash"], old_password):
+                if new_password:
+                    pass_hash = generate_password_hash(new_password)
+                    flash(f"Password changed")
+                else:
+                    pass_hash = hash_string
+            else:
+                flash(f"Incorrect password", "error")
+                return redirect("/user/login")
+
+            sql = """
+                UPDATE users SET username = ?, pass_hash = ?, profile_image = ?, bio =? WHERE id =?
+            """
+            params = (username, pass_hash, unique_filename, bio, id)
+            db.execute(sql, params)
+            session["user"]['username'] = username
+            flash("Updated Profile", "success")
+            return redirect(f"/user/profile/{id}")
 
 #-----------------------------------------------------------
 # Delete User page
@@ -1242,6 +1295,7 @@ def dev_process_search():
 @login_required
 def delete_user(id):
     with connect_db() as db:
+        # Checks user is current user
         if session.get("user")["user_id"] == id:
             sql = """
                 SELECT profile_image
@@ -1250,6 +1304,7 @@ def delete_user(id):
             """
             params = (id,)
             user = db.execute(sql, params).fetchone()  
+            # Deletes profile image if not default profile
             if user["profile_image"] and user["profile_image"] != 'DefaultProfile.jpg':
                 delete_image(user["profile_image"])
 
@@ -1259,6 +1314,7 @@ def delete_user(id):
             params = (id,)
             db.execute(sql, params)
 
+            # Logs user out
             session.clear()
             flash(f"You have been logged out", "success")
             flash("Deleted User", "success")
@@ -1295,21 +1351,25 @@ def process_new_user():
         params = (username.lower(),)
         user = db.execute(sql, params).fetchone()
 
+        # Checks for unique username
         if user:
             flash(f"Username '{username}' already exists", "error")
             return redirect("/user/new")
 
+        # Checks for profile image and uploads
         if image_file or image_file.filename != '':
             unique_filename = process_image(image_file, UPLOAD_FOLDER, max_dimension=400, square=True, allow_gif=False)
             if unique_filename is None:
                 flash("That image couldn't be used. Please upload a JPG, PNG, WEBP or GIF.", "error")
                 return redirect("/user/new")
         else:
+            # If none, sets to default profile
             unique_filename = 'DefaultProfile.jpg'
         
-
+        # Creates a hash for password
         pass_hash = generate_password_hash(password)
 
+        # Saves user entry
         sql = """
             INSERT INTO users (username, pass_hash, profile_image, bio)
             VALUES (?, ?, ?, ?)
@@ -1337,14 +1397,17 @@ def login_user():
         params = (username.lower(),)
         user = db.execute(sql, params).fetchone()
 
+        # Checks if matching user was founf
         if not user:
             flash(f"Unknown user", "error")
             return redirect("/user/login")
 
+        # Hashes password and checks with user password
         if not check_password_hash(user["pass_hash"], password):
             flash(f"Incorrect password", "error")
             return redirect("/user/login")
-
+        
+        # If login success set up session
         session["logged_in"] = True
         session["user"] = {
             "user_id": user["id"],
